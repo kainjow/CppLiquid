@@ -16,6 +16,8 @@ namespace {
 }
 
 TEST_CASE("Tokenizer") {
+    std::vector<QString> expected;
+
     SECTION("strings") {
         CHECK(std::vector<QString>{""} == tokenize(""));
         CHECK(std::vector<QString>{" "} == tokenize(" "));
@@ -23,18 +25,30 @@ TEST_CASE("Tokenizer") {
     }
     
     SECTION("variables") {
-        std::vector<QString> expected;
-        
         expected = {"{{funk}}"};
         CHECK(expected == tokenize("{{funk}}"));
-        
+
         expected = {" ", "{{funk}}", " "};
         CHECK(expected == tokenize(" {{funk}} "));
-        
+
         expected = {" ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " "};
         CHECK(expected == tokenize(" {{funk}} {{so}} {{brother}} "));
 
         expected = {" ", "{{  funk  }}", " "};
         CHECK(expected == tokenize(" {{  funk  }} "));
+    }
+    
+    SECTION("blocks") {
+        expected = {"{%comment%}"};
+        CHECK(expected == tokenize("{%comment%}"));
+
+        expected = {" ", "{%comment%}", " "};
+        CHECK(expected == tokenize(" {%comment%} "));
+
+        expected = {" ", "{%comment%}", " ", "{%endcomment%}", " "};
+        CHECK(expected == tokenize(" {%comment%} {%endcomment%} "));
+
+        expected = {"  ", "{% comment %}", " ", "{% endcomment %}", " "};
+        CHECK(expected == tokenize("  {% comment %} {% endcomment %} "));
     }
 }
