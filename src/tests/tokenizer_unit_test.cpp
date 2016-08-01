@@ -25,16 +25,16 @@ TEST_CASE("Tokenizer") {
     SECTION("variables") {
         std::vector<QString> expected;
         
-        expected = std::vector<QString>{"{{funk}}"};
+        expected = {"{{funk}}"};
         CHECK(expected == tokenize("{{funk}}"));
         
-        expected = std::vector<QString>{" ", "{{funk}}", " "};
+        expected = {" ", "{{funk}}", " "};
         CHECK(expected == tokenize(" {{funk}} "));
         
-        expected = std::vector<QString>{" ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " "};
+        expected = {" ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " "};
         CHECK(expected == tokenize(" {{funk}} {{so}} {{brother}} "));
 
-        expected = std::vector<QString>{" ", "{{  funk  }}", " "};
+        expected = {" ", "{{  funk  }}", " "};
         CHECK(expected == tokenize(" {{  funk  }} "));
     }
 }
