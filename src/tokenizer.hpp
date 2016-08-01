@@ -2,7 +2,6 @@
 #define LIQUID_TOKENIZER_HPP
 
 #include <QString>
-#include <QStringList>
 #include <vector>
 
 namespace Liquid {
@@ -18,9 +17,9 @@ namespace Liquid {
     private:
         QString source_;
         int line_number_;
-        QStringList tokens_;
-        QStringList tokenize();
-        static QStringList split(const QString& source, const QRegularExpression& regex);
+        std::vector<QString> tokens_;
+        std::vector<QString> tokenize();
+        static std::vector<QString> split(const QString& source, const QRegularExpression& regex);
     };
     
 }

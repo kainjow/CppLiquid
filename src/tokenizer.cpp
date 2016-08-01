@@ -11,11 +11,11 @@ Liquid::Tokenizer::Tokenizer(const QString& source)
 
 bool Liquid::Tokenizer::shift(QString& token)
 {
-    if (tokens_.isEmpty()) {
+    if (tokens_.empty()) {
         return false;
     }
-    token = tokens_.first();
-    tokens_.removeFirst();
+    token = tokens_[0];
+    tokens_.erase(tokens_.cbegin());
     line_number_ += token.count('\n');
     return true;
 }
@@ -25,15 +25,15 @@ int Liquid::Tokenizer::line_number()
     return line_number_;
 }
 
-QStringList Liquid::Tokenizer::tokenize()
+std::vector<QString> Liquid::Tokenizer::tokenize()
 {
     return split(source_, QRegularExpression("({%.*?%}|{{.*?}})"));
 }
 
-QStringList Liquid::Tokenizer::split(const QString& source, const QRegularExpression& regex)
+std::vector<QString> Liquid::Tokenizer::split(const QString& source, const QRegularExpression& regex)
 {
     Q_ASSERT(regex.isValid());
-    QStringList tokens;
+    std::vector<QString> tokens;
     int pos = 0;
     for (;;) {
         QRegularExpressionMatch match;
@@ -43,17 +43,17 @@ QStringList Liquid::Tokenizer::split(const QString& source, const QRegularExpres
         }
         const int diff = find_pos - pos;
         if (diff > 0) {
-            tokens << source.mid(pos, diff);
+            tokens.emplace_back(source.mid(pos, diff));
         }
         const QString captured = match.captured();
-        tokens << captured;
+        tokens.emplace_back(captured);
         pos = find_pos + captured.size();
     }
     if (pos != source.size()) {
-        tokens << source.mid(pos);
+        tokens.emplace_back(source.mid(pos));
     }
-    if (tokens.isEmpty()) {
-        tokens << "";
+    if (tokens.empty()) {
+        tokens.emplace_back("");
     }
     return tokens;
 }
