@@ -5,11 +5,6 @@
 #include <QHash>
 #include <QList>
 
-namespace {
-    const QString kBooleanTrueString = "true";
-    const QString kBooleanFalseString = "false";
-}
-
 namespace Liquid {
 
     class Context {
@@ -98,12 +93,16 @@ namespace Liquid {
             return type_ == Type::Nil;
         }
         
-        const QString& toString() const {
+        const QString toString() const {
             switch (type_) {
                 case Type::BooleanTrue:
-                    return kBooleanTrueString;
+                    return "true";
                 case Type::BooleanFalse:
-                    return kBooleanFalseString;
+                    return "false";
+                case Type::NumberInt:
+                    return QString::number(number_.i);
+                case Type::NumberFloat:
+                    return QString::number(number_.f);
                 default:
                     return string_;
             }

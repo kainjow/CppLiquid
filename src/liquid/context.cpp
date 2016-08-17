@@ -24,14 +24,16 @@ TEST_CASE("Liquid::Context") {
         Liquid::Context c1(true);
         CHECK(c1.isBoolean());
         CHECK(c1.toBool());
+        CHECK(c1.toInt() == 0);
+        CHECK(c1.toFloat() == 0);
+        CHECK(c1.toString() == "true");
+        CHECK(c1.isTruthy());
         Liquid::Context c2(false);
         CHECK(c2.isBoolean());
         CHECK_FALSE(c2.toBool());
-        CHECK(c1.toInt() == 0);
-        CHECK(c1.toFloat() == 0);
         CHECK(c2.toInt() == 0);
         CHECK(c2.toFloat() == 0);
-        CHECK(c1.isTruthy());
+        CHECK(c2.toString() == "false");
         CHECK_FALSE(c2.isTruthy());
     }
     
@@ -41,13 +43,15 @@ TEST_CASE("Liquid::Context") {
         CHECK(c1.toInt() == 23);
         CHECK(c1.toFloat() == 23);
         CHECK(c1.toBool() == false);
+        CHECK(c1.isTruthy());
+        CHECK(c1.toString() == "23");
         Liquid::Context c2(23.832);
         CHECK(c2.isNumber());
         CHECK(c2.toInt() == 23);
         CHECK(c2.toFloat() == 23.832);
         CHECK(c2.toBool() == false);
-        CHECK(c1.isTruthy());
         CHECK(c2.isTruthy());
+        CHECK(c2.toString() == "23.832");
     }
     
     SECTION("Nil") {
