@@ -14,7 +14,7 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
-  src/tests
+  tests
 )
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
