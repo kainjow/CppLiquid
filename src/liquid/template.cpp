@@ -80,7 +80,7 @@ QString Liquid::Template::render()
 
 #include "catch.hpp"
 
-TEST_CASE("Template") {
+TEST_CASE("Liquid::Template") {
     
     SECTION("NoParse") {
         Liquid::Template t;
