@@ -12,6 +12,10 @@ add_executable(${PROJECT_NAME}
   src/liquid/template.hpp
 )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  TESTS
+)
+
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
   src/liquid
