@@ -10,10 +10,6 @@ add_executable(${PROJECT_NAME}
 
   src/template.cpp
   src/template.hpp
-  src/tokenizer.cpp
-  src/tokenizer.hpp
-
-  src/tests/tokenizer_unit_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
