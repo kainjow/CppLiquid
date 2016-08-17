@@ -8,12 +8,13 @@ find_package(Qt5Core)
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
-  src/template.cpp
-  src/template.hpp
+  src/liquid/template.cpp
+  src/liquid/template.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
+  src/liquid
   tests
 )
 
