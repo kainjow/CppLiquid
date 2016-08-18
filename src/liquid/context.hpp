@@ -7,6 +7,10 @@
 
 namespace Liquid {
 
+    class Context;
+    
+    const extern Context kNilContext;
+
     class Context {
     public:
         enum class Type {
@@ -251,6 +255,18 @@ namespace Liquid {
         
         const Context& at(int index) const {
             return array_.at(index);
+        }
+        
+        void insert(const QString& key, const Context& value) {
+            hash_.insert(key, value);
+        }
+        
+        const Context& operator[](const QString& key) const {
+            const Hash::const_iterator it = hash_.find(key);
+            if (it == hash_.end()) {
+                return kNilContext;
+            }
+            return it.value();
         }
 
     private:

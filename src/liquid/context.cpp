@@ -1,6 +1,7 @@
 #include "context.hpp"
 #include <QDebug>
 
+const Liquid::Context Liquid::kNilContext = nullptr;
 
 
 
@@ -90,6 +91,18 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.at(1) == "World");
     }
     
+    SECTION("Hash") {
+        Liquid::Context c = Liquid::Context::Type::Hash;
+        CHECK(c.isHash());
+        CHECK(c.size() == 0);
+        c.insert("fname", "Steve");
+        c.insert("lname", "Jobs");
+        CHECK(c.size() == 2);
+        CHECK(c["fname"] == "Steve");
+        CHECK(c["lname"] == "Jobs");
+        CHECK(c["test"] == nullptr);
+    }
+
 }
 
 #endif
