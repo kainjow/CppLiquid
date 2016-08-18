@@ -62,6 +62,9 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.toFloat() == 0);
         CHECK(c.toBool() == false);
         CHECK_FALSE(c.isTruthy());
+        
+        Liquid::Context c2 = nullptr;
+        CHECK(c2.isNil());
     }
     
     SECTION("Copy") {
@@ -76,7 +79,7 @@ TEST_CASE("Liquid::Context") {
         CHECK(c3.toInt() == 98);
     }
     
-    SECTION("PushBack") {
+    SECTION("Array") {
         Liquid::Context c = Liquid::Context::Type::Array;
         CHECK(c.isArray());
         CHECK(c.size() == 0);
@@ -86,6 +89,7 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.at(0) == "Hello");
         CHECK(c.at(1) == "World");
     }
+    
 }
 
 #endif

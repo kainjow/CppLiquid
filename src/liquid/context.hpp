@@ -28,6 +28,11 @@ namespace Liquid {
         {
         }
         
+        Context(std::nullptr_t nil)
+            : type_(Type::Nil)
+        {
+        }
+        
         Context(Type type)
             : type_(type)
         {
