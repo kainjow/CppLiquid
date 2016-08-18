@@ -63,6 +63,29 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.toBool() == false);
         CHECK_FALSE(c.isTruthy());
     }
+    
+    SECTION("Copy") {
+        Liquid::Context c1(98);
+        Liquid::Context c2 = c1;
+        Liquid::Context c3(c2);
+        CHECK(c1.type() == Liquid::Context::Type::NumberInt);
+        CHECK(c1.type() == c2.type());
+        CHECK(c2.type() == c3.type());
+        CHECK(c1.toInt() == 98);
+        CHECK(c2.toInt() == 98);
+        CHECK(c3.toInt() == 98);
+    }
+    
+    SECTION("PushBack") {
+        Liquid::Context c = Liquid::Context::Type::Array;
+        CHECK(c.isArray());
+        CHECK(c.size() == 0);
+        c.push_back("Hello");
+        c.push_back("World");
+        CHECK(c.size() == 2);
+        CHECK(c.at(0) == "Hello");
+        CHECK(c.at(1) == "World");
+    }
 }
 
 #endif
