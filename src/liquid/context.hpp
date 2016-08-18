@@ -138,19 +138,19 @@ namespace Liquid {
         
         Context(const char *string) : Context(QString(string)) {}
 
-        explicit Context(int value)
+        Context(int value)
             : type_(Type::NumberInt)
         {
             number_.i = value;
         }
 
-        explicit Context(double value)
+        Context(double value)
             : type_(Type::NumberFloat)
         {
             number_.f = value;
         }
 
-        explicit Context(bool value)
+        Context(bool value)
             : type_(value ? Type::BooleanTrue : Type::BooleanFalse)
         {
         }

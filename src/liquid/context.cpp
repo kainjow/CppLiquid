@@ -19,6 +19,8 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.toInt() == 0);
         CHECK(c.toFloat() == 0);
         CHECK(c.isTruthy());
+        Liquid::Context c2 = "Hello World";
+        CHECK(c2.isString());
     }
     
     SECTION("Boolean") {
@@ -36,6 +38,12 @@ TEST_CASE("Liquid::Context") {
         CHECK(c2.toFloat() == 0);
         CHECK(c2.toString() == "false");
         CHECK_FALSE(c2.isTruthy());
+        Liquid::Context c3 = true;
+        CHECK(c3.isBoolean());
+        CHECK(c3.toBool() == true);
+        Liquid::Context c4 = false;
+        CHECK(c4.isBoolean());
+        CHECK(c4.toBool() == false);
     }
     
     SECTION("Number") {
@@ -53,6 +61,12 @@ TEST_CASE("Liquid::Context") {
         CHECK(c2.toBool() == false);
         CHECK(c2.isTruthy());
         CHECK(c2.toString() == "23.832");
+        Liquid::Context c3 = 85;
+        CHECK(c3.isNumber());
+        CHECK(c3.type() == Liquid::Context::Type::NumberInt);
+        Liquid::Context c4 = 85.32;
+        CHECK(c4.isNumber());
+        CHECK(c4.type() == Liquid::Context::Type::NumberFloat);
     }
     
     SECTION("Nil") {
@@ -63,7 +77,6 @@ TEST_CASE("Liquid::Context") {
         CHECK(c.toFloat() == 0);
         CHECK(c.toBool() == false);
         CHECK_FALSE(c.isTruthy());
-        
         Liquid::Context c2 = nullptr;
         CHECK(c2.isNil());
     }
