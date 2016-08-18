@@ -43,8 +43,8 @@ namespace Liquid {
         }
         
     private:
-        const Type type_;
-        const QStringRef& value_;
+        Type type_;
+        QStringRef value_;
     };
     
     class StringScanner {
@@ -67,12 +67,17 @@ namespace Liquid {
             if (!regex.isValid()) {
                 return QStringRef();
             }
-            lastMatch_ = regex.match(input_, pos_, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
-            if (!lastMatch_.isValid()) {
+            const QRegularExpressionMatch match = regex.match(input_, pos_, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
+            if (!match.isValid()) {
                 return QStringRef();
             }
-            const QStringRef captured = lastMatch_.capturedRef();
-            pos_ += captured.size();
+            // Don't use capturedRef() as that's relative to QRegEx's copy of input :(
+            const int capturedLen = match.capturedLength();
+            if (capturedLen == 0) {
+                return QStringRef();
+            }
+            const QStringRef captured = input_.mid(pos_, capturedLen);
+            pos_ += capturedLen;
             return captured;
         }
         
@@ -85,14 +90,13 @@ namespace Liquid {
         }
         
     private:
-        QRegularExpressionMatch lastMatch_;
-        int pos_;
         const QStringRef& input_;
+        int pos_;
     };
 
     class Lexer {
     public:
-        std::vector<Token> tokenize(const QStringRef& input);
+        static std::vector<Token> tokenize(const QStringRef& input);
     };
 
 }
