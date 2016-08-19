@@ -85,6 +85,61 @@ TEST_CASE("Liquid::Expression") {
         CHECK(c2.toInt() == 98);
         CHECK(c3.toInt() == 98);
     }
+    
+    SECTION("Parse") {
+        QString input = "true";
+        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        CHECK(exp.toBool());
+        input = "false";
+        exp = Liquid::Expression::parse(&input);
+        CHECK_FALSE(exp.toBool());
+        input = "nil";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNil());
+        input = "null";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNil());
+        input = "";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNil());
+        input = "32";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNumber());
+        CHECK(exp.isInt());
+        CHECK(exp.toInt() == 32);
+        input = "32.49";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNumber());
+        CHECK(exp.isFloat());
+        CHECK(exp.toInt() == 32);
+        CHECK(exp.toFloat() == 32.49);
+        input = "-32";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNumber());
+        CHECK(exp.isInt());
+        CHECK(exp.toInt() == -32);
+        CHECK(exp.toFloat() == -32);
+        input = "-32.49";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNumber());
+        CHECK(exp.isFloat());
+        CHECK(exp.toInt() == -32);
+        CHECK(exp.toFloat() == -32.49);
+        input = "-32.";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isNumber());
+        CHECK(exp.isFloat());
+        CHECK(exp.toInt() == -32);
+        CHECK(exp.toFloat() == -32);
+        input = "\"hello\"";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isString());
+        CHECK(exp.toString() == "hello");
+        input = "'hello'";
+        exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isString());
+        CHECK(exp.toString() == "hello");
+    }
 
 }
 

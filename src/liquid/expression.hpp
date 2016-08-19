@@ -76,6 +76,14 @@ namespace Liquid {
         bool isNumber() const {
             return type_ == Type::NumberInt || type_ == Type::NumberFloat;
         }
+        
+        bool isInt() const {
+            return type_ == Type::NumberInt;
+        }
+        
+        bool isFloat() const {
+            return type_ == Type::NumberFloat;
+        }
 
         bool isBoolean() const {
             return type_ == Type::BooleanTrue || type_ == Type::BooleanFalse;
