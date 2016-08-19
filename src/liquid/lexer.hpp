@@ -11,6 +11,8 @@ namespace Liquid {
     class Token {
     public:
         enum class Type {
+            Invalid,
+            
             Pipe,
             Dot,
             Colon,
@@ -26,7 +28,13 @@ namespace Liquid {
             Number,
             Id,
             Dotdot,
+            EndOfString,
         };
+        
+        Token()
+            : type_(Type::Invalid)
+        {
+        }
         
         Token(Type type, const QStringRef& value)
             : type_(type)
@@ -42,10 +50,16 @@ namespace Liquid {
             return value_;
         }
         
+        bool isValid() const {
+            return type_ != Type::Invalid;
+        }
+        
     private:
         Type type_;
         QStringRef value_;
     };
+    
+    const extern Token kTokenInvalid;
     
     class StringScanner {
     public:

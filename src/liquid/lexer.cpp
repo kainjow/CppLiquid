@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <unordered_map>
 
+const Liquid::Token Liquid::kTokenInvalid;
+
 namespace {
     const QRegularExpression kWhitespace("\\s*");
     
@@ -32,7 +34,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
     
     // Strip whitespace from right side
     int len = input.size();
-    while (input.at(len - 1).isSpace()) {
+    while (len > 0 && input.at(len - 1).isSpace()) {
         --len;
     }
     
@@ -89,6 +91,8 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
         }
     }
     
+    tokens.emplace_back(Token::Type::EndOfString, QStringRef());
+    
     return tokens;
 }
 
@@ -115,20 +119,31 @@ TEST_CASE("Liquid::StringScanner") {
 
 TEST_CASE("Liquid::Lexer") {
     
+    SECTION("Empty") {
+        QString input;
+        QStringRef inputRef(&input);
+        std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
+        REQUIRE(tokens.size() == 1);
+        CHECK(tokens[0].type() == Liquid::Token::Type::EndOfString);
+        CHECK(tokens[0].value().toString() == "");
+    }
+
     SECTION("NumberInt") {
         QString input = "32";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::Number);
         CHECK(tokens[0].value().toString().toStdString() == "32");
+        CHECK(tokens[1].type() == Liquid::Token::Type::EndOfString);
+        CHECK(tokens[1].value().toString().toStdString() == "");
     }
 
     SECTION("NumberIntNegative") {
         QString input = "-32";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::Number);
         CHECK(tokens[0].value().toString().toStdString() == "-32");
     }
@@ -137,7 +152,7 @@ TEST_CASE("Liquid::Lexer") {
         QString input = "32.84";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::Number);
         CHECK(tokens[0].value().toString().toStdString() == "32.84");
     }
@@ -146,7 +161,7 @@ TEST_CASE("Liquid::Lexer") {
         QString input = "-32.84";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::Number);
         CHECK(tokens[0].value().toString().toStdString() == "-32.84");
     }
@@ -155,7 +170,7 @@ TEST_CASE("Liquid::Lexer") {
         QString input = "'Hello'";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::String);
         CHECK(tokens[0].value().toString().toStdString() == "Hello");
     }
@@ -164,7 +179,7 @@ TEST_CASE("Liquid::Lexer") {
         QString input = "\"Hello\"";
         QStringRef inputRef(&input);
         std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
-        REQUIRE(tokens.size() == 1);
+        REQUIRE(tokens.size() == 2);
         CHECK(tokens[0].type() == Liquid::Token::Type::String);
         CHECK(tokens[0].value().toString().toStdString() == "Hello");
     }

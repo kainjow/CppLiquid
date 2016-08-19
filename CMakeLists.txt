@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/context.hpp
   src/liquid/lexer.cpp
   src/liquid/lexer.hpp
+  src/liquid/parser.cpp
+  src/liquid/parser.hpp
   src/liquid/template.cpp
   src/liquid/template.hpp
 )
