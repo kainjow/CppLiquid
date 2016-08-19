@@ -9,7 +9,7 @@ namespace Liquid {
 
     class Template {
     public:
-        bool parse(const QString& source, QString& errorMessage);
+        void parse(const QString& source);
         
         QString render();
         QString render(const Context& ctx);
@@ -40,6 +40,8 @@ namespace Liquid {
         
         std::vector<Component> components_;
         QString source_;
+        
+        std::vector<Component> tokenize(const QString& source) const;
     };
 
 }

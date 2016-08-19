@@ -1,17 +1,21 @@
 #include "template.hpp"
 #include <QDebug>
 
-#define ABORT(msg) errorMessage = (msg); return false;
+#define ABORT(msg) throw QString(msg)
 
-bool Liquid::Template::parse(const QString& source, QString& errorMessage)
+void Liquid::Template::parse(const QString& source)
 {
     source_ = source;
-    
+    components_ = tokenize(source_);
+}
+
+std::vector<Liquid::Template::Component> Liquid::Template::tokenize(const QString& source) const
+{
+    std::vector<Component> components;
     int lastStartPos = 0;
     const int len = source_.size();
     const int lastCharPos = len - 1;
     const QString endStr[] = {"}}", "%}"};
-    components_.clear();
     
     while (lastStartPos < len) {
         // Look for the next starting object or tag
@@ -33,13 +37,13 @@ bool Liquid::Template::parse(const QString& source, QString& errorMessage)
             // Collect the complete text of the object or tag
             const int tagEndPos = endPos + 2;
             const QStringRef tag = source_.midRef(startPos, tagEndPos - startPos);
-            components_.emplace_back(isObject ? Component::Type::Object : Component::Type::Tag, tag);
+            components.emplace_back(isObject ? Component::Type::Object : Component::Type::Tag, tag);
             
             // Collect any text component before the object or tag
             const int chunkLen = startPos - lastStartPos;
             if (chunkLen > 0) {
                 const QStringRef text = source_.midRef(lastStartPos, chunkLen);
-                components_.emplace_back(Component::Type::Text, text);
+                components.emplace_back(Component::Type::Text, text);
             }
             
             lastStartPos = tagEndPos;
@@ -49,10 +53,10 @@ bool Liquid::Template::parse(const QString& source, QString& errorMessage)
     // Process any remaining text
     if (lastStartPos < len) {
         const QStringRef text = source_.midRef(lastStartPos);
-        components_.emplace_back(Component::Type::Text, text);
+        components.emplace_back(Component::Type::Text, text);
     }
     
-    return true;
+    return components;
 }
 
 QString Liquid::Template::render()
@@ -95,48 +99,36 @@ TEST_CASE("Liquid::Template") {
 
     SECTION("Empty") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK(t.parse("", errmsg));
-        CHECK(errmsg == "");
+        t.parse("");
         CHECK(t.render() == "");
     }
 
     SECTION("PlainText") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK(t.parse("Hello World!", errmsg));
-        CHECK(errmsg == "");
+        t.parse("Hello World!");
         CHECK(t.render() == "Hello World!");
     }
 
     SECTION("SingleObject") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK(t.parse("{{what}}", errmsg));
-        CHECK(errmsg == "");
+        t.parse("{{what}}");
         CHECK(t.render() == "");
     }
     
     SECTION("SingleObjectWithText") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK(t.parse("Hello {{what}}!", errmsg));
-        CHECK(errmsg == "");
+        t.parse("Hello {{what}}!");
         CHECK(t.render() == "Hello !");
     }
 
     SECTION("UnclosedObject") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK_FALSE(t.parse("{{what", errmsg));
-        CHECK(errmsg == "Tag not properly terminated");
+        CHECK_THROWS_AS(t.parse("{{what"), QString);
     }
     
     SECTION("BasicObject") {
         Liquid::Template t;
-        QString errmsg;
-        CHECK(t.parse("Hello {{what}}", errmsg));
-        CHECK(errmsg == "");
+        t.parse("Hello {{what}}");
         // TODO
     }
 
