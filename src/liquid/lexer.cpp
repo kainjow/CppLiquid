@@ -142,6 +142,15 @@ TEST_CASE("Liquid::Lexer") {
         CHECK(tokens[0].value().toString().toStdString() == "32.84");
     }
 
+    SECTION("NumberFloatNegative") {
+        QString input = "-32.84";
+        QStringRef inputRef(&input);
+        std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
+        REQUIRE(tokens.size() == 1);
+        CHECK(tokens[0].type() == Liquid::Token::Type::Number);
+        CHECK(tokens[0].value().toString().toStdString() == "-32.84");
+    }
+
     SECTION("SingleQuoteString") {
         QString input = "'Hello'";
         QStringRef inputRef(&input);
