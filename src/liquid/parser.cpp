@@ -51,7 +51,7 @@ QString Liquid::Parser::expression()
     const Token& token = tokenAt(pos_);
     if (token.type() == Token::Type::Id) {
         return variable_signature();
-    } else if (token.type() == Token::Type::String || token.type() == Token::Type::Number) {
+    } else if (token.type() == Token::Type::String || token.type() == Token::Type::NumberInt || token.type() == Token::Type::NumberFloat) {
         return consume().toString();
     } else if (token.type() == Token::Type::OpenRound) {
         (void)consume();
@@ -99,7 +99,7 @@ TEST_CASE("Liquid::Parser") {
         QString input = "Hello World";
         Liquid::Parser p(&input);
         CHECK(p.consume() == "Hello");
-        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::Number), QString);
+        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), QString);
         CHECK(p.consume(Liquid::Token::Type::Id) == "World");
         CHECK(p.consume(Liquid::Token::Type::EndOfString).isNull());
     }
@@ -126,9 +126,9 @@ TEST_CASE("Liquid::Parser") {
         CHECK(p.look(Liquid::Token::Type::Id));
         CHECK(p.look(Liquid::Token::Type::Id, 1));
         CHECK(p.look(Liquid::Token::Type::EndOfString, 2));
-        CHECK_FALSE(p.look(Liquid::Token::Type::Number));
-        CHECK_FALSE(p.look(Liquid::Token::Type::Number, 1));
-        CHECK_FALSE(p.look(Liquid::Token::Type::Number, 100));
+        CHECK_FALSE(p.look(Liquid::Token::Type::NumberInt));
+        CHECK_FALSE(p.look(Liquid::Token::Type::NumberInt, 1));
+        CHECK_FALSE(p.look(Liquid::Token::Type::NumberInt, 100));
     }
 
 }
