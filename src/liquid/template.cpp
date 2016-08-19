@@ -57,6 +57,12 @@ bool Liquid::Template::parse(const QString& source, QString& errorMessage)
 
 QString Liquid::Template::render()
 {
+    const Context ctx;
+    return render(ctx);
+}
+
+QString Liquid::Template::render(const Context& ctx)
+{
     QString str;
     for (const auto& component : components_) {
         switch (component.type()) {
@@ -124,6 +130,14 @@ TEST_CASE("Liquid::Template") {
         QString errmsg;
         CHECK_FALSE(t.parse("{{what", errmsg));
         CHECK(errmsg == "Tag not properly terminated");
+    }
+    
+    SECTION("BasicObject") {
+        Liquid::Template t;
+        QString errmsg;
+        CHECK(t.parse("Hello {{what}}", errmsg));
+        CHECK(errmsg == "");
+        // TODO
     }
 
 }

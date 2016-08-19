@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <vector>
+#include "context.hpp"
 
 namespace Liquid {
 
@@ -11,6 +12,7 @@ namespace Liquid {
         bool parse(const QString& source, QString& errorMessage);
         
         QString render();
+        QString render(const Context& ctx);
         
     private:
         class Component {
