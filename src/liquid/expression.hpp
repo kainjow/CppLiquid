@@ -101,6 +101,8 @@ namespace Liquid {
             return var_.toDouble();
         }
         
+        static Expression parse(const QStringRef& input);
+        
     private:
         Type type_;
         QVariant var_;

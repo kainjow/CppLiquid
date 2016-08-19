@@ -1,5 +1,32 @@
 #include "expression.hpp"
+#include "parser.hpp"
 #include <QDebug>
+
+Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
+{
+    // Literals
+    if (input == "nil" || input == "null" || input == "") {
+        return Type::Nil;
+    } else if (input == "true") {
+        return Type::BooleanTrue;
+    } else if (input == "false") {
+        return Type::BooleanFalse;
+    }
+    
+    Parser parser(input);
+    if (parser.look(Token::Type::EndOfString, 1)) {
+        if (parser.look(Token::Type::String)) {
+            return parser.consume().toString();
+        } else if (parser.look(Token::Type::NumberInt)) {
+            return parser.consume().toInt();
+        } else if (parser.look(Token::Type::NumberFloat)) {
+            return parser.consume().toDouble();
+        }
+    }
+
+    // variable lookup parse input
+    return Type::Nil;
+}
 
 
 
