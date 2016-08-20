@@ -22,7 +22,7 @@ namespace Liquid {
                 Object,
                 Tag,
             };
-            Component(const Type& type, const QStringRef text)
+            Component(const Type& type, const QStringRef& text)
                 : type_(type)
                 , text_(text)
             {
@@ -30,7 +30,7 @@ namespace Liquid {
             Type type() const {
                 return type_;
             }
-            const QStringRef text() const {
+            const QStringRef& text() const {
                 return text_;
             }
         private:

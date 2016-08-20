@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "stringutils.hpp"
 #include <QDebug>
 #include <unordered_map>
 
@@ -32,14 +33,7 @@ namespace {
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
 {
     std::vector<Liquid::Token> tokens;
-    
-    // Strip whitespace from right side
-    int len = input.size();
-    while (len > 0 && input.at(len - 1).isSpace()) {
-        --len;
-    }
-    
-    StringScanner ss(input.left(len));
+    StringScanner ss(rtrim(input));
     QStringRef tok;
     
     while (!ss.eof()) {

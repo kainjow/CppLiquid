@@ -24,7 +24,8 @@ Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
         }
     }
 
-    // variable lookup parse input
+    // TODO variable lookup parse input
+
     return Type::Nil;
 }
 

@@ -16,6 +16,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/lexer.hpp
   src/liquid/parser.cpp
   src/liquid/parser.hpp
+  src/liquid/stringutils.cpp
+  src/liquid/stringutils.hpp
   src/liquid/template.cpp
   src/liquid/template.hpp
 )
