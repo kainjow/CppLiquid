@@ -9,7 +9,7 @@ void Liquid::Template::parse(const QString& source)
     components_ = tokenize(source_);
 }
 
-std::vector<Liquid::Template::Component> Liquid::Template::tokenize(const QString& source) const
+std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source) const
 {
     std::vector<Component> components;
     int lastStartPos = 0;

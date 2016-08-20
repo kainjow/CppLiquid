@@ -8,6 +8,8 @@ find_package(Qt5Core)
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
+  src/liquid/component.cpp
+  src/liquid/component.hpp
   src/liquid/context.cpp
   src/liquid/context.hpp
   src/liquid/expression.cpp
