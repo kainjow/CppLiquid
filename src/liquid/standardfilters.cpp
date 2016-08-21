@@ -1,4 +1,5 @@
 #include "standardfilters.hpp"
+#include "stringutils.hpp"
 #include <QDebug>
 
 namespace Liquid { namespace StandardFilters {
@@ -45,6 +46,32 @@ Data capitalize(const Data& input, const std::vector<Data>& args)
     return str.left(1).toUpper() + str.mid(1);
 }
 
+Data strip(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("strip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.toString().trimmed();
+}
+
+Data rstrip(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const QString str = input.toString();
+    return rtrim(&str).toString();
+}
+
+Data lstrip(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const QString str = input.toString();
+    return ltrim(&str).toString();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -52,6 +79,9 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("downcase", downcase);
     tmpl.registerFilter("upcase", upcase);
     tmpl.registerFilter("capitalize", capitalize);
+    tmpl.registerFilter("strip", strip);
+    tmpl.registerFilter("rstrip", rstrip);
+    tmpl.registerFilter("lstrip", lstrip);
 }
 
 } } // namespace
@@ -104,6 +134,24 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Template t;
         t.parse("{{ \"hello world\" | capitalize }}");
         CHECK(t.render().toStdString() == "Hello world");
+    }
+
+    SECTION("Strip") {
+        Liquid::Template t;
+        t.parse("{{ \" \r\n\thello\t\n\r \" | strip }}");
+        CHECK(t.render().toStdString() == "hello");
+    }
+
+    SECTION("Rstrip") {
+        Liquid::Template t;
+        t.parse("{{ \" \r\n\thello\t\n\r \" | rstrip }}");
+        CHECK(t.render().toStdString() == " \r\n\thello");
+    }
+
+    SECTION("Lstrip") {
+        Liquid::Template t;
+        t.parse("{{ \" \r\n\thello\t\n\r \" | lstrip }}");
+        CHECK(t.render().toStdString() == "hello\t\n\r ");
     }
 }
 

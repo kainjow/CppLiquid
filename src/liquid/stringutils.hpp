@@ -6,6 +6,7 @@
 namespace Liquid {
 
     QStringRef rtrim(const QStringRef& input);
+    QStringRef ltrim(const QStringRef& input);
 
 }
 
