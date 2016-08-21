@@ -1,9 +1,10 @@
 #ifndef LIQUID_CONTEXT_HPP
 #define LIQUID_CONTEXT_HPP
 
-#include <QString>
+#include <QDebug>
 #include <QHash>
 #include <QList>
+#include <QString>
 #include "expression.hpp"
 
 namespace Liquid {
@@ -119,13 +120,13 @@ namespace Liquid {
             }
         }
         
-        explicit Context(const Hash& hash)
+        Context(const Hash& hash)
             : type_(Type::Hash)
             , hash_(hash)
         {
         }
 
-        explicit Context(const Array& array)
+        Context(const Array& array)
             : type_(Type::Array)
             , array_(array)
         {
@@ -271,11 +272,25 @@ namespace Liquid {
         }
         
         const Context& evaluate(const Expression& expression) const {
-            if (expression.isLookupKey() && isHash()) {
-                const auto result = hash_.find(expression.lookupKey());
-                if (result != hash_.end()) {
-                    return result.value();
+            if (expression.isLookupKey()) {
+                if (isHash()) {
+                    const auto result = hash_.find(expression.lookupKey());
+                    if (result != hash_.end()) {
+                        return result.value();
+                    }
                 }
+            } else if (expression.isLookup()) {
+                const Context* ctx = this;
+                for (const auto& lookup : expression.lookups()) {
+                    const Context& result = ctx->evaluate(lookup);
+                    if (result.isNil()) {
+                        return result;
+                    }
+                    ctx = &result;
+                }
+                return *ctx;
+            } else {
+                throw QString("Can't evaluate expression %1").arg(static_cast<int>(expression.type()));
             }
             return kNilContext;
         }

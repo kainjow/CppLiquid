@@ -24,8 +24,21 @@ Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
         }
     }
     
-    Expression exp(Type::LookupKey);
-    exp.setLookupKey(input.toString());
+    Expression exp(Type::Lookup);
+    for (;;) {
+        const QStringRef key = parser.consume(Token::Type::Id);
+        Expression sub(Type::LookupKey);
+        sub.setLookupKey(key.toString());
+        exp.addLookup(sub);
+        
+        if (parser.look(Token::Type::Dot)) {
+            (void)parser.consume();
+            continue;
+        }
+        
+        break;
+    }
+    
     return exp;
 }
 
@@ -145,8 +158,27 @@ TEST_CASE("Liquid::Expression") {
     SECTION("LookupKey") {
         QString input = "name";
         Liquid::Expression exp = Liquid::Expression::parse(&input);
-        CHECK(exp.isLookupKey());
-        CHECK(exp.lookupKey() == "name");
+        REQUIRE(exp.isLookup());
+        REQUIRE(exp.lookups().size() == 1);
+        CHECK(exp.lookups()[0].isLookupKey());
+        CHECK(exp.lookups()[0].lookupKey() == "name");
+    }
+
+    SECTION("MultipleLookupKey") {
+        QString input = "first.second.third.fourth.fifth";
+        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        REQUIRE(exp.isLookup());
+        REQUIRE(exp.lookups().size() == 5);
+        CHECK(exp.lookups()[0].isLookupKey());
+        CHECK(exp.lookups()[0].lookupKey() == "first");
+        CHECK(exp.lookups()[1].isLookupKey());
+        CHECK(exp.lookups()[1].lookupKey() == "second");
+        CHECK(exp.lookups()[2].isLookupKey());
+        CHECK(exp.lookups()[2].lookupKey() == "third");
+        CHECK(exp.lookups()[3].isLookupKey());
+        CHECK(exp.lookups()[3].lookupKey() == "fourth");
+        CHECK(exp.lookups()[4].isLookupKey());
+        CHECK(exp.lookups()[4].lookupKey() == "fifth");
     }
 
 }

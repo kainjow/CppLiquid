@@ -15,8 +15,8 @@ namespace Liquid {
             NumberFloat,
             BooleanTrue,
             BooleanFalse,
+            Lookup,
             LookupKey,
-            LookupExpression,
         };
         
         Expression(Type type)
@@ -27,6 +27,7 @@ namespace Liquid {
         Expression(const Expression& other)
             : type_(other.type_)
             , var_(other.var_)
+            , lookups_(other.lookups_)
         {
         }
         
@@ -34,12 +35,13 @@ namespace Liquid {
             if (this != &other) {
                 type_ = other.type_;
                 var_ = other.var_;
+                lookups_ = other.lookups_;
             }
             return *this;
         }
         
         bool operator==(const Expression& other) const {
-            return type_ == other.type_ && var_ == other.var_;
+            return type_ == other.type_ && var_ == other.var_ && lookups_ == other.lookups_;
         }
         
         Expression()
@@ -100,6 +102,10 @@ namespace Liquid {
             return type_ == Type::Nil;
         }
         
+        bool isLookup() const {
+            return type_ == Type::Lookup;
+        }
+        
         bool isLookupKey() const {
             return type_ == Type::LookupKey;
         }
@@ -126,6 +132,14 @@ namespace Liquid {
         
         QString lookupKey() const {
             return var_.toString();
+        }
+        
+        const std::vector<Expression>& lookups() const {
+            return lookups_;
+        }
+        
+        void addLookup(const Expression& exp) {
+            lookups_.push_back(exp);
         }
         
         static Expression parse(const QStringRef& input);

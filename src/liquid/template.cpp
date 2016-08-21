@@ -151,6 +151,17 @@ TEST_CASE("Liquid::Template") {
         t.parse("Dear {{ fname }} {{ lname }},");
         CHECK(t.render(Liquid::Context(hash)).toStdString() == "Dear Bill Gates,");
     }
+    
+    SECTION("ObjectKey") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        Liquid::Context::Hash user;
+        user["name"] = "Bob";
+        hash["user"] = user;
+        Liquid::Context ctx(hash);
+        t.parse("Welcome {{user.name}}!");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+    }
 
 }
 
