@@ -101,7 +101,9 @@ namespace Liquid {
         }
         
         QStringRef getch() {
-            return input_.mid(pos_, 1);
+            QStringRef str = input_.mid(pos_, 1);
+            ++pos_;
+            return str;
         }
         
     private:
