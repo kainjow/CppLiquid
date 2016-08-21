@@ -2,52 +2,69 @@
 #define LIQUID_COMPONENT_HPP
 
 #include "expression.hpp"
+#include "context.hpp"
 
 namespace Liquid {
-
+    
     class Component {
     public:
-        enum class Type {
-            Text,
-            Object,
-            Tag,
-        };
-        
-        Component(const Type& type)
-            : type_(type)
+        Component(const QStringRef& text)
+            : text_(text)
         {
-        }
-
-        Component(const Type& type, const QStringRef& text)
-            : type_(type)
-            , text_(text)
-        {
-        }
-        
-        Component(const Expression& exp)
-            : type_(Type::Object)
-            , exp_(exp)
-        {
-        }
-        
-        Type type() const {
-            return type_;
         }
         
         const QStringRef& text() const {
             return text_;
         }
         
+        virtual QString render(const Context& context) const = 0;
+
+    private:
+        const QStringRef text_;
+    };
+
+    class TextComponent : public Component {
+    public:
+        TextComponent(const QStringRef& text)
+            : Component(text)
+        {
+        }
+        
+        virtual QString render(const Context& context) const {
+            return text().toString();
+        }
+    };
+    
+    class ObjectComponent : public Component {
+    public:
+        ObjectComponent(const QStringRef& text, const Expression& expression)
+            : Component(text)
+            , exp_(expression)
+        {
+        }
+
         const Expression& expression() const {
             return exp_;
         }
-
+        
+        virtual QString render(const Context& context) const {
+            return exp_.evaluate(context).toString();
+        }
     private:
-        const Type type_;
-        const QStringRef text_;
         const Expression exp_;
     };
 
+    class TagComponent : public Component {
+    public:
+        TagComponent(const QStringRef& text)
+            : Component(text)
+        {
+        }
+        
+        virtual QString render(const Context& context) const {
+            return "";
+        }
+    };
 }
 
 #endif

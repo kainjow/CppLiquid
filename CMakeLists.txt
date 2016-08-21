@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project(Jeqyll)
 
+set(CMAKE_CXX_STANDARD 14)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Core)
@@ -37,3 +39,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 source_group(liquid REGULAR_EXPRESSION src/liquid/*)
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
+
+if (NOT MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wall
+    -Werror
+  )
+endif()
+

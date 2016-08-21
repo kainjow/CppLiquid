@@ -3,6 +3,7 @@
 
 #include "context.hpp"
 #include "component.hpp"
+#include <memory>
 #include <vector>
 
 namespace Liquid {
@@ -15,10 +16,12 @@ namespace Liquid {
         QString render(const Context& ctx);
         
     private:
-        std::vector<Component> components_;
+        using ComponentPtr = std::unique_ptr<Component>;
+
+        std::vector<ComponentPtr> components_;
         QString source_;
         
-        std::vector<Component> tokenize(const QString& source) const;
+        std::vector<ComponentPtr> tokenize(const QString& source) const;
     };
 
 }

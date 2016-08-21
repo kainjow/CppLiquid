@@ -10,9 +10,9 @@ void Liquid::Template::parse(const QString& source)
     components_ = tokenize(source_);
 }
 
-std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source) const
+std::vector<Liquid::Template::ComponentPtr> Liquid::Template::tokenize(const QString& source) const
 {
-    std::vector<Component> components;
+    std::vector<ComponentPtr> components;
     int lastStartPos = 0;
     const int len = source_.size();
     const int lastCharPos = len - 1;
@@ -39,7 +39,7 @@ std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source)
             const int chunkLen = startPos - lastStartPos;
             if (chunkLen > 0) {
                 const QStringRef text = source_.midRef(lastStartPos, chunkLen);
-                components.emplace_back(Component::Type::Text, text);
+                components.push_back(std::make_unique<TextComponent>(text));
             }
             
             // Collect the complete text of the object or tag
@@ -47,9 +47,9 @@ std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source)
             const QStringRef tag = source_.midRef(startPos, tagEndPos - startPos);
             const QStringRef tagTrimmed = tag.mid(2, tag.size() - 4).trimmed();
             if (isObject) {
-                components.emplace_back(Expression::parse(tagTrimmed));
+                components.push_back(std::make_unique<ObjectComponent>(tag, Expression::parse(tagTrimmed)));
             } else {
-                components.emplace_back(Component::Type::Tag, tagTrimmed);
+                components.push_back(std::make_unique<TagComponent>(tag));
             }
             
             lastStartPos = tagEndPos;
@@ -59,7 +59,7 @@ std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source)
     // Process any remaining text
     if (lastStartPos < len) {
         const QStringRef text = source_.midRef(lastStartPos);
-        components.emplace_back(Component::Type::Text, text);
+        components.push_back(std::make_unique<TextComponent>(text));
     }
     
     return components;
@@ -75,18 +75,7 @@ QString Liquid::Template::render(const Context& ctx)
 {
     QString str;
     for (const auto& component : components_) {
-        switch (component.type()) {
-            case Component::Type::Text:
-                str += component.text();
-                break;
-
-            case Component::Type::Object:
-                str += component.expression().evaluate(ctx).toString();
-                break;
-
-            case Component::Type::Tag:
-                break;
-        }
+        str += component->render(ctx);
     }
     return str;
 }
