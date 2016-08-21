@@ -4,7 +4,7 @@
 #include <QVariant>
 #include <vector>
 #include "parser.hpp"
-#include "context.hpp"
+#include "data.hpp"
 
 namespace Liquid {
     
@@ -170,11 +170,11 @@ namespace Liquid {
         
         static Expression parse(Parser& parser);
         
-        const Context& evaluate(const Context& rootCtx) const;
+        const Data& evaluate(const Data& data) const;
         
     private:
         Type type_;
-        Context var_;
+        Data var_;
         std::vector<Expression> lookups_;
     };
 

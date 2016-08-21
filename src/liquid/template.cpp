@@ -67,11 +67,11 @@ std::vector<Liquid::Template::ComponentPtr> Liquid::Template::tokenize(const QSt
 
 QString Liquid::Template::render()
 {
-    const Context ctx;
+    const Data ctx;
     return render(ctx);
 }
 
-QString Liquid::Template::render(const Context& ctx)
+QString Liquid::Template::render(const Data& ctx)
 {
     QString str;
     for (const auto& component : components_) {
@@ -124,75 +124,75 @@ TEST_CASE("Liquid::Template") {
     
     SECTION("BasicObject") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
+        Liquid::Data::Hash hash;
         hash["what"] = "World";
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Hello {{what}}!");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Hello World!");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Hello World!");
     }
     
     SECTION("BasicMultipleObjects") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
+        Liquid::Data::Hash hash;
         hash["fname"] = "Bill";
         hash["lname"] = "Gates";
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Dear {{ fname }} {{ lname }},");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Dear Bill Gates,");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Dear Bill Gates,");
     }
     
     SECTION("ObjectKey") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
-        Liquid::Context::Hash user;
+        Liquid::Data::Hash hash;
+        Liquid::Data::Hash user;
         user["name"] = "Bob";
         hash["user"] = user;
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Welcome {{user.name}}!");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectBracketKeyStringLiteral") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
-        Liquid::Context::Hash user;
+        Liquid::Data::Hash hash;
+        Liquid::Data::Hash user;
         user["name"] = "Bob";
         hash["user"] = user;
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Welcome {{user[\"name\"]}}!");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectBracketKeyObjectNil") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
-        Liquid::Context::Hash user;
+        Liquid::Data::Hash hash;
+        Liquid::Data::Hash user;
         user["name"] = "Bob";
         hash["user"] = user;
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Welcome {{user[name]}}!");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome !");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome !");
     }
 
     SECTION("ObjectBracketKeyObjectSet") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
-        Liquid::Context::Hash user;
+        Liquid::Data::Hash hash;
+        Liquid::Data::Hash user;
         user["name"] = "Bob";
         hash["user"] = user;
         hash["name"] = "name";
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("Welcome {{user[name]}}!");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectMultipleBracketKey") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
-        Liquid::Context::Hash states;
-        Liquid::Context::Hash california;
-        Liquid::Context::Hash sacramento;
-        Liquid::Context::Array keys;
+        Liquid::Data::Hash hash;
+        Liquid::Data::Hash states;
+        Liquid::Data::Hash california;
+        Liquid::Data::Hash sacramento;
+        Liquid::Data::Array keys;
         keys.push_back("arizona");
         keys.push_back("california");
         sacramento["areacode"] = "916";
@@ -200,32 +200,32 @@ TEST_CASE("Liquid::Template") {
         states["california"] = california;
         hash["states"] = states;
         hash["keys"] = keys;
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("{{states[keys[1]][\"capital\"][\"areacode\"]}} {{keys[0]}} {{keys[9999]}}");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "916 arizona ");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "916 arizona ");
     }
     
     SECTION("AppendFilter") {
         Liquid::Template t;
-        Liquid::Context ctx;
+        Liquid::Data ctx;
         t.parse("{{ \"hello\" | append: \"world\" }}");
         CHECK(t.render(ctx).toStdString() == "helloworld");
     }
 
     SECTION("AppendFilterMultiple") {
         Liquid::Template t;
-        Liquid::Context ctx;
+        Liquid::Data ctx;
         t.parse("{{ \"hello\" | append: \"world\", \"planet\", \"galaxy\", \"universe\" }}");
         CHECK(t.render(ctx).toStdString() == "helloworldplanetgalaxyuniverse");
     }
     
     SECTION("AppendFilterObject") {
         Liquid::Template t;
-        Liquid::Context::Hash hash;
+        Liquid::Data::Hash hash;
         hash["what"] = "world";
-        Liquid::Context ctx(hash);
+        Liquid::Data ctx(hash);
         t.parse("{{ \"hello \" | append: what }}");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "hello world");
+        CHECK(t.render(Liquid::Data(hash)).toStdString() == "hello world");
     }
 }
 

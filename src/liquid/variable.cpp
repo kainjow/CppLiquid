@@ -24,16 +24,16 @@ Liquid::Variable::Variable(const QStringRef& input)
     }
 }
 
-const Liquid::Context& Liquid::Variable::evaluate(const Context& context) const
+const Liquid::Data& Liquid::Variable::evaluate(const Data& context) const
 {
-    const Context& result = exp_.evaluate(context);
+    const Data& result = exp_.evaluate(context);
     if (filters_.empty()) {
         return result;
     }
-    Context value = result;
+    Data value = result;
     for (const auto& filter : filters_) {
         const auto& args = filter.args();
-        std::vector<Context> evaluatedArgs;
+        std::vector<Data> evaluatedArgs;
         for (const auto& arg : args) {
             evaluatedArgs.push_back(arg.evaluate(context));
         }

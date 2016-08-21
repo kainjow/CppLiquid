@@ -1,7 +1,7 @@
 #ifndef LIQUID_TEMPLATE_HPP
 #define LIQUID_TEMPLATE_HPP
 
-#include "context.hpp"
+#include "data.hpp"
 #include "component.hpp"
 #include <memory>
 #include <vector>
@@ -13,7 +13,7 @@ namespace Liquid {
         void parse(const QString& source);
         
         QString render();
-        QString render(const Context& ctx);
+        QString render(const Data& ctx);
         
     private:
         using ComponentPtr = std::unique_ptr<Component>;

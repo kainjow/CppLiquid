@@ -30,12 +30,12 @@ namespace Liquid {
     public:
         Variable(const QStringRef& input);
         
-        const Context& evaluate(const Context& context) const;
+        const Data& evaluate(const Data& context) const;
 
     private:
         Expression exp_;
         std::vector<Filter> filters_;
-        mutable Context cached_;
+        mutable Data cached_;
     };
 
 }

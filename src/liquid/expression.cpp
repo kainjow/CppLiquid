@@ -51,38 +51,38 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
     return exp;
 }
 
-const Liquid::Context& Liquid::Expression::evaluate(const Context& rootCtx) const
+const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
 {
     const Expression& expression = *this;
     if (expression.isLookupKey()) {
-        if (rootCtx.isHash()) {
-            const Context& result = rootCtx[expression.key()];
+        if (data.isHash()) {
+            const Data& result = data[expression.key()];
             if (!result.isNil()) {
                 return result;
             }
         }
     } else if (expression.isLookup() || expression.isLookupBracketKey()) {
-        const Context* currentCtx = &rootCtx;
+        const Data* currentCtx = &data;
         for (const auto& lookup : expression.lookups()) {
             if (lookup.isLookupBracketKey()) {
-                const Context& bracketResult = lookup.evaluate(rootCtx);
+                const Data& bracketResult = lookup.evaluate(data);
                 if (bracketResult.isString() && currentCtx->isHash()) {
-                    const Context& result = (*currentCtx)[bracketResult.toString()];
+                    const Data& result = (*currentCtx)[bracketResult.toString()];
                     if (result.isNil()) {
                         return result;
                     }
                     currentCtx = &result;
                 } else if (bracketResult.isNumberInt() && currentCtx->isArray()) {
-                    const Context& result = currentCtx->at(bracketResult.toInt());
+                    const Data& result = currentCtx->at(bracketResult.toInt());
                     if (result.isNil()) {
                         return result;
                     }
                     currentCtx = &result;
                 } else {
-                    return kNilContext;
+                    return kNilData;
                 }
             } else {
-                const Context& result = lookup.evaluate(*currentCtx);
+                const Data& result = lookup.evaluate(*currentCtx);
                 if (result.isNil()) {
                     return result;
                 }
@@ -95,7 +95,7 @@ const Liquid::Context& Liquid::Expression::evaluate(const Context& rootCtx) cons
     } else {
         throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
     }
-    return kNilContext;
+    return kNilData;
 }
 
 

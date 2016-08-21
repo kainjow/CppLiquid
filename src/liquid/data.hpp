@@ -1,5 +1,5 @@
-#ifndef LIQUID_CONTEXT_HPP
-#define LIQUID_CONTEXT_HPP
+#ifndef LIQUID_DATA_HPP
+#define LIQUID_DATA_HPP
 
 #include <QDebug>
 #include <QHash>
@@ -8,11 +8,11 @@
 
 namespace Liquid {
 
-    class Context;
+    class Data;
     
-    const extern Context kNilContext;
+    const extern Data kNilData;
 
-    class Context {
+    class Data {
     public:
         enum class Type {
             Hash,
@@ -25,25 +25,25 @@ namespace Liquid {
             Nil,
         };
         
-        using Hash = QHash<QString, Context>;
-        using Array = QList<Context>;
+        using Hash = QHash<QString, Data>;
+        using Array = QList<Data>;
         
-        Context()
+        Data()
             : type_(Type::Nil)
         {
         }
         
-        Context(std::nullptr_t nil)
+        Data(std::nullptr_t nil)
             : type_(Type::Nil)
         {
         }
         
-        Context(Type type)
+        Data(Type type)
             : type_(type)
         {
         }
         
-        Context(const Context& ctx)
+        Data(const Data& ctx)
             : type_(ctx.type_)
         {
             switch (type_) {
@@ -69,7 +69,7 @@ namespace Liquid {
             }
         }
         
-        Context& operator=(const Context& ctx) {
+        Data& operator=(const Data& ctx) {
             if (this != &ctx) {
                 type_ = ctx.type_;
                 switch (type_) {
@@ -97,7 +97,7 @@ namespace Liquid {
             return *this;
         }
         
-        bool operator==(const Context& other) const {
+        bool operator==(const Data& other) const {
             if (type_ != other.type_) {
                 return false;
             }
@@ -119,39 +119,39 @@ namespace Liquid {
             }
         }
         
-        Context(const Hash& hash)
+        Data(const Hash& hash)
             : type_(Type::Hash)
             , hash_(hash)
         {
         }
 
-        Context(const Array& array)
+        Data(const Array& array)
             : type_(Type::Array)
             , array_(array)
         {
         }
 
-        Context(const QString& string)
+        Data(const QString& string)
             : type_(Type::String)
             , string_(string)
         {
         }
         
-        Context(const char *string) : Context(QString(string)) {}
+        Data(const char *string) : Data(QString(string)) {}
 
-        Context(int value)
+        Data(int value)
             : type_(Type::NumberInt)
         {
             number_.i = value;
         }
 
-        Context(double value)
+        Data(double value)
             : type_(Type::NumberFloat)
         {
             number_.f = value;
         }
 
-        Context(bool value)
+        Data(bool value)
             : type_(value ? Type::BooleanTrue : Type::BooleanFalse)
         {
         }
@@ -243,7 +243,7 @@ namespace Liquid {
             }
         }
         
-        void push_back(const Context& ctx) {
+        void push_back(const Data& ctx) {
             if (isArray()) {
                 array_.push_back(ctx);
             }
@@ -262,21 +262,21 @@ namespace Liquid {
             }
         }
         
-        const Context& at(int index) const {
+        const Data& at(int index) const {
             if (index >= array_.size()) {
-                return kNilContext;
+                return kNilData;
             }
             return array_.at(index);
         }
         
-        void insert(const QString& key, const Context& value) {
+        void insert(const QString& key, const Data& value) {
             hash_.insert(key, value);
         }
         
-        const Context& operator[](const QString& key) const {
+        const Data& operator[](const QString& key) const {
             const Hash::const_iterator it = hash_.find(key);
             if (it == hash_.end()) {
-                return kNilContext;
+                return kNilData;
             }
             return it.value();
         }
