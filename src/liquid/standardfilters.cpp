@@ -83,6 +83,14 @@ Data strip_newlines(const Data& input, const std::vector<Data>& args)
     return str;
 }
 
+Data newline_to_br(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("newline_to_br doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.toString().replace("\n", "<br />\n");
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -94,6 +102,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("rstrip", rstrip);
     tmpl.registerFilter("lstrip", lstrip);
     tmpl.registerFilter("strip_newlines", strip_newlines);
+    tmpl.registerFilter("newline_to_br", newline_to_br);
 }
 
 } } // namespace
@@ -171,6 +180,14 @@ TEST_CASE("Liquid::StandardFilters") {
         t.parse("{{ \"\r\nhe\nll\ro\r\" | strip_newlines }}");
         CHECK(t.render().toStdString() == "hello");
     }
+
+    SECTION("NewlineToBr") {
+        Liquid::Template t;
+        t.parse("{{ \"hello\nand\ngoodbye\n\" | newline_to_br }}");
+        CHECK(t.render().toStdString() == "hello<br />\nand<br />\ngoodbye<br />\n");
+    }
+
+    
 }
 
 #endif
