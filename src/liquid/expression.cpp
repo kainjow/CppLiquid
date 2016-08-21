@@ -25,7 +25,7 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
             continue;
         }
         
-        if (parser.look(Token::Type::OpenSquare)) {
+        while (parser.look(Token::Type::OpenSquare)) {
             (void)parser.consume();
             Expression bracketSub(Type::LookupBracketKey);
             bracketSub.addLookup(Expression::parse(parser));

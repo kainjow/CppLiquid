@@ -197,6 +197,19 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
     }
 
+    SECTION("ObjectMultipleBracketKey") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        Liquid::Context::Hash states;
+        Liquid::Context::Hash sacramento;
+        sacramento["areacode"] = "916";
+        states["california"] = sacramento;
+        hash["states"] = states;
+        Liquid::Context ctx(hash);
+        t.parse("{{states[\"california\"][\"areacode\"]}}");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "916");
+    }
+
 }
 
 #endif
