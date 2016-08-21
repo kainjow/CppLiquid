@@ -24,6 +24,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/stringutils.hpp
   src/liquid/template.cpp
   src/liquid/template.hpp
+  src/liquid/variable.cpp
+  src/liquid/variable.hpp
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

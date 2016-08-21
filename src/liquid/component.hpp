@@ -1,8 +1,8 @@
 #ifndef LIQUID_COMPONENT_HPP
 #define LIQUID_COMPONENT_HPP
 
-#include "expression.hpp"
 #include "context.hpp"
+#include "variable.hpp"
 
 namespace Liquid {
     
@@ -37,21 +37,17 @@ namespace Liquid {
     
     class ObjectComponent : public Component {
     public:
-        ObjectComponent(const QStringRef& text, const Expression& expression)
+        ObjectComponent(const QStringRef& text, const Variable& var)
             : Component(text)
-            , exp_(expression)
+            , var_(var)
         {
         }
 
-        const Expression& expression() const {
-            return exp_;
-        }
-        
         virtual QString render(const Context& context) const {
-            return exp_.evaluate(context).toString();
+            return var_.evaluate(context).toString();
         }
     private:
-        const Expression exp_;
+        const Variable var_;
     };
 
     class TagComponent : public Component {
