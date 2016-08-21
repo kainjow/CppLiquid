@@ -47,7 +47,7 @@ std::vector<Liquid::Template::ComponentPtr> Liquid::Template::tokenize(const QSt
             const QStringRef tag = source_.midRef(startPos, tagEndPos - startPos);
             const QStringRef tagTrimmed = tag.mid(2, tag.size() - 4).trimmed();
             if (isObject) {
-                components.push_back(std::make_unique<ObjectComponent>(tag, Expression::parse(tagTrimmed)));
+                components.push_back(std::make_unique<ObjectComponent>(tag, Variable(tagTrimmed)));
             } else {
                 components.push_back(std::make_unique<TagComponent>(tag));
             }
@@ -204,7 +204,13 @@ TEST_CASE("Liquid::Template") {
         t.parse("{{states[keys[1]][\"capital\"][\"areacode\"]}} {{keys[0]}} {{keys[9999]}}");
         CHECK(t.render(Liquid::Context(hash)).toStdString() == "916 arizona ");
     }
-
+    
+    SECTION("AppendFilter") {
+        Liquid::Template t;
+        Liquid::Context ctx;
+        t.parse("{{ \"hello\" | append: \"world\" }}");
+        CHECK(t.render(ctx).toStdString() == "helloworld");
+    }
 }
 
 #endif
