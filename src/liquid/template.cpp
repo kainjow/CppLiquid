@@ -218,6 +218,15 @@ TEST_CASE("Liquid::Template") {
         t.parse("{{ \"hello\" | append: \"world\", \"planet\", \"galaxy\", \"universe\" }}");
         CHECK(t.render(ctx).toStdString() == "helloworldplanetgalaxyuniverse");
     }
+    
+    SECTION("AppendFilterObject") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        hash["what"] = "world";
+        Liquid::Context ctx(hash);
+        t.parse("{{ \"hello \" | append: what }}");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "hello world");
+    }
 }
 
 #endif

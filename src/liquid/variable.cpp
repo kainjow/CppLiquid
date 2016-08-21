@@ -33,6 +33,10 @@ const Liquid::Context& Liquid::Variable::evaluate(const Context& context) const
     Context value = result;
     for (const auto& filter : filters_) {
         const auto& args = filter.args();
+        std::vector<Context> evaluatedArgs;
+        for (const auto& arg : args) {
+            evaluatedArgs.push_back(arg.evaluate(context));
+        }
         if (filter.name() == "append") {
             if (!value.isString()) {
                 throw QString("append argument must be a string.").toStdString();
@@ -40,7 +44,7 @@ const Liquid::Context& Liquid::Variable::evaluate(const Context& context) const
             if (args.empty()) {
                 throw QString("append requires one or more arguments.").toStdString();
             }
-            for (const auto& arg : args) {
+            for (const auto& arg : evaluatedArgs) {
                 value = value.toString() + arg.toString();
             }
         } else {
