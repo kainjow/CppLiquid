@@ -4,6 +4,7 @@
 #include <QString>
 #include <QHash>
 #include <QList>
+#include "expression.hpp"
 
 namespace Liquid {
 
@@ -267,6 +268,16 @@ namespace Liquid {
                 return kNilContext;
             }
             return it.value();
+        }
+        
+        const Context& evaluate(const Expression& expression) const {
+            if (expression.isLookupKey() && isHash()) {
+                const auto result = hash_.find(expression.lookupKey());
+                if (result != hash_.end()) {
+                    return result.value();
+                }
+            }
+            return kNilContext;
         }
 
     private:

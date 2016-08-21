@@ -1,4 +1,5 @@
 #include "template.hpp"
+#include "expression.hpp"
 #include <QDebug>
 
 #define ABORT(msg) throw QString(msg)
@@ -34,16 +35,21 @@ std::vector<Liquid::Component> Liquid::Template::tokenize(const QString& source)
                 ABORT("Tag not properly terminated");
             }
             
-            // Collect the complete text of the object or tag
-            const int tagEndPos = endPos + 2;
-            const QStringRef tag = source_.midRef(startPos, tagEndPos - startPos);
-            components.emplace_back(isObject ? Component::Type::Object : Component::Type::Tag, tag);
-            
             // Collect any text component before the object or tag
             const int chunkLen = startPos - lastStartPos;
             if (chunkLen > 0) {
                 const QStringRef text = source_.midRef(lastStartPos, chunkLen);
                 components.emplace_back(Component::Type::Text, text);
+            }
+            
+            // Collect the complete text of the object or tag
+            const int tagEndPos = endPos + 2;
+            const QStringRef tag = source_.midRef(startPos, tagEndPos - startPos);
+            const QStringRef tagTrimmed = tag.mid(2, tag.size() - 4).trimmed();
+            if (isObject) {
+                components.emplace_back(Expression::parse(tagTrimmed));
+            } else {
+                components.emplace_back(Component::Type::Tag, tagTrimmed);
             }
             
             lastStartPos = tagEndPos;
@@ -75,6 +81,7 @@ QString Liquid::Template::render(const Context& ctx)
                 break;
 
             case Component::Type::Object:
+                str += ctx.evaluate(component.expression()).toString();
                 break;
 
             case Component::Type::Tag:
@@ -128,8 +135,21 @@ TEST_CASE("Liquid::Template") {
     
     SECTION("BasicObject") {
         Liquid::Template t;
-        t.parse("Hello {{what}}");
-        // TODO
+        Liquid::Context::Hash hash;
+        hash["what"] = "World";
+        Liquid::Context ctx(hash);
+        t.parse("Hello {{what}}!");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Hello World!");
+    }
+    
+    SECTION("BasicMultipleObjects") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        hash["fname"] = "Bill";
+        hash["lname"] = "Gates";
+        Liquid::Context ctx(hash);
+        t.parse("Dear {{ fname }} {{ lname }},");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Dear Bill Gates,");
     }
 
 }

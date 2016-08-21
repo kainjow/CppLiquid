@@ -1,7 +1,7 @@
 #ifndef LIQUID_COMPONENT_HPP
 #define LIQUID_COMPONENT_HPP
 
-#include <QStringRef>
+#include "expression.hpp"
 
 namespace Liquid {
 
@@ -13,9 +13,20 @@ namespace Liquid {
             Tag,
         };
         
+        Component(const Type& type)
+            : type_(type)
+        {
+        }
+
         Component(const Type& type, const QStringRef& text)
             : type_(type)
             , text_(text)
+        {
+        }
+        
+        Component(const Expression& exp)
+            : type_(Type::Object)
+            , exp_(exp)
         {
         }
         
@@ -26,10 +37,15 @@ namespace Liquid {
         const QStringRef& text() const {
             return text_;
         }
+        
+        const Expression& expression() const {
+            return exp_;
+        }
 
     private:
         const Type type_;
         const QStringRef text_;
+        const Expression exp_;
     };
 
 }

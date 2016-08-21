@@ -2,9 +2,10 @@
 #define LIQUID_EXPRESSION_HPP
 
 #include <QVariant>
+#include <vector>
 
 namespace Liquid {
-
+    
     class Expression {
     public:
         enum class Type {
@@ -14,7 +15,8 @@ namespace Liquid {
             NumberFloat,
             BooleanTrue,
             BooleanFalse,
-            VariableLookup,
+            LookupKey,
+            LookupExpression,
         };
         
         Expression(Type type)
@@ -38,6 +40,11 @@ namespace Liquid {
         
         bool operator==(const Expression& other) const {
             return type_ == other.type_ && var_ == other.var_;
+        }
+        
+        Expression()
+            : type_(Type::Nil)
+        {
         }
         
         Expression(const QString& string)
@@ -93,6 +100,10 @@ namespace Liquid {
             return type_ == Type::Nil;
         }
         
+        bool isLookupKey() const {
+            return type_ == Type::LookupKey;
+        }
+        
         QString toString() const {
             return var_.toString();
         }
@@ -109,11 +120,20 @@ namespace Liquid {
             return var_.toDouble();
         }
         
+        void setLookupKey(const QString& key) {
+            var_ = key;
+        }
+        
+        QString lookupKey() const {
+            return var_.toString();
+        }
+        
         static Expression parse(const QStringRef& input);
         
     private:
         Type type_;
         QVariant var_;
+        std::vector<Expression> lookups_;
     };
 
 }

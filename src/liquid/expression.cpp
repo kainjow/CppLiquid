@@ -23,10 +23,10 @@ Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
             return parser.consume().toDouble();
         }
     }
-
-    // TODO variable lookup parse input
-
-    return Type::Nil;
+    
+    Expression exp(Type::LookupKey);
+    exp.setLookupKey(input.toString());
+    return exp;
 }
 
 
@@ -140,6 +140,13 @@ TEST_CASE("Liquid::Expression") {
         exp = Liquid::Expression::parse(&input);
         CHECK(exp.isString());
         CHECK(exp.toString() == "hello");
+    }
+    
+    SECTION("LookupKey") {
+        QString input = "name";
+        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        CHECK(exp.isLookupKey());
+        CHECK(exp.lookupKey() == "name");
     }
 
 }
