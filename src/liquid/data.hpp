@@ -192,7 +192,7 @@ namespace Liquid {
             return type_ == Type::Nil;
         }
         
-        const QString toString() const {
+        QString toString() const {
             switch (type_) {
                 case Type::BooleanTrue:
                     return "true";
