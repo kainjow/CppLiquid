@@ -105,6 +105,28 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     return QString::fromUtf8(QUrl::toPercentEncoding(input.toString().toUtf8()));
 }
 
+Data strip_html(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const QString inputStr = input.toString();
+    const int inputStrSize = inputStr.size();
+    QString output;
+    bool html = false;
+    for (int i = 0; i < inputStrSize; ++i) {
+        const QChar ch = inputStr[i];
+        if (ch == '<') {
+            html = true;
+        } else if (ch == '>') {
+            html = false;
+        } else if (!html) {
+            output += ch;
+        }
+    }
+    return output;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -119,6 +141,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("newline_to_br", newline_to_br);
     tmpl.registerFilter("escape", escape);
     tmpl.registerFilter("url_encode", url_encode);
+    tmpl.registerFilter("strip_html", strip_html);
 }
 
 } } // namespace
@@ -214,7 +237,13 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("UrlEncode") {
         Liquid::Template t;
         t.parse("{{ \"hello @world\" | url_encode }}");
-        CHECK(t.render().toStdString() == "hello%20%40world ");
+        CHECK(t.render().toStdString() == "hello%20%40world");
+    }
+
+    SECTION("StripHtml") {
+        Liquid::Template t;
+        t.parse("{{ \"<p>hello <b>w<span>or</span>ld</b></p>\" | strip_html }}");
+        CHECK(t.render().toStdString() == "hello world");
     }
 
 }
