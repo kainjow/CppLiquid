@@ -77,10 +77,7 @@ Data strip_newlines(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    QString str = input.toString();
-    str.replace("\n", "");
-    str.replace("\r", "");
-    return str;
+    return input.toString().replace("\n", "").replace("\r", "");
 }
 
 Data newline_to_br(const Data& input, const std::vector<Data>& args)
