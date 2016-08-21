@@ -37,10 +37,12 @@ const Liquid::Context& Liquid::Variable::evaluate(const Context& context) const
             if (!value.isString()) {
                 throw QString("append argument must be a string.").toStdString();
             }
-            if (args.size() != 1) {
-                throw QString("Expected 1 arg, but got %1").arg(args.size()).toStdString();
+            if (args.empty()) {
+                throw QString("append requires one or more arguments.").toStdString();
             }
-            value = value.toString() + args[0].toString();
+            for (const auto& arg : args) {
+                value = value.toString() + arg.toString();
+            }
         } else {
             throw QString("Unknown filter %1").arg(filter.name().toString()).toStdString();
         }

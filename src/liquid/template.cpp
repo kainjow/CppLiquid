@@ -211,6 +211,13 @@ TEST_CASE("Liquid::Template") {
         t.parse("{{ \"hello\" | append: \"world\" }}");
         CHECK(t.render(ctx).toStdString() == "helloworld");
     }
+
+    SECTION("AppendFilterMultiple") {
+        Liquid::Template t;
+        Liquid::Context ctx;
+        t.parse("{{ \"hello\" | append: \"world\", \"planet\", \"galaxy\", \"universe\" }}");
+        CHECK(t.render(ctx).toStdString() == "helloworldplanetgalaxyuniverse");
+    }
 }
 
 #endif
