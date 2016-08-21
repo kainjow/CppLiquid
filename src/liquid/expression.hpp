@@ -4,6 +4,7 @@
 #include <QVariant>
 #include <vector>
 #include "parser.hpp"
+#include "context.hpp"
 
 namespace Liquid {
     
@@ -143,7 +144,7 @@ namespace Liquid {
         }
         
         double toFloat() const {
-            return var_.toDouble();
+            return var_.toFloat();
         }
         
         void setKey(const QString& key) {
@@ -169,9 +170,11 @@ namespace Liquid {
         
         static Expression parse(Parser& parser);
         
+        const Context& evaluate(const Context& rootCtx) const;
+        
     private:
         Type type_;
-        QVariant var_;
+        Context var_;
         std::vector<Expression> lookups_;
     };
 

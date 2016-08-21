@@ -51,6 +51,53 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
     return exp;
 }
 
+const Liquid::Context& Liquid::Expression::evaluate(const Context& rootCtx) const
+{
+    const Expression& expression = *this;
+    if (expression.isLookupKey()) {
+        if (rootCtx.isHash()) {
+            const Context& result = rootCtx[expression.key()];
+            if (!result.isNil()) {
+                return result;
+            }
+        }
+    } else if (expression.isLookup() || expression.isLookupBracketKey()) {
+        const Context* currentCtx = &rootCtx;
+        for (const auto& lookup : expression.lookups()) {
+            if (lookup.isLookupBracketKey()) {
+                const Context& bracketResult = lookup.evaluate(rootCtx);
+                if (bracketResult.isString() && currentCtx->isHash()) {
+                    const Context& result = (*currentCtx)[bracketResult.toString()];
+                    if (result.isNil()) {
+                        return result;
+                    }
+                    currentCtx = &result;
+                } else if (bracketResult.isNumberInt() && currentCtx->isArray()) {
+                    const Context& result = currentCtx->at(bracketResult.toInt());
+                    if (result.isNil()) {
+                        return result;
+                    }
+                    currentCtx = &result;
+                } else {
+                    return kNilContext;
+                }
+            } else {
+                const Context& result = lookup.evaluate(*currentCtx);
+                if (result.isNil()) {
+                    return result;
+                }
+                currentCtx = &result;
+            }
+        }
+        return *currentCtx;
+    } else if (expression.isString() || expression.isNumber()) {
+        return expression.var_;
+    } else {
+        throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
+    }
+    return kNilContext;
+}
+
 
 
 #ifdef TESTS

@@ -5,7 +5,6 @@
 #include <QHash>
 #include <QList>
 #include <QString>
-#include "expression.hpp"
 
 namespace Liquid {
 
@@ -282,62 +281,6 @@ namespace Liquid {
             return it.value();
         }
         
-        const Context& evaluate(const Expression& expression) const {
-            return Context::evaluate(expression, *this);
-        }
-        
-        static const Context& evaluate(const Expression& expression, const Context& rootCtx) {
-            if (expression.isLookupKey()) {
-                if (rootCtx.isHash()) {
-                    const Context& result = rootCtx[expression.key()];
-                    if (!result.isNil()) {
-                        return result;
-                    }
-                }
-            } else if (expression.isLookup() || expression.isLookupBracketKey()) {
-                const Context* currentCtx = &rootCtx;
-                for (const auto& lookup : expression.lookups()) {
-                    if (lookup.isLookupBracketKey()) {
-                        const Context& bracketResult = Context::evaluate(lookup, rootCtx);
-                        if (bracketResult.isString() && currentCtx->isHash()) {
-                            const Context& result = (*currentCtx)[bracketResult.toString()];
-                            if (result.isNil()) {
-                                return result;
-                            }
-                            currentCtx = &result;
-                        } else if (bracketResult.isNumberInt() && currentCtx->isArray()) {
-                            const Context& result = currentCtx->at(bracketResult.toInt());
-                            if (result.isNil()) {
-                                return result;
-                            }
-                            currentCtx = &result;
-                        } else {
-                            return kNilContext;
-                        }
-                    } else {
-                        const Context& result = currentCtx->evaluate(lookup);
-                        if (result.isNil()) {
-                            return result;
-                        }
-                        currentCtx = &result;
-                    }
-                }
-                return *currentCtx;
-            } else if (expression.isString()) {
-                return rootCtx.addTemporary(Context(expression.toString()));
-            } else if (expression.isInt()) {
-                return rootCtx.addTemporary(Context(expression.toInt()));
-            } else {
-                throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
-            }
-            return kNilContext;
-        }
-        
-        const Context& addTemporary(const Context& tmp) const {
-            temporaries_.push_back(tmp);
-            return temporaries_.back();
-        }
-
     private:
         Type type_;
         Hash hash_;
@@ -347,7 +290,6 @@ namespace Liquid {
             int i;
             double f;
         } number_;
-        mutable std::vector<Context> temporaries_;
     };
 
 }

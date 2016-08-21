@@ -81,7 +81,7 @@ QString Liquid::Template::render(const Context& ctx)
                 break;
 
             case Component::Type::Object:
-                str += ctx.evaluate(component.expression()).toString();
+                str += component.expression().evaluate(ctx).toString();
                 break;
 
             case Component::Type::Tag:
