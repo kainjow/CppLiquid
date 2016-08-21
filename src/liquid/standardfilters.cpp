@@ -12,9 +12,18 @@ Data append(const Data& input, const std::vector<Data>& args)
     return value;
 }
 
+Data prepend(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("prepend only takes one argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return args[0].toString() + input.toString();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
+    tmpl.registerFilter("prepend", prepend);
 }
 
 } } // namespace
@@ -45,6 +54,11 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "32.94world");
     }
 
+    SECTION("Prepend") {
+        Liquid::Template t;
+        t.parse("{{ \" world\" | prepend: \"hello\" }}");
+        CHECK(t.render().toStdString() == "hello world");
+    }
 }
 
 #endif
