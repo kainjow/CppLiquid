@@ -88,6 +88,14 @@ Data newline_to_br(const Data& input, const std::vector<Data>& args)
     return input.toString().replace("\n", "<br />\n");
 }
 
+Data escape(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.toString().toHtmlEscaped().replace("'", "&#39;");
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -100,6 +108,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("lstrip", lstrip);
     tmpl.registerFilter("strip_newlines", strip_newlines);
     tmpl.registerFilter("newline_to_br", newline_to_br);
+    tmpl.registerFilter("escape", escape);
 }
 
 } } // namespace
@@ -184,6 +193,13 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "hello<br />\nand<br />\ngoodbye<br />\n");
     }
 
+    SECTION("Escape") {
+        Liquid::Template t;
+        Liquid::Data::Hash hash;
+        hash["what"] = "' \" & < > ' \" & < >";
+        t.parse("{{ what | escape }}");
+        CHECK(t.render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+    }
     
 }
 
