@@ -1,34 +1,23 @@
 #include "expression.hpp"
-#include "parser.hpp"
 #include <QDebug>
 
-Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
+Liquid::Expression Liquid::Expression::parse(Parser& parser)
 {
-    // Literals
-    if (input == "nil" || input == "null" || input == "") {
+    if (parser.look(Token::Type::EndOfString)) {
         return Type::Nil;
-    } else if (input == "true") {
-        return Type::BooleanTrue;
-    } else if (input == "false") {
-        return Type::BooleanFalse;
-    }
-    
-    Parser parser(input);
-    if (parser.look(Token::Type::EndOfString, 1)) {
-        if (parser.look(Token::Type::String)) {
-            return parser.consume().toString();
-        } else if (parser.look(Token::Type::NumberInt)) {
-            return parser.consume().toInt();
-        } else if (parser.look(Token::Type::NumberFloat)) {
-            return parser.consume().toDouble();
-        }
+    } else if (parser.look(Token::Type::String)) {
+        return parser.consume().toString();
+    } else if (parser.look(Token::Type::NumberInt)) {
+        return parser.consume().toInt();
+    } else if (parser.look(Token::Type::NumberFloat)) {
+        return parser.consume().toDouble();
     }
     
     Expression exp(Type::Lookup);
     for (;;) {
         const QStringRef key = parser.consume(Token::Type::Id);
         Expression sub(Type::LookupKey);
-        sub.setLookupKey(key.toString());
+        sub.setKey(key.toString());
         exp.addLookup(sub);
         
         if (parser.look(Token::Type::Dot)) {
@@ -36,7 +25,27 @@ Liquid::Expression Liquid::Expression::parse(const QStringRef &input)
             continue;
         }
         
+        if (parser.look(Token::Type::OpenSquare)) {
+            (void)parser.consume();
+            Expression bracketSub(Type::LookupBracketKey);
+            bracketSub.addLookup(Expression::parse(parser));
+            exp.addLookup(bracketSub);
+            (void)parser.consume(Token::Type::CloseSquare);
+        }
+        
         break;
+    }
+    
+    // Literals
+    if (exp.lookups().size() == 1 && exp.lookups()[0].isLookupKey()) {
+        const QString& key = exp.lookups()[0].key();
+        if (key == "nil" || key == "null") {
+            return Type::Nil;
+        } else if (key == "true") {
+            return Type::BooleanTrue;
+        } else if (key == "false") {
+            return Type::BooleanFalse;
+        }
     }
     
     return exp;
@@ -161,7 +170,7 @@ TEST_CASE("Liquid::Expression") {
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 1);
         CHECK(exp.lookups()[0].isLookupKey());
-        CHECK(exp.lookups()[0].lookupKey() == "name");
+        CHECK(exp.lookups()[0].key() == "name");
     }
 
     SECTION("MultipleLookupKey") {
@@ -170,17 +179,17 @@ TEST_CASE("Liquid::Expression") {
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 5);
         CHECK(exp.lookups()[0].isLookupKey());
-        CHECK(exp.lookups()[0].lookupKey() == "first");
+        CHECK(exp.lookups()[0].key() == "first");
         CHECK(exp.lookups()[1].isLookupKey());
-        CHECK(exp.lookups()[1].lookupKey() == "second");
+        CHECK(exp.lookups()[1].key() == "second");
         CHECK(exp.lookups()[2].isLookupKey());
-        CHECK(exp.lookups()[2].lookupKey() == "third");
+        CHECK(exp.lookups()[2].key() == "third");
         CHECK(exp.lookups()[3].isLookupKey());
-        CHECK(exp.lookups()[3].lookupKey() == "fourth");
+        CHECK(exp.lookups()[3].key() == "fourth");
         CHECK(exp.lookups()[4].isLookupKey());
-        CHECK(exp.lookups()[4].lookupKey() == "fifth");
+        CHECK(exp.lookups()[4].key() == "fifth");
     }
-
+    
 }
 
 #endif

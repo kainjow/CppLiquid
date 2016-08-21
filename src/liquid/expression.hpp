@@ -3,6 +3,7 @@
 
 #include <QVariant>
 #include <vector>
+#include "parser.hpp"
 
 namespace Liquid {
     
@@ -17,6 +18,7 @@ namespace Liquid {
             BooleanFalse,
             Lookup,
             LookupKey,
+            LookupBracketKey,
         };
         
         Expression(Type type)
@@ -78,6 +80,20 @@ namespace Liquid {
             return type_;
         }
         
+        QString typeString() const {
+            switch (type_) {
+                case Type::Nil: return "Nil";
+                case Type::String: return "String";
+                case Type::NumberInt: return "NumberInt";
+                case Type::NumberFloat: return "NumberFloat";
+                case Type::BooleanTrue: return "BooleanTrue";
+                case Type::BooleanFalse: return "BooleanFalse";
+                case Type::Lookup: return "Lookup";
+                case Type::LookupKey: return "LookupKey";
+                case Type::LookupBracketKey: return "LookupBracketKey";
+            }
+        }
+        
         bool isString() const {
             return type_ == Type::String;
         }
@@ -110,6 +126,10 @@ namespace Liquid {
             return type_ == Type::LookupKey;
         }
         
+        bool isLookupBracketKey() const {
+            return type_ == Type::LookupBracketKey;
+        }
+        
         QString toString() const {
             return var_.toString();
         }
@@ -126,11 +146,11 @@ namespace Liquid {
             return var_.toDouble();
         }
         
-        void setLookupKey(const QString& key) {
+        void setKey(const QString& key) {
             var_ = key;
         }
         
-        QString lookupKey() const {
+        QString key() const {
             return var_.toString();
         }
         
@@ -142,7 +162,12 @@ namespace Liquid {
             lookups_.push_back(exp);
         }
         
-        static Expression parse(const QStringRef& input);
+        static Expression parse(const QStringRef& input) {
+            Parser parser(input);
+            return parse(parser);
+        }
+        
+        static Expression parse(Parser& parser);
         
     private:
         Type type_;

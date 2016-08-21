@@ -25,13 +25,7 @@ namespace Liquid {
         bool consume(Token::Type type, QStringRef& value);
         
         bool look(Token::Type type, int ahead = 0);
-        
-        QString expression();
-        
-        QString argument();
-        
-        QString variable_signature();
-        
+
     private:
         std::vector<Token> tokens_;
         int pos_;

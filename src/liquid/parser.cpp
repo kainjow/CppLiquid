@@ -20,7 +20,7 @@ QStringRef Liquid::Parser::consume(const Token::Type* type)
 {
     const Token& token = tokenAt(pos_);
     if (type && token.type() != *type) {
-        throw QString("Expected %1 but found %2").arg(static_cast<int>(*type)).arg(static_cast<int>(token.type()));
+        throw QString("Expected %1 but found %2").arg(Token::typeToString(*type)).arg(Token::typeToString(token.type())).toStdString();
     }
     ++pos_;
     return token.value();
@@ -46,47 +46,6 @@ bool Liquid::Parser::look(Token::Type type, int ahead)
     return token.type() == type;
 }
 
-QString Liquid::Parser::expression()
-{
-    const Token& token = tokenAt(pos_);
-    if (token.type() == Token::Type::Id) {
-        return variable_signature();
-    } else if (token.type() == Token::Type::String || token.type() == Token::Type::NumberInt || token.type() == Token::Type::NumberFloat) {
-        return consume().toString();
-    } else if (token.type() == Token::Type::OpenRound) {
-        (void)consume();
-        QString first = expression();
-        consume(Token::Type::Dotdot);
-        QString last = expression();
-        consume(Token::Type::CloseRound);
-        return QString("(%1..%2)").arg(first).arg(last);
-    } else {
-        throw QString("%1 is not a valid expression").arg(token.value().toString());
-    }
-}
-
-QString Liquid::Parser::argument()
-{
-    QString str;
-    // might be a keyword argument (identifier: expression)
-    if (look(Token::Type::Id) && look(Token::Type::Colon)) {
-        str += consume().toString() + consume().toString() + "";
-    }
-    str += expression();
-    return str;
-}
-
-QString Liquid::Parser::variable_signature()
-{
-    QString str = consume(Token::Type::Id).toString();
-    while (look(Token::Type::OpenSquare)) {
-        str += consume().toString() + expression() + consume(Token::Type::CloseSquare).toString();
-    }
-    if (look(Token::Type::Dot)) {
-        str += consume().toString() + variable_signature();
-    }
-    return str;
-}
 
 
 #ifdef TESTS
@@ -99,7 +58,7 @@ TEST_CASE("Liquid::Parser") {
         QString input = "Hello World";
         Liquid::Parser p(&input);
         CHECK(p.consume() == "Hello");
-        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), QString);
+        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), std::string);
         CHECK(p.consume(Liquid::Token::Type::Id) == "World");
         CHECK(p.consume(Liquid::Token::Type::EndOfString).isNull());
     }

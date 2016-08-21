@@ -32,6 +32,29 @@ namespace Liquid {
             EndOfString,
         };
         
+        static QString typeToString(Type type) {
+            switch (type) {
+                case Type::Invalid: return "Invalid";
+                case Type::Pipe: return "Pipe";
+                case Type::Dot: return "Dot";
+                case Type::Colon: return "Colon";
+                case Type::Comma: return "Comma";
+                case Type::OpenSquare: return "OpenSquare";
+                case Type::CloseSquare: return "CloseSquare";
+                case Type::OpenRound: return "OpenRound";
+                case Type::CloseRound: return "CloseRound";
+                case Type::Question: return "Question";
+                case Type::Dash: return "Dash";
+                case Type::Comparison: return "Comparison";
+                case Type::String: return "String";
+                case Type::NumberInt: return "NumberInt";
+                case Type::NumberFloat: return "NumberFloat";
+                case Type::Id: return "Identifier";
+                case Type::Dotdot: return "DotDot";
+                case Type::EndOfString: return "EndOfString";
+            }
+        }
+        
         Token()
             : type_(Type::Invalid)
         {

@@ -272,27 +272,50 @@ namespace Liquid {
         }
         
         const Context& evaluate(const Expression& expression) const {
+            return Context::evaluate(expression, *this);
+        }
+        
+        static const Context& evaluate(const Expression& expression, const Context& rootCtx) {
             if (expression.isLookupKey()) {
-                if (isHash()) {
-                    const auto result = hash_.find(expression.lookupKey());
-                    if (result != hash_.end()) {
-                        return result.value();
-                    }
-                }
-            } else if (expression.isLookup()) {
-                const Context* ctx = this;
-                for (const auto& lookup : expression.lookups()) {
-                    const Context& result = ctx->evaluate(lookup);
-                    if (result.isNil()) {
+                if (rootCtx.isHash()) {
+                    const Context& result = rootCtx[expression.key()];
+                    if (!result.isNil()) {
                         return result;
                     }
-                    ctx = &result;
                 }
-                return *ctx;
+            } else if (expression.isLookup() || expression.isLookupBracketKey()) {
+                const Context* currentCtx = &rootCtx;
+                for (const auto& lookup : expression.lookups()) {
+                    if (lookup.isLookupBracketKey()) {
+                        const Context& bracketResult = Context::evaluate(lookup, rootCtx);
+                        if (!bracketResult.isString()) {
+                            return kNilContext;
+                        }
+                        const Context& result = (*currentCtx)[bracketResult.toString()];
+                        if (result.isNil()) {
+                            return result;
+                        }
+                        currentCtx = &result;
+                    } else {
+                        const Context& result = currentCtx->evaluate(lookup);
+                        if (result.isNil()) {
+                            return result;
+                        }
+                        currentCtx = &result;
+                    }
+                }
+                return *currentCtx;
+            } else if (expression.isString()) {
+                return rootCtx.addTemporary(Context(expression.toString()));
             } else {
-                throw QString("Can't evaluate expression %1").arg(static_cast<int>(expression.type()));
+                throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
             }
             return kNilContext;
+        }
+        
+        const Context& addTemporary(const Context& tmp) const {
+            temporaries_.push_back(tmp);
+            return temporaries_.back();
         }
 
     private:
@@ -304,6 +327,7 @@ namespace Liquid {
             int i;
             double f;
         } number_;
+        mutable std::vector<Context> temporaries_;
     };
 
 }

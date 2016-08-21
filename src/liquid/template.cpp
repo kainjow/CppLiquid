@@ -2,7 +2,7 @@
 #include "expression.hpp"
 #include <QDebug>
 
-#define ABORT(msg) throw QString(msg)
+#define ABORT(msg) throw QString(msg).toStdString()
 
 void Liquid::Template::parse(const QString& source)
 {
@@ -130,7 +130,7 @@ TEST_CASE("Liquid::Template") {
 
     SECTION("UnclosedObject") {
         Liquid::Template t;
-        CHECK_THROWS_AS(t.parse("{{what"), QString);
+        CHECK_THROWS_AS(t.parse("{{what"), std::string);
     }
     
     SECTION("BasicObject") {
@@ -160,6 +160,40 @@ TEST_CASE("Liquid::Template") {
         hash["user"] = user;
         Liquid::Context ctx(hash);
         t.parse("Welcome {{user.name}}!");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+    }
+
+    SECTION("ObjectBracketKeyStringLiteral") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        Liquid::Context::Hash user;
+        user["name"] = "Bob";
+        hash["user"] = user;
+        Liquid::Context ctx(hash);
+        t.parse("Welcome {{user[\"name\"]}}!");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
+    }
+
+    SECTION("ObjectBracketKeyObjectNil") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        Liquid::Context::Hash user;
+        user["name"] = "Bob";
+        hash["user"] = user;
+        Liquid::Context ctx(hash);
+        t.parse("Welcome {{user[name]}}!");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome !");
+    }
+
+    SECTION("ObjectBracketKeyObjectSet") {
+        Liquid::Template t;
+        Liquid::Context::Hash hash;
+        Liquid::Context::Hash user;
+        user["name"] = "Bob";
+        hash["user"] = user;
+        hash["name"] = "name";
+        Liquid::Context ctx(hash);
+        t.parse("Welcome {{user[name]}}!");
         CHECK(t.render(Liquid::Context(hash)).toStdString() == "Welcome Bob!");
     }
 
