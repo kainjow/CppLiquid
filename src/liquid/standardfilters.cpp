@@ -72,6 +72,17 @@ Data lstrip(const Data& input, const std::vector<Data>& args)
     return ltrim(&str).toString();
 }
 
+Data strip_newlines(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    QString str = input.toString();
+    str.replace("\n", "");
+    str.replace("\r", "");
+    return str;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -82,6 +93,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("strip", strip);
     tmpl.registerFilter("rstrip", rstrip);
     tmpl.registerFilter("lstrip", lstrip);
+    tmpl.registerFilter("strip_newlines", strip_newlines);
 }
 
 } } // namespace
@@ -152,6 +164,12 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Template t;
         t.parse("{{ \" \r\n\thello\t\n\r \" | lstrip }}");
         CHECK(t.render().toStdString() == "hello\t\n\r ");
+    }
+
+    SECTION("StripNewLines") {
+        Liquid::Template t;
+        t.parse("{{ \"\r\nhe\nll\ro\r\" | strip_newlines }}");
+        CHECK(t.render().toStdString() == "hello");
     }
 }
 
