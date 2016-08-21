@@ -1,6 +1,7 @@
 #ifndef LIQUID_VARIABLE_HPP
 #define LIQUID_VARIABLE_HPP
 
+#include "context.hpp"
 #include "expression.hpp"
 
 namespace Liquid {
@@ -30,7 +31,7 @@ namespace Liquid {
     public:
         Variable(const QStringRef& input);
         
-        const Data& evaluate(const Data& context) const;
+        const Data& evaluate(const Context& context) const;
 
     private:
         Expression exp_;

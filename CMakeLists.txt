@@ -12,14 +12,19 @@ add_executable(${PROJECT_NAME}
 
   src/liquid/component.cpp
   src/liquid/component.hpp
+  src/liquid/context.cpp
+  src/liquid/context.hpp
   src/liquid/data.cpp
   src/liquid/data.hpp
   src/liquid/expression.cpp
   src/liquid/expression.hpp
+  src/liquid/filter.hpp
   src/liquid/lexer.cpp
   src/liquid/lexer.hpp
   src/liquid/parser.cpp
   src/liquid/parser.hpp
+  src/liquid/standardfilters.cpp
+  src/liquid/standardfilters.hpp
   src/liquid/stringutils.cpp
   src/liquid/stringutils.hpp
   src/liquid/template.cpp

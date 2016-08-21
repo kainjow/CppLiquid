@@ -1,8 +1,14 @@
 #include "template.hpp"
 #include "expression.hpp"
+#include "standardfilters.hpp"
 #include <QDebug>
 
 #define ABORT(msg) throw QString(msg).toStdString()
+
+Liquid::Template::Template()
+{
+    StandardFilters::registerFilters(*this);
+}
 
 void Liquid::Template::parse(const QString& source)
 {
@@ -71,8 +77,9 @@ QString Liquid::Template::render()
     return render(ctx);
 }
 
-QString Liquid::Template::render(const Data& ctx)
+QString Liquid::Template::render(const Data& data)
 {
+    const Context ctx(data, filters_);
     QString str;
     for (const auto& component : components_) {
         str += component->render(ctx);
@@ -80,6 +87,10 @@ QString Liquid::Template::render(const Data& ctx)
     return str;
 }
 
+void Liquid::Template::registerFilter(const std::string& name, const FilterHandler& filter)
+{
+    filters_[name] = filter;
+}
 
 
 #ifdef TESTS

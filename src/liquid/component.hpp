@@ -1,7 +1,7 @@
 #ifndef LIQUID_COMPONENT_HPP
 #define LIQUID_COMPONENT_HPP
 
-#include "data.hpp"
+#include "context.hpp"
 #include "variable.hpp"
 
 namespace Liquid {
@@ -17,7 +17,7 @@ namespace Liquid {
             return text_;
         }
         
-        virtual QString render(const Data& context) const = 0;
+        virtual QString render(const Context& context) const = 0;
 
     private:
         const QStringRef text_;
@@ -30,7 +30,7 @@ namespace Liquid {
         {
         }
         
-        virtual QString render(const Data& context) const {
+        virtual QString render(const Context& context) const {
             return text().toString();
         }
     };
@@ -43,7 +43,7 @@ namespace Liquid {
         {
         }
 
-        virtual QString render(const Data& context) const {
+        virtual QString render(const Context& context) const {
             return var_.evaluate(context).toString();
         }
     private:
@@ -57,7 +57,7 @@ namespace Liquid {
         {
         }
         
-        virtual QString render(const Data& context) const {
+        virtual QString render(const Context& context) const {
             return "";
         }
     };

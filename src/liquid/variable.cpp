@@ -24,9 +24,9 @@ Liquid::Variable::Variable(const QStringRef& input)
     }
 }
 
-const Liquid::Data& Liquid::Variable::evaluate(const Data& context) const
+const Liquid::Data& Liquid::Variable::evaluate(const Context& context) const
 {
-    const Data& result = exp_.evaluate(context);
+    const Data& result = exp_.evaluate(context.data());
     if (filters_.empty()) {
         return result;
     }
@@ -35,21 +35,13 @@ const Liquid::Data& Liquid::Variable::evaluate(const Data& context) const
         const auto& args = filter.args();
         std::vector<Data> evaluatedArgs;
         for (const auto& arg : args) {
-            evaluatedArgs.push_back(arg.evaluate(context));
+            evaluatedArgs.push_back(arg.evaluate(context.data()));
         }
-        if (filter.name() == "append") {
-            if (!value.isString()) {
-                throw QString("append argument must be a string.").toStdString();
-            }
-            if (args.empty()) {
-                throw QString("append requires one or more arguments.").toStdString();
-            }
-            for (const auto& arg : evaluatedArgs) {
-                value = value.toString() + arg.toString();
-            }
-        } else {
+        const auto filterIter = context.filters().find(filter.name().toString().toStdString());
+        if (filterIter == context.filters().end()) {
             throw QString("Unknown filter %1").arg(filter.name().toString()).toStdString();
         }
+        value = filterIter->second(value, evaluatedArgs);
     }
     cached_ = value;
     return cached_;
