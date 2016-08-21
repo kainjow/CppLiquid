@@ -27,6 +27,23 @@ void registerFilters(Template& tmpl)
 
 TEST_CASE("Liquid::StandardFilters") {
     
+    SECTION("AppendToString") {
+        Liquid::Template t;
+        t.parse("{{ \"hello \" | append: \"world\" }}");
+        CHECK(t.render().toStdString() == "hello world");
+    }
+
+    SECTION("AppendToInt") {
+        Liquid::Template t;
+        t.parse("{{ 32 | append: \"world\" }}");
+        CHECK(t.render().toStdString() == "32world");
+    }
+
+    SECTION("AppendToFloat") {
+        Liquid::Template t;
+        t.parse("{{ 32.94 | append: \"world\" }}");
+        CHECK(t.render().toStdString() == "32.94world");
+    }
 
 }
 
