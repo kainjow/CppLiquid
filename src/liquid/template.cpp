@@ -201,13 +201,19 @@ TEST_CASE("Liquid::Template") {
         Liquid::Template t;
         Liquid::Context::Hash hash;
         Liquid::Context::Hash states;
+        Liquid::Context::Hash california;
         Liquid::Context::Hash sacramento;
+        Liquid::Context::Array keys;
+        keys.push_back("arizona");
+        keys.push_back("california");
         sacramento["areacode"] = "916";
-        states["california"] = sacramento;
+        california["capital"] = sacramento;
+        states["california"] = california;
         hash["states"] = states;
+        hash["keys"] = keys;
         Liquid::Context ctx(hash);
-        t.parse("{{states[\"california\"][\"areacode\"]}}");
-        CHECK(t.render(Liquid::Context(hash)).toStdString() == "916");
+        t.parse("{{states[keys[1]][\"capital\"][\"areacode\"]}} {{keys[0]}} {{keys[9999]}}");
+        CHECK(t.render(Liquid::Context(hash)).toStdString() == "916 arizona ");
     }
 
 }

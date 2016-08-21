@@ -177,6 +177,14 @@ namespace Liquid {
             return type_ == Type::NumberInt || type_ == Type::NumberFloat;
         }
 
+        bool isNumberInt() const {
+            return type_ == Type::NumberInt;
+        }
+
+        bool isNumberFloat() const {
+            return type_ == Type::NumberFloat;
+        }
+
         bool isBoolean() const {
             return type_ == Type::BooleanTrue || type_ == Type::BooleanFalse;
         }
@@ -256,6 +264,9 @@ namespace Liquid {
         }
         
         const Context& at(int index) const {
+            if (index >= array_.size()) {
+                return kNilContext;
+            }
             return array_.at(index);
         }
         
@@ -288,14 +299,21 @@ namespace Liquid {
                 for (const auto& lookup : expression.lookups()) {
                     if (lookup.isLookupBracketKey()) {
                         const Context& bracketResult = Context::evaluate(lookup, rootCtx);
-                        if (!bracketResult.isString()) {
+                        if (bracketResult.isString() && currentCtx->isHash()) {
+                            const Context& result = (*currentCtx)[bracketResult.toString()];
+                            if (result.isNil()) {
+                                return result;
+                            }
+                            currentCtx = &result;
+                        } else if (bracketResult.isNumberInt() && currentCtx->isArray()) {
+                            const Context& result = currentCtx->at(bracketResult.toInt());
+                            if (result.isNil()) {
+                                return result;
+                            }
+                            currentCtx = &result;
+                        } else {
                             return kNilContext;
                         }
-                        const Context& result = (*currentCtx)[bracketResult.toString()];
-                        if (result.isNil()) {
-                            return result;
-                        }
-                        currentCtx = &result;
                     } else {
                         const Context& result = currentCtx->evaluate(lookup);
                         if (result.isNil()) {
@@ -307,6 +325,8 @@ namespace Liquid {
                 return *currentCtx;
             } else if (expression.isString()) {
                 return rootCtx.addTemporary(Context(expression.toString()));
+            } else if (expression.isInt()) {
+                return rootCtx.addTemporary(Context(expression.toInt()));
             } else {
                 throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
             }
