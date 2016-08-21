@@ -1,6 +1,7 @@
 #include "standardfilters.hpp"
 #include "stringutils.hpp"
 #include <QDebug>
+#include <QUrl>
 
 namespace Liquid { namespace StandardFilters {
 
@@ -96,6 +97,14 @@ Data escape(const Data& input, const std::vector<Data>& args)
     return input.toString().toHtmlEscaped().replace("'", "&#39;");
 }
 
+Data url_encode(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return QString::fromUtf8(QUrl::toPercentEncoding(input.toString().toUtf8()));
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -109,6 +118,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("strip_newlines", strip_newlines);
     tmpl.registerFilter("newline_to_br", newline_to_br);
     tmpl.registerFilter("escape", escape);
+    tmpl.registerFilter("url_encode", url_encode);
 }
 
 } } // namespace
@@ -200,7 +210,13 @@ TEST_CASE("Liquid::StandardFilters") {
         t.parse("{{ what | escape }}");
         CHECK(t.render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
     }
-    
+
+    SECTION("UrlEncode") {
+        Liquid::Template t;
+        t.parse("{{ \"hello @world\" | url_encode }}");
+        CHECK(t.render().toStdString() == "hello%20%40world ");
+    }
+
 }
 
 #endif
