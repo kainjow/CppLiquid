@@ -141,6 +141,18 @@ Data truncate(const Data& input, const std::vector<Data>& args)
     return input.toString().left(len) + truncateStr;
 }
 
+Data plus(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("plus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args[0];
+    if (input.isNumberInt() && arg.isNumberInt()) {
+        return input.toInt() + arg.toInt();
+    }
+    return input.toFloat() + arg.toFloat();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -157,6 +169,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("url_encode", url_encode);
     tmpl.registerFilter("strip_html", strip_html);
     tmpl.registerFilter("truncate", truncate);
+    tmpl.registerFilter("plus", plus);
 }
 
 } } // namespace
@@ -269,6 +282,16 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "Ground control, and so on");
         t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20, \"\" }}");
         CHECK(t.render().toStdString() == "Ground control to Ma");
+    }
+
+    SECTION("Plus") {
+        Liquid::Template t;
+        t.parse("{{ 4 | plus: 2 }}");
+        CHECK(t.render().toStdString() == "6");
+        t.parse("{{ 16 | plus: 4 }}");
+        CHECK(t.render().toStdString() == "20");
+        t.parse("{{ 183.357 | plus: 12 }}");
+        CHECK(t.render().toStdString() == "195.357");
     }
 
 }
