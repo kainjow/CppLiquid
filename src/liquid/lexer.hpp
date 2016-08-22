@@ -97,6 +97,13 @@ namespace Liquid {
             (void)scan(regex);
         }
         
+        void skipWhitespace() {
+            const int size = input_.size();
+            while (pos_ < size && input_.at(pos_).isSpace()) {
+                ++pos_;
+            }
+        }
+        
         QStringRef scan(const QString& str) {
             return scan(QRegularExpression(str));
         }
@@ -119,12 +126,35 @@ namespace Liquid {
             return captured;
         }
         
+        QStringRef scanStringLiteral() {
+            const int size = input_.size();
+            if (pos_ >= size) {
+                return QStringRef();
+            }
+            const QChar first = input_.at(pos_);
+            if (first != '\"' && first != '\'') {
+                return QStringRef();
+            }
+            const int startPos = pos_ + 1;
+            int pos = startPos;
+            int count = 0;
+            for (; pos < size; ++pos) {
+                if (input_.at(pos) == first) {
+                    const QStringRef str = input_.mid(startPos, count);
+                    pos_ += count + 2;
+                    return str;
+                }
+                ++count;
+            }
+            return QStringRef();
+        }
+        
         bool eof() const {
             return pos_ >= input_.size();
         }
         
         QStringRef getch() {
-            QStringRef str = input_.mid(pos_, 1);
+            const QStringRef str = input_.mid(pos_, 1);
             ++pos_;
             return str;
         }

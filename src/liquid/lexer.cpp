@@ -6,8 +6,6 @@
 const Liquid::Token Liquid::kTokenInvalid;
 
 namespace {
-    const QRegularExpression kWhitespace("\\s*");
-    
     const std::unordered_map<char, Liquid::Token::Type> kSpecials{
         {'|', Liquid::Token::Type::Pipe},
         {'.', Liquid::Token::Type::Dot},
@@ -22,8 +20,6 @@ namespace {
     };
     
     const QRegularExpression kIdentifier("[a-zA-Z_][\\w-]+");
-    const QRegularExpression kSingleStringLiteral("'[^\\\']+'");
-    const QRegularExpression kDoubleStringLiteral("\"[^\\\"]+\"");
     const QRegularExpression kNumberFloatLiteral("-?\\d+\\.\\d*");
     const QRegularExpression kNumberIntLiteral("-?\\d+");
     const QRegularExpression kDotDot("\\.\\.");
@@ -37,7 +33,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
     QStringRef tok;
     
     while (!ss.eof()) {
-        ss.skip(kWhitespace);
+        ss.skipWhitespace();
         
         tok = ss.scan(kComparisonOperator);
         if (!tok.isNull()) {
@@ -45,15 +41,9 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        tok = ss.scan(kSingleStringLiteral);
+        tok = ss.scanStringLiteral();
         if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::String, tok.mid(1, tok.size() - 2));
-            continue;
-        }
-
-        tok = ss.scan(kDoubleStringLiteral);
-        if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::String, tok.mid(1, tok.size() - 2));
+            tokens.emplace_back(Token::Type::String, tok);
             continue;
         }
 

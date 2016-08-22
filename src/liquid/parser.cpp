@@ -90,6 +90,17 @@ TEST_CASE("Liquid::Parser") {
         CHECK_FALSE(p.look(Liquid::Token::Type::NumberInt, 100));
     }
 
+    SECTION("ConsumeEmptyString") {
+        QString input = "\"Hello\"";
+        Liquid::Parser p1(&input);
+        CHECK(p1.consume(Liquid::Token::Type::String) == "Hello");
+        CHECK(p1.consume(Liquid::Token::Type::EndOfString).isNull());
+
+        input = "'Hello'";
+        Liquid::Parser p2(&input);
+        CHECK(p2.consume(Liquid::Token::Type::String) == "Hello");
+        CHECK(p2.consume(Liquid::Token::Type::EndOfString).isNull());
+}
 }
 
 #endif
