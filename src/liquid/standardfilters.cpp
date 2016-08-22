@@ -127,6 +127,20 @@ Data strip_html(const Data& input, const std::vector<Data>& args)
     return output;
 }
 
+Data truncate(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() < 1 || args.size() > 2) {
+        throw QString("truncate takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const int length = args[0].toInt();
+    const QString truncateStr = args.size() == 2 ? args[1].toString() : "...";
+    int len = length - truncateStr.size();
+    if (len < 0) {
+        len = 0;
+    }
+    return input.toString().left(len) + truncateStr;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -142,6 +156,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("escape", escape);
     tmpl.registerFilter("url_encode", url_encode);
     tmpl.registerFilter("strip_html", strip_html);
+    tmpl.registerFilter("truncate", truncate);
 }
 
 } } // namespace
@@ -244,6 +259,16 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Template t;
         t.parse("{{ \"<p>hello <b>w<span>or</span>ld</b></p>\" | strip_html }}");
         CHECK(t.render().toStdString() == "hello world");
+    }
+
+    SECTION("Truncate") {
+        Liquid::Template t;
+        t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20 }}");
+        CHECK(t.render().toStdString() == "Ground control to...");
+        t.parse("{{ \"Ground control to Major Tom.\" | truncate: 25, \", and so on\" }}");
+        CHECK(t.render().toStdString() == "Ground control, and so on");
+        t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20, \"\" }}");
+        CHECK(t.render().toStdString() == "Ground control to Ma");
     }
 
 }
