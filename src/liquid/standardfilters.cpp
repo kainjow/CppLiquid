@@ -153,6 +153,18 @@ Data plus(const Data& input, const std::vector<Data>& args)
     return input.toFloat() + arg.toFloat();
 }
 
+Data minus(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("minus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args[0];
+    if (input.isNumberInt() && arg.isNumberInt()) {
+        return input.toInt() - arg.toInt();
+    }
+    return input.toFloat() - arg.toFloat();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -170,6 +182,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("strip_html", strip_html);
     tmpl.registerFilter("truncate", truncate);
     tmpl.registerFilter("plus", plus);
+    tmpl.registerFilter("minus", minus);
 }
 
 } } // namespace
@@ -292,6 +305,16 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "20");
         t.parse("{{ 183.357 | plus: 12 }}");
         CHECK(t.render().toStdString() == "195.357");
+    }
+
+    SECTION("Minus") {
+        Liquid::Template t;
+        t.parse("{{ 4 | minus: 2 }}");
+        CHECK(t.render().toStdString() == "2");
+        t.parse("{{ 16 | minus: 4 }}");
+        CHECK(t.render().toStdString() == "12");
+        t.parse("{{ 183.357 | minus: 12 }}");
+        CHECK(t.render().toStdString() == "171.357");
     }
 
 }
