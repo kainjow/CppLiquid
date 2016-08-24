@@ -262,6 +262,19 @@ Data split(const Data& input, const std::vector<Data>& args)
     return array;
 }
 
+Data join(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("join takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    QStringList inputList;
+    const int inputSize = input.size();
+    for (int i = 0; i < inputSize; ++i) {
+        inputList << input.at(i).toString();
+    }
+    return inputList.join(args[0].toString());
+}
+
 Data size(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
@@ -376,6 +389,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("round", round);
     tmpl.registerFilter("modulo", modulo);
     tmpl.registerFilter("split", split);
+    tmpl.registerFilter("join", join);
     tmpl.registerFilter("size", size);
     tmpl.registerFilter("first", first);
     tmpl.registerFilter("last", last);
@@ -578,6 +592,11 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Split") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | size }}").render().toStdString() == "4");
+    }
+
+    SECTION("Join") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | join: '.' }}").render().toStdString() == "John.Paul.George.Ringo");
     }
 
     SECTION("Size") {
