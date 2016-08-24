@@ -440,6 +440,20 @@ Data compact(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
+Data map(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("map takes 1 argument1, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& property = args[0];
+    Data result(Data::Type::Array);
+    const int size = input.size();
+    for (int i = 0; i < size; ++i) {
+        result.push_back(input.at(i)[property.toString()]);
+    }
+    return result;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -480,10 +494,10 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("slice", slice);
     tmpl.registerFilter("reverse", reverse);
     tmpl.registerFilter("compact", compact);
+    tmpl.registerFilter("map", map);
     // concat
     // date
     // escape_once
-    // map
     // sort
     // sort_natural
     // truncatewords
@@ -758,7 +772,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 'apples,oranges,peaches' | split: ',' | reverse | join: ',' }}").render().toStdString() == "peaches,oranges,apples");
     }
 
-    SECTION("Reverse") {
+    SECTION("Compact") {
         Liquid::Template t;
         Liquid::Data::Array array;
         array.push_back(nullptr);
@@ -772,6 +786,27 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ array | size }}").render(hash).toStdString() == "6");
         CHECK(t.parse("{{ array | compact | size }}").render(hash).toStdString() == "2");
         CHECK(t.parse("{{ array | compact | join: ' ' }}").render(hash).toStdString() == "hello world");
+    }
+
+    SECTION("Map") {
+        Liquid::Template t;
+        Liquid::Data::Array pages;
+        Liquid::Data::Hash item;
+        item["category"] = "business";
+        pages.push_back(item);
+        item["category"] = "celebrities";
+        pages.push_back(item);
+        item["category"] = "lifestyle";
+        pages.push_back(item);
+        item["category"] = "sports";
+        pages.push_back(item);
+        item["category"] = "technology";
+        pages.push_back(item);
+        Liquid::Data::Hash hash;
+        hash["pages"] = pages;
+        CHECK(t.parse("{{ pages | size }}").render(hash).toStdString() == "5");
+        CHECK(t.parse("{{ pages | map: 'category' | size }}").render(hash).toStdString() == "5");
+        CHECK(t.parse("{{ pages | map: 'category' | join: ' ' }}").render(hash).toStdString() == "business celebrities lifestyle sports technology");
     }
 }
 
