@@ -286,6 +286,21 @@ Data last(const Data& input, const std::vector<Data>& args)
     return kNilData;
 }
 
+Data def(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("default takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const bool useArg = input.isNil() ||
+        (input.isArray() && input.size() == 0) ||
+        (input.isHash() && input.size() == 0) ||
+        (input.isString() && input.size() == 0);
+    if (!useArg) {
+        return input;
+    }
+    return args[0];
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -314,6 +329,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("size", size);
     tmpl.registerFilter("first", first);
     tmpl.registerFilter("last", last);
+    tmpl.registerFilter("default", def);
 }
 
 } } // namespace
@@ -517,6 +533,17 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Last") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | last }}").render().toStdString() == "Ringo");
+    }
+
+    SECTION("Default") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ nil | default: 'test' }}").render().toStdString() == "test");
+        CHECK(t.parse("{{ product_price | default: 2.99 }}").render().toStdString() == "2.99");
+        Liquid::Data::Hash hash;
+        hash["product_price"] = 4.99;
+        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(hash).toStdString() == "4.99");
+        hash["product_price"] = "";
+        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(hash).toStdString() == "2.99");
     }
 
 }

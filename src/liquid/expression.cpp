@@ -90,7 +90,7 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
             }
         }
         return *currentCtx;
-    } else if (expression.isString() || expression.isNumber()) {
+    } else if (expression.isString() || expression.isNumber() || expression.isNil()) {
         return expression.var_;
     } else {
         throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
