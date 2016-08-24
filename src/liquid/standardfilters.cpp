@@ -362,7 +362,29 @@ Data replace_first(const Data& input, const std::vector<Data>& args)
     const QString replace = args[1].toString();
     const int index = inputStr.indexOf(search);
     if (index != -1) {
-        return inputStr.replace(index, search.size(), replace);
+        inputStr.replace(index, search.size(), replace);
+    }
+    return inputStr;
+}
+
+Data remove(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("remove takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.toString().replace(args[0].toString(), "");
+}
+
+Data remove_first(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("remove_first takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    QString inputStr = input.toString();
+    const QString search = args[0].toString();
+    const int index = inputStr.indexOf(search);
+    if (index != -1) {
+        inputStr.replace(index, search.size(), "");
     }
     return inputStr;
 }
@@ -415,6 +437,8 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("default", def);
     tmpl.registerFilter("replace", replace);
     tmpl.registerFilter("replace_first", replace_first);
+    tmpl.registerFilter("remove", remove);
+    tmpl.registerFilter("remove_first", remove_first);
     tmpl.registerFilter("slice", slice);
 }
 
@@ -657,6 +681,16 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("ReplaceFirst") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'Take my protein pills and put my helmet on' | replace_first: 'my', 'your' }}").render().toStdString() == "Take your protein pills and put my helmet on");
+    }
+
+    SECTION("Remove") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'I strained to see the train through the rain' | remove: 'rain' }}").render().toStdString() == "I sted to see the t through the ");
+    }
+
+    SECTION("RemoveFirst") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'I strained to see the train through the rain' | remove_first: 'rain' }}").render().toStdString() == "I sted to see the train through the rain");
     }
 
     SECTION("Slice") {
