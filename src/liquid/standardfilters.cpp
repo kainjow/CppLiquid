@@ -336,6 +336,20 @@ Data replace_first(const Data& input, const std::vector<Data>& args)
     return inputStr;
 }
 
+Data slice(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1 && args.size() != 2) {
+        throw QString("replace takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const int offset = args[0].toInt();
+    const int length = args.size() == 2 ? args[1].toInt() : 1;
+    const QString inputStr = input.toString();
+    if (offset < 0) {
+        return inputStr.mid(inputStr.size() - ::abs(offset), length);
+    }
+    return inputStr.mid(offset, length);
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -368,6 +382,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("default", def);
     tmpl.registerFilter("replace", replace);
     tmpl.registerFilter("replace_first", replace_first);
+    tmpl.registerFilter("slice", slice);
 }
 
 } } // namespace
@@ -599,6 +614,13 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("ReplaceFirst") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'Take my protein pills and put my helmet on' | replace_first: 'my', 'your' }}").render().toStdString() == "Take your protein pills and put my helmet on");
+    }
+
+    SECTION("Slice") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'Liquid' | slice: 0 }}").render().toStdString() == "L");
+        CHECK(t.parse("{{ 'Liquid' | slice: 2 }}").render().toStdString() == "q");
+        CHECK(t.parse("{{ 'Liquid' | slice: -3, 2 }}").render().toStdString() == "ui");
     }
 }
 
