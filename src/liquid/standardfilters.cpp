@@ -403,6 +403,19 @@ Data slice(const Data& input, const std::vector<Data>& args)
     return inputStr.mid(offset, length);
 }
 
+Data reverse(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("replace takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    Data result(Data::Type::Array);
+    const int size = input.size();
+    for (int i = size - 1; i >= 0; --i) {
+        result.push_back(input.at(i));
+    }
+    return result;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -440,6 +453,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("remove", remove);
     tmpl.registerFilter("remove_first", remove_first);
     tmpl.registerFilter("slice", slice);
+    tmpl.registerFilter("reverse", reverse);
 }
 
 } } // namespace
@@ -698,6 +712,11 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 'Liquid' | slice: 0 }}").render().toStdString() == "L");
         CHECK(t.parse("{{ 'Liquid' | slice: 2 }}").render().toStdString() == "q");
         CHECK(t.parse("{{ 'Liquid' | slice: -3, 2 }}").render().toStdString() == "ui");
+    }
+
+    SECTION("Reverse") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'apples,oranges,peaches' | split: ',' | reverse | join: ',' }}").render().toStdString() == "peaches,oranges,apples");
     }
 }
 
