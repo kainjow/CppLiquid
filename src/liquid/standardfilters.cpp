@@ -237,6 +237,18 @@ Data round(const Data& input, const std::vector<Data>& args)
     return ::round(input.toFloat());
 }
 
+Data modulo(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("modulo takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args[0];
+    if (input.isNumberInt() && arg.isNumberInt()) {
+        return input.toInt() % arg.toInt();
+    }
+    return ::fmod(input.toFloat(), arg.toFloat());
+}
+
 Data split(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
@@ -325,6 +337,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("ceil", ceil);
     tmpl.registerFilter("floor", floor);
     tmpl.registerFilter("round", round);
+    tmpl.registerFilter("modulo", modulo);
     tmpl.registerFilter("split", split);
     tmpl.registerFilter("size", size);
     tmpl.registerFilter("first", first);
@@ -513,6 +526,13 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 2.7 | round }}").render().toStdString() == "3");
         CHECK(t.parse("{{ 183.357 | round: 1}}").render().toStdString() == "183.4");
         CHECK(t.parse("{{ 183.357 | round: 2}}").render().toStdString() == "183.36");
+    }
+
+    SECTION("Modulo") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 3 | modulo: 2 }}").render().toStdString() == "1");
+        CHECK(t.parse("{{ 24 | modulo: 7 }}").render().toStdString() == "3");
+        CHECK(t.parse("{{ 183.357 | modulo: 12 }}").render().toStdString() == "3.357");
     }
 
     SECTION("Split") {
