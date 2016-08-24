@@ -11,7 +11,7 @@ namespace Liquid {
     public:
         Template();
         
-        void parse(const QString& source);
+        Template& parse(const QString& source);
         
         QString render();
         QString render(const Data& data);

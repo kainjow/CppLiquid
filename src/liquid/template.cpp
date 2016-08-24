@@ -10,10 +10,11 @@ Liquid::Template::Template()
     StandardFilters::registerFilters(*this);
 }
 
-void Liquid::Template::parse(const QString& source)
+Liquid::Template& Liquid::Template::parse(const QString& source)
 {
     source_ = source;
     components_ = tokenize(source_);
+    return *this;
 }
 
 std::vector<Liquid::Template::ComponentPtr> Liquid::Template::tokenize(const QString& source) const
@@ -237,6 +238,14 @@ TEST_CASE("Liquid::Template") {
         Liquid::Data ctx(hash);
         t.parse("{{ \"hello \" | append: what }}");
         CHECK(t.render(Liquid::Data(hash)).toStdString() == "hello world");
+    }
+
+    SECTION("Floats") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 32 }}").render().toStdString() == "32");
+        CHECK(t.parse("{{ 32. }}").render().toStdString() == "32");
+        CHECK(t.parse("{{ 32.0 }}").render().toStdString() == "32");
+        CHECK(t.parse("{{ 32.1 }}").render().toStdString() == "32.1");
     }
 }
 

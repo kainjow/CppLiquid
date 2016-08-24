@@ -19,6 +19,22 @@ QStringRef Liquid::ltrim(const QStringRef& input)
     return input.mid(i);
 }
 
+QString Liquid::doubleToString(double value)
+{
+    const QString str = QString::number(value, 'f');
+    const QChar separator = '.';
+    if (str.indexOf(separator) != -1) {
+        int offset = str.size() - 1;
+        while (!str.isEmpty() && str.at(offset) == '0') {
+            --offset;
+        }
+        if (!str.isEmpty() && str.at(offset) == separator) {
+            --offset;
+        }
+        return str.left(offset + 1);
+    }
+    return str;
+}
 
 
 #ifdef TESTS

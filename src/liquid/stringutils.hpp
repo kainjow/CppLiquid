@@ -7,6 +7,7 @@ namespace Liquid {
 
     QStringRef rtrim(const QStringRef& input);
     QStringRef ltrim(const QStringRef& input);
+    QString doubleToString(double value);
 
 }
 

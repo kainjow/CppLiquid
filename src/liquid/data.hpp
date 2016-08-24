@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QList>
 #include <QString>
+#include "stringutils.hpp"
 
 namespace Liquid {
 
@@ -201,7 +202,7 @@ namespace Liquid {
                 case Type::NumberInt:
                     return QString::number(number_.i);
                 case Type::NumberFloat:
-                    return QString::number(number_.f);
+                    return doubleToString(number_.f);
                 default:
                     return string_;
             }
