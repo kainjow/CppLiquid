@@ -275,6 +275,24 @@ Data join(const Data& input, const std::vector<Data>& args)
     return inputList.join(args[0].toString());
 }
 
+Data uniq(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("uniq takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    Data result(Data::Type::Array);
+    std::vector<Data> dupes;
+    const int inputSize = input.size();
+    for (int i = 0; i < inputSize; ++i) {
+        const Data& item = input.at(i);
+        if (std::find(dupes.begin(), dupes.end(), item) == dupes.end()) {
+            dupes.push_back(item);
+            result.push_back(item);
+        }
+    }
+    return result;
+}
+
 Data size(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
@@ -390,6 +408,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("modulo", modulo);
     tmpl.registerFilter("split", split);
     tmpl.registerFilter("join", join);
+    tmpl.registerFilter("uniq", uniq);
     tmpl.registerFilter("size", size);
     tmpl.registerFilter("first", first);
     tmpl.registerFilter("last", last);
@@ -597,6 +616,11 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Join") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | join: '.' }}").render().toStdString() == "John.Paul.George.Ringo");
+    }
+
+    SECTION("Unique") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'ants, bugs, bees, bugs, ants' | split: ', ' | uniq | join: '.' }}").render().toStdString() == "ants.bugs.bees");
     }
 
     SECTION("Size") {
