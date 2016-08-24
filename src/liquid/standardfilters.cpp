@@ -237,6 +237,27 @@ Data round(const Data& input, const std::vector<Data>& args)
     return ::round(input.toFloat());
 }
 
+Data split(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("split takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    Data array(Data::Type::Array);
+    const QStringList items = input.toString().split(args[0].toString());
+    for (const auto& item : items) {
+        array.push_back(item);
+    }
+    return array;
+}
+
+Data size(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.size();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -261,6 +282,8 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("ceil", ceil);
     tmpl.registerFilter("floor", floor);
     tmpl.registerFilter("round", round);
+    tmpl.registerFilter("split", split);
+    tmpl.registerFilter("size", size);
 }
 
 } } // namespace
@@ -444,6 +467,16 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 2.7 | round }}").render().toStdString() == "3");
         CHECK(t.parse("{{ 183.357 | round: 1}}").render().toStdString() == "183.4");
         CHECK(t.parse("{{ 183.357 | round: 2}}").render().toStdString() == "183.36");
+    }
+
+    SECTION("Split") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | size }}").render().toStdString() == "4");
+    }
+
+    SECTION("Size") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'Ground control to Major Tom.' | size }}").render().toStdString() == "28");
     }
 
 }
