@@ -165,6 +165,18 @@ Data minus(const Data& input, const std::vector<Data>& args)
     return input.toFloat() - arg.toFloat();
 }
 
+Data times(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("times takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args[0];
+    if (input.isNumberInt() && arg.isNumberInt()) {
+        return input.toInt() * arg.toInt();
+    }
+    return input.toFloat() * arg.toFloat();
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -183,6 +195,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("truncate", truncate);
     tmpl.registerFilter("plus", plus);
     tmpl.registerFilter("minus", minus);
+    tmpl.registerFilter("times", times);
 }
 
 } } // namespace
@@ -315,6 +328,16 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "12");
         t.parse("{{ 183.357 | minus: 12 }}");
         CHECK(t.render().toStdString() == "171.357");
+    }
+
+    SECTION("Times") {
+        Liquid::Template t;
+        t.parse("{{ 4 | times: 2 }}");
+        CHECK(t.render().toStdString() == "8");
+        t.parse("{{ 16 | times: 4 }}");
+        CHECK(t.render().toStdString() == "64");
+        t.parse("{{ 183.357 | times: 12 }}");
+        CHECK(t.render().toStdString() == "2200.284");
     }
 
 }
