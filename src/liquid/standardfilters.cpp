@@ -313,6 +313,14 @@ Data def(const Data& input, const std::vector<Data>& args)
     return args[0];
 }
 
+Data replace(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 2) {
+        throw QString("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return input.toString().replace(args[0].toString(), args[1].toString());
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -343,6 +351,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("first", first);
     tmpl.registerFilter("last", last);
     tmpl.registerFilter("default", def);
+    tmpl.registerFilter("replace", replace);
 }
 
 } } // namespace
@@ -566,6 +575,10 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ product_price | default: 2.99 }}").render(hash).toStdString() == "2.99");
     }
 
+    SECTION("Replace") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'Take my protein pills and put my helmet on' | replace: 'my', 'your' }}").render().toStdString() == "Take your protein pills and put your helmet on");
+    }
 }
 
 #endif
