@@ -189,6 +189,54 @@ Data divided_by(const Data& input, const std::vector<Data>& args)
     return input.toFloat() / arg.toFloat();
 }
 
+Data abs(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("abs takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isNumberInt()) {
+        return ::abs(input.toInt());
+    }
+    return ::fabs(input.toFloat());
+}
+
+Data ceil(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isNumberInt()) {
+        return input.toInt();
+    }
+    return ::ceil(input.toFloat());
+}
+
+Data floor(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isNumberInt()) {
+        return input.toInt();
+    }
+    return ::floor(input.toFloat());
+}
+
+Data round(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("round takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isNumberInt()) {
+        return input.toInt();
+    }
+    if (args.size() == 1) {
+        const Data& arg = args[0];
+        return doubleToString(input.toFloat(), arg.toInt());
+    }
+    return ::round(input.toFloat());
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -209,6 +257,10 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("minus", minus);
     tmpl.registerFilter("times", times);
     tmpl.registerFilter("divided_by", divided_by);
+    tmpl.registerFilter("abs", abs);
+    tmpl.registerFilter("ceil", ceil);
+    tmpl.registerFilter("floor", floor);
+    tmpl.registerFilter("round", round);
 }
 
 } } // namespace
@@ -363,6 +415,35 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "2");
         t.parse("{{ 20 | divided_by: 7.0 }}");
         CHECK(t.render().toStdString() == "2.857143");
+    }
+
+    SECTION("Abs") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ -17 | abs }}").render().toStdString() == "17");
+        CHECK(t.parse("{{ 4 | abs }}").render().toStdString() == "4");
+        CHECK(t.parse("{{ -19.86 | abs }}").render().toStdString() == "19.86");
+    }
+
+    SECTION("Ceil") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 1.2 | ceil }}").render().toStdString() == "2");
+        CHECK(t.parse("{{ 2.0 | ceil }}").render().toStdString() == "2");
+        CHECK(t.parse("{{ 183.357 | ceil }}").render().toStdString() == "184");
+    }
+
+    SECTION("Floor") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 1.2 | floor }}").render().toStdString() == "1");
+        CHECK(t.parse("{{ 2.0 | floor }}").render().toStdString() == "2");
+        CHECK(t.parse("{{ 183.357 | floor }}").render().toStdString() == "183");
+    }
+
+    SECTION("Round") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 1.2 | round }}").render().toStdString() == "1");
+        CHECK(t.parse("{{ 2.7 | round }}").render().toStdString() == "3");
+        CHECK(t.parse("{{ 183.357 | round: 1}}").render().toStdString() == "183.4");
+        CHECK(t.parse("{{ 183.357 | round: 2}}").render().toStdString() == "183.36");
     }
 
 }
