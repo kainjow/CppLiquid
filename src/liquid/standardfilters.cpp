@@ -258,6 +258,34 @@ Data size(const Data& input, const std::vector<Data>& args)
     return input.size();
 }
 
+Data first(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isArray()) {
+        const int size = input.size();
+        if (size > 0) {
+            return input.at(0);
+        }
+    }
+    return kNilData;
+}
+
+Data last(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    if (input.isArray()) {
+        const int size = input.size();
+        if (size > 0) {
+            return input.at(size - 1);
+        }
+    }
+    return kNilData;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -284,6 +312,8 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("round", round);
     tmpl.registerFilter("split", split);
     tmpl.registerFilter("size", size);
+    tmpl.registerFilter("first", first);
+    tmpl.registerFilter("last", last);
 }
 
 } } // namespace
@@ -477,6 +507,16 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Size") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'Ground control to Major Tom.' | size }}").render().toStdString() == "28");
+    }
+
+    SECTION("First") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | first }}").render().toStdString() == "John");
+    }
+
+    SECTION("Last") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | last }}").render().toStdString() == "Ringo");
     }
 
 }
