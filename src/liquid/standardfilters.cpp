@@ -424,6 +424,22 @@ Data reverse(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
+Data compact(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("compact takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    Data result(Data::Type::Array);
+    const int size = input.size();
+    for (int i = 0; i < size; ++i) {
+        const Data& item = input.at(i);
+        if (!item.isNil()) {
+            result.push_back(item);
+        }
+    }
+    return result;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -463,7 +479,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("remove_first", remove_first);
     tmpl.registerFilter("slice", slice);
     tmpl.registerFilter("reverse", reverse);
-    // compact
+    tmpl.registerFilter("compact", compact);
     // concat
     // date
     // escape_once
@@ -740,6 +756,22 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Reverse") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'apples,oranges,peaches' | split: ',' | reverse | join: ',' }}").render().toStdString() == "peaches,oranges,apples");
+    }
+
+    SECTION("Reverse") {
+        Liquid::Template t;
+        Liquid::Data::Array array;
+        array.push_back(nullptr);
+        array.push_back("hello");
+        array.push_back(nullptr);
+        array.push_back(nullptr);
+        array.push_back("world");
+        array.push_back(nullptr);
+        Liquid::Data::Hash hash;
+        hash["array"] = array;
+        CHECK(t.parse("{{ array | size }}").render(hash).toStdString() == "6");
+        CHECK(t.parse("{{ array | compact | size }}").render(hash).toStdString() == "2");
+        CHECK(t.parse("{{ array | compact | join: ' ' }}").render(hash).toStdString() == "hello world");
     }
 }
 
