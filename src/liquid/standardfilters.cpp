@@ -454,6 +454,15 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("remove_first", remove_first);
     tmpl.registerFilter("slice", slice);
     tmpl.registerFilter("reverse", reverse);
+    // compact
+    // concat
+    // date
+    // escape_once
+    // map
+    // sort
+    // sort_natural
+    // truncatewords
+    // url_decode
 }
 
 } } // namespace
