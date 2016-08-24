@@ -321,6 +321,21 @@ Data replace(const Data& input, const std::vector<Data>& args)
     return input.toString().replace(args[0].toString(), args[1].toString());
 }
 
+Data replace_first(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 2) {
+        throw QString("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    QString inputStr = input.toString();
+    const QString search = args[0].toString();
+    const QString replace = args[1].toString();
+    const int index = inputStr.indexOf(search);
+    if (index != -1) {
+        return inputStr.replace(index, search.size(), replace);
+    }
+    return inputStr;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -352,6 +367,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("last", last);
     tmpl.registerFilter("default", def);
     tmpl.registerFilter("replace", replace);
+    tmpl.registerFilter("replace_first", replace_first);
 }
 
 } } // namespace
@@ -578,6 +594,11 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Replace") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'Take my protein pills and put my helmet on' | replace: 'my', 'your' }}").render().toStdString() == "Take your protein pills and put your helmet on");
+    }
+
+    SECTION("ReplaceFirst") {
+        Liquid::Template t;
+        CHECK(t.parse("{{ 'Take my protein pills and put my helmet on' | replace_first: 'my', 'your' }}").render().toStdString() == "Take your protein pills and put my helmet on");
     }
 }
 
