@@ -102,7 +102,15 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return QString::fromUtf8(QUrl::toPercentEncoding(input.toString().toUtf8()));
+    return QString::fromUtf8(QUrl::toPercentEncoding(input.toString()));
+}
+
+Data url_decode(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    return QUrl::fromPercentEncoding(input.toString().toUtf8());
 }
 
 Data strip_html(const Data& input, const std::vector<Data>& args)
@@ -430,6 +438,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("newline_to_br", newline_to_br);
     tmpl.registerFilter("escape", escape);
     tmpl.registerFilter("url_encode", url_encode);
+    tmpl.registerFilter("url_decode", url_decode);
     tmpl.registerFilter("strip_html", strip_html);
     tmpl.registerFilter("truncate", truncate);
     tmpl.registerFilter("plus", plus);
@@ -462,7 +471,6 @@ void registerFilters(Template& tmpl)
     // sort
     // sort_natural
     // truncatewords
-    // url_decode
 }
 
 } } // namespace
@@ -559,6 +567,12 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Template t;
         t.parse("{{ \"hello @world\" | url_encode }}");
         CHECK(t.render().toStdString() == "hello%20%40world");
+    }
+    
+    SECTION("UrlDecode") {
+        Liquid::Template t;
+        t.parse("{{ \"hello%20%40world\" | url_decode }}");
+        CHECK(t.render().toStdString() == "hello @world");
     }
 
     SECTION("StripHtml") {
