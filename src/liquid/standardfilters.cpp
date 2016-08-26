@@ -477,6 +477,27 @@ Data map(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
+Data concat(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("concat takes 1 argument1, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args[0];
+    if (!arg.isArray()) {
+        throw QString("concat requires an array argument").toStdString();
+    }
+    Data result(Data::Type::Array);
+    int size = input.size();
+    for (int i = 0; i < size; ++i) {
+        result.push_back(input.at(i));
+    }
+    size = arg.size();
+    for (int i = 0; i < size; ++i) {
+        result.push_back(arg.at(i));
+    }
+    return result;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -519,7 +540,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("reverse", reverse);
     tmpl.registerFilter("compact", compact);
     tmpl.registerFilter("map", map);
-    // concat
+    tmpl.registerFilter("concat", concat);
     // date
     // escape_once
     // sort
@@ -840,6 +861,20 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ pages | size }}").render(hash).toStdString() == "5");
         CHECK(t.parse("{{ pages | map: 'category' | size }}").render(hash).toStdString() == "5");
         CHECK(t.parse("{{ pages | map: 'category' | join: ' ' }}").render(hash).toStdString() == "business celebrities lifestyle sports technology");
+    }
+
+    SECTION("Concat") {
+        Liquid::Template t;
+        Liquid::Data::Array names1;
+        Liquid::Data::Array names2;
+        Liquid::Data::Hash hash;
+        names1.push_back("bill");
+        names1.push_back("steve");
+        names2.push_back("larry");
+        names2.push_back("michael");
+        hash["names1"] = names1;
+        hash["names2"] = names2;
+        CHECK(t.parse("{{ names1 | concat: names2 | join: ',' }}").render(hash).toStdString() == "bill,steve,larry,michael");
     }
 }
 
