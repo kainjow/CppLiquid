@@ -99,11 +99,6 @@ Data escape(const Data& input, const std::vector<Data>& args)
 
 int scanEntity(StringScanner& ss)
 {
-    enum class Mode {
-        Name,
-        Decimal,
-        Hex,
-    } mode;
     int pos = 0;
     QStringRef str;
     const auto isNameChar = [](const ushort ch) {
@@ -115,11 +110,12 @@ int scanEntity(StringScanner& ss)
     const auto isHexChar = [](const ushort ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
     };
+    std::function<bool(const ushort)> func;
     while (!ss.eof()) {
         const ushort ch = ss.getch().at(0).unicode();
         if (pos == 0) {
             if (isNameChar(ch)) {
-                mode = Mode::Name;
+                func = isNameChar;
                 ++pos;
             } else if (ch == '#') {
                 // Decimal or Hexadecimal
@@ -133,11 +129,11 @@ int scanEntity(StringScanner& ss)
                     if (firsthexch.isNull() || !isHexChar(firsthexch.at(0).unicode())) {
                         return 0;
                     }
-                    mode = Mode::Hex;
+                    func = isHexChar;
                     ss.setPosition(ss.position() + 2);
                     pos += 3;
                 } else if (isDecimalChar(nextch)) {
-                    mode = Mode::Decimal;
+                    func = isDecimalChar;
                     ++pos;
                 } else {
                     return 0;
@@ -149,22 +145,8 @@ int scanEntity(StringScanner& ss)
             ++pos;
             break;
         } else {
-            switch (mode) {
-                case Mode::Name:
-                    if (!isNameChar(ch)) {
-                        return 0;
-                    }
-                    break;
-                case Mode::Decimal:
-                    if (!isDecimalChar(ch)) {
-                        return 0;
-                    }
-                    break;
-                case Mode::Hex:
-                    if (!isHexChar(ch)) {
-                        return 0;
-                    }
-                    break;
+            if (!func(ch)) {
+                return 0;
             }
             ++pos;
         }
