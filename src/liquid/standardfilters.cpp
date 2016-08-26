@@ -509,7 +509,7 @@ Data sort(const Data& input, const std::vector<Data>& args)
         objs.push_back(input.at(i));
     }
     std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
-        return a.toString().compare(b.toString());
+        return a.toString().compare(b.toString()) < 0;
     });
     Data result(Data::Type::Array);
     for (const auto& obj : objs) {
