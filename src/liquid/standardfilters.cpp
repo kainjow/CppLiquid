@@ -99,7 +99,7 @@ Data escape(const Data& input, const std::vector<Data>& args)
 
 int scanEntity(StringScanner& ss)
 {
-    int pos = 0;
+    const int startPos = ss.position();
     const auto isNameChar = [](const ushort ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };
@@ -110,12 +110,13 @@ int scanEntity(StringScanner& ss)
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
     };
     std::function<bool(const ushort)> func;
+    bool firstch = true;
     while (!ss.eof()) {
         const ushort ch = ss.getch().at(0).unicode();
-        if (pos == 0) {
+        if (firstch) {
+            firstch = false;
             if (isNameChar(ch)) {
                 func = isNameChar;
-                ++pos;
             } else if (ch == '#') {
                 // Decimal or Hexadecimal
                 const QStringRef peek = ss.peekch();
@@ -130,27 +131,20 @@ int scanEntity(StringScanner& ss)
                     }
                     func = isHexChar;
                     ss.setPosition(ss.position() + 2);
-                    pos += 3;
                 } else if (isDecimalChar(nextch)) {
                     func = isDecimalChar;
-                    ++pos;
-                } else {
-                    return 0;
                 }
-            } else {
+            }
+            if (!func) {
                 return 0;
             }
         } else if (ch == ';') {
-            ++pos;
             break;
-        } else {
-            if (!func(ch)) {
-                return 0;
-            }
-            ++pos;
+        } else if (!func(ch)) {
+            return 0;
         }
     }
-    return pos;
+    return ss.position() - startPos;
 }
 
 Data escape_once(const Data& input, const std::vector<Data>& args)
