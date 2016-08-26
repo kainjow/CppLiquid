@@ -97,6 +97,122 @@ Data escape(const Data& input, const std::vector<Data>& args)
     return input.toString().toHtmlEscaped().replace("'", "&#39;");
 }
 
+int scanEntity(StringScanner& ss)
+{
+    enum class Mode {
+        Name,
+        Decimal,
+        Hex,
+    } mode;
+    int pos = 0;
+    QStringRef str;
+    const auto isNameChar = [](const ushort ch) {
+        return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+    };
+    const auto isDecimalChar = [](const ushort ch) {
+        return (ch >= '0' && ch <= '9');
+    };
+    const auto isHexChar = [](const ushort ch) {
+        return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
+    };
+    while (!ss.eof()) {
+        const ushort ch = ss.getch().at(0).unicode();
+        if (pos == 0) {
+            if (isNameChar(ch)) {
+                mode = Mode::Name;
+                ++pos;
+            } else if (ch == '#') {
+                // Decimal or Hexadecimal
+                const QStringRef peek = ss.peekch();
+                if (peek.isNull()) {
+                    return 0;
+                }
+                const ushort nextch = peek.at(0).unicode();
+                if (nextch == 'x') {
+                    const QStringRef firsthexch = ss.peekch(1);
+                    if (firsthexch.isNull() || !isHexChar(firsthexch.at(0).unicode())) {
+                        return 0;
+                    }
+                    mode = Mode::Hex;
+                    (void)ss.getch();
+                    (void)ss.getch();
+                    pos += 3;
+                } else if (isDecimalChar(nextch)) {
+                    mode = Mode::Decimal;
+                    ++pos;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else if (ch == ';') {
+            ++pos;
+            break;
+        } else if (mode == Mode::Name) {
+            if (!isNameChar(ch)) {
+                return 0;
+            }
+            ++pos;
+        } else if (mode == Mode::Decimal) {
+            if (!isDecimalChar(ch)) {
+                return 0;
+            }
+            ++pos;
+        } else if (mode == Mode::Hex) {
+            if (!isHexChar(ch)) {
+                return 0;
+            }
+            ++pos;
+        }
+    }
+    return pos;
+}
+
+Data escape_once(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 0) {
+        throw QString("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const QString str = input.toString();
+    StringScanner ss(&str);
+    QString result;
+    while (!ss.eof()) {
+        const QChar ch = ss.getch().at(0);
+        switch (ch.unicode()) {
+            case '"':
+                result += "&quot;";
+                break;
+            case '\'':
+                result += "&#39;";
+                break;
+            case '<':
+                result += "&lt;";
+                break;
+            case '>':
+                result += "&gt;";
+                break;
+            case '&': {
+                const int currentPosition = ss.position();
+                const int numEntityChars = scanEntity(ss);
+                if (numEntityChars == 0) {
+                    result += "&amp;";
+                    ss.setPosition(currentPosition);
+                } else {
+                    QString chunk = str.mid(currentPosition - 1, numEntityChars + 1);
+                    result += chunk;
+                    ss.setPosition(currentPosition + numEntityChars);
+                }
+                break;
+            }
+            default:
+                result += ch;
+                break;
+        }
+    }
+    return result;
+}
+
 Data url_encode(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
@@ -544,6 +660,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("strip_newlines", strip_newlines);
     tmpl.registerFilter("newline_to_br", newline_to_br);
     tmpl.registerFilter("escape", escape);
+    tmpl.registerFilter("escape_once", escape_once);
     tmpl.registerFilter("url_encode", url_encode);
     tmpl.registerFilter("url_decode", url_decode);
     tmpl.registerFilter("strip_html", strip_html);
@@ -577,7 +694,6 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("sort", sort);
     tmpl.registerFilter("sort_natural", sort_natural);
     // date
-    // escape_once
 }
 
 } } // namespace
@@ -661,6 +777,21 @@ TEST_CASE("Liquid::StandardFilters") {
         t.parse("{{ what | escape }}");
         CHECK(t.render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
     }
+
+    SECTION("EscapeOnce") {
+        Liquid::Template t;
+        Liquid::Data::Hash hash;
+        hash["what"] = "' \" & < > ' \" & < >";
+        CHECK(t.parse("{{ what | escape_once }}").render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+        CHECK(t.parse("{{ '1 < 2 & 3' | escape_once }}").render(hash).toStdString() == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '1 &lt; 2 &amp; 3' | escape_once }}").render(hash).toStdString() == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '&excl; &#x00021; &#33;' | escape_once }}").render(hash).toStdString() == "&excl; &#x00021; &#33;");
+        CHECK(t.parse("{{ '&frac34; &#x000BE; &#190;' | escape_once }}").render(hash).toStdString() == "&frac34; &#x000BE; &#190;");
+        CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(hash).toStdString() == "&ctdot; &#x022EF; &#8943;");
+        CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(hash).toStdString() == "&amp;; &amp;#x; &amp;#;");
+        CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(hash).toStdString() == "&#x0; &#0;");
+    }
+    
 
     SECTION("UrlEncode") {
         Liquid::Template t;

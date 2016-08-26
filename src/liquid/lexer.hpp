@@ -159,6 +159,22 @@ namespace Liquid {
             return str;
         }
         
+        QStringRef peekch(int distance = 0) {
+            const int pos = pos_ + distance;
+            if (pos >= input_.size()) {
+                return QStringRef();
+            }
+            return input_.mid(pos, 1);
+        }
+        
+        void setPosition(int pos) {
+            pos_ = pos;
+        }
+        
+        int position() const {
+            return pos_;
+        }
+        
     private:
         const QStringRef& input_;
         int pos_;
