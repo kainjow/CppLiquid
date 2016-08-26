@@ -149,6 +149,29 @@ Data truncate(const Data& input, const std::vector<Data>& args)
     return input.toString().left(len) + truncateStr;
 }
 
+Data truncatewords(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() < 1 || args.size() > 2) {
+        throw QString("truncatewords takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const int numWords = args[0].toInt();
+    const QString truncateStr = args.size() == 2 ? args[1].toString() : "...";
+    const QChar delimiter = ' ';
+    const QStringList wordlist = input.toString().split(delimiter);
+    int len = numWords - 1;
+    if (len < 0) {
+        len = 0;
+    }
+    if (wordlist.size() <= len) {
+        return input;
+    }
+    QString result;
+    for (int i = 0; i <= len; ++i) {
+        result += wordlist[i] + delimiter;
+    }
+    return result.trimmed() + truncateStr;
+}
+
 Data plus(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
@@ -471,6 +494,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("url_decode", url_decode);
     tmpl.registerFilter("strip_html", strip_html);
     tmpl.registerFilter("truncate", truncate);
+    tmpl.registerFilter("truncatewords", truncatewords);
     tmpl.registerFilter("plus", plus);
     tmpl.registerFilter("minus", minus);
     tmpl.registerFilter("times", times);
@@ -500,7 +524,6 @@ void registerFilters(Template& tmpl)
     // escape_once
     // sort
     // sort_natural
-    // truncatewords
 }
 
 } } // namespace
@@ -612,6 +635,16 @@ TEST_CASE("Liquid::StandardFilters") {
     }
 
     SECTION("Truncate") {
+        Liquid::Template t;
+        t.parse("{{ 'Ground control to Major Tom.' | truncatewords: 3 }}");
+        CHECK(t.render().toStdString() == "Ground control to...");
+        t.parse("{{ 'Ground control to Major Tom.' | truncatewords: 3, '--' }}");
+        CHECK(t.render().toStdString() == "Ground control to--");
+        t.parse("{{ 'Ground control to Major Tom.' | truncatewords: 3, '' }}");
+        CHECK(t.render().toStdString() == "Ground control to");
+    }
+
+    SECTION("TruncateWords") {
         Liquid::Template t;
         t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20 }}");
         CHECK(t.render().toStdString() == "Ground control to...");
