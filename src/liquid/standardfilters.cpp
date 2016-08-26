@@ -116,7 +116,7 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
 Data strip_html(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     const QString inputStr = input.toString();
     const int inputStrSize = inputStr.size();
@@ -245,7 +245,7 @@ Data ceil(const Data& input, const std::vector<Data>& args)
 Data floor(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("floor takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -349,7 +349,7 @@ Data first(const Data& input, const std::vector<Data>& args)
 Data last(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("last doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isArray()) {
         const int size = input.size();
@@ -386,7 +386,7 @@ Data replace(const Data& input, const std::vector<Data>& args)
 Data replace_first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 2) {
-        throw QString("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("replace_first takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     QString inputStr = input.toString();
     const QString search = args[0].toString();
@@ -423,7 +423,7 @@ Data remove_first(const Data& input, const std::vector<Data>& args)
 Data slice(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1 && args.size() != 2) {
-        throw QString("replace takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("slice takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     const int offset = args[0].toInt();
     const int length = args.size() == 2 ? args[1].toInt() : 1;
@@ -437,7 +437,7 @@ Data slice(const Data& input, const std::vector<Data>& args)
 Data reverse(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("replace takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("reverse takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
     const int size = input.size();
