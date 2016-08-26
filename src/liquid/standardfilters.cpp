@@ -510,6 +510,18 @@ Data sort(const Data& input, const std::vector<Data>& args)
     return objs;
 }
 
+Data sort_natural(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("sort_natural takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    Data::Array objs = input.array();
+    std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
+        return a.toString().compare(b.toString(), Qt::CaseInsensitive) < 0;
+    });
+    return objs;
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -554,9 +566,9 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("map", map);
     tmpl.registerFilter("concat", concat);
     tmpl.registerFilter("sort", sort);
+    tmpl.registerFilter("sort_natural", sort_natural);
     // date
     // escape_once
-    // sort_natural
 }
 
 } } // namespace
@@ -889,7 +901,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ names1 | concat: names2 | join: ',' }}").render(hash).toStdString() == "bill,steve,larry,michael");
     }
 
-    SECTION("Concat") {
+    SECTION("Sort") {
         Liquid::Template t;
         Liquid::Data::Array array;
         Liquid::Data::Hash hash;
@@ -899,6 +911,18 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back("Sally Snake");
         hash["array"] = array;
         CHECK(t.parse("{{ array | sort | join: ', ' }}").render(hash).toStdString() == "Sally Snake, giraffe, octopus, zebra");
+    }
+
+    SECTION("SortNatural") {
+        Liquid::Template t;
+        Liquid::Data::Array array;
+        Liquid::Data::Hash hash;
+        array.push_back("zebra");
+        array.push_back("octopus");
+        array.push_back("giraffe");
+        array.push_back("Sally Snake");
+        hash["array"] = array;
+        CHECK(t.parse("{{ array | sort_natural | join: ', ' }}").render(hash).toStdString() == "giraffe, octopus, Sally Snake, zebra");
     }
 }
 
