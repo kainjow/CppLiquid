@@ -466,7 +466,7 @@ Data compact(const Data& input, const std::vector<Data>& args)
 Data map(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("map takes 1 argument1, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("map takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& property = args[0];
     Data result(Data::Type::Array);
@@ -480,7 +480,7 @@ Data map(const Data& input, const std::vector<Data>& args)
 Data concat(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("concat takes 1 argument1, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("concat takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (!arg.isArray()) {
@@ -494,6 +494,26 @@ Data concat(const Data& input, const std::vector<Data>& args)
     size = arg.size();
     for (int i = 0; i < size; ++i) {
         result.push_back(arg.at(i));
+    }
+    return result;
+}
+
+Data sort(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() > 1) {
+        throw QString("sort takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+    }
+    std::vector<Data> objs;
+    const int size = input.size();
+    for (int i = 0; i < size; ++i) {
+        objs.push_back(input.at(i));
+    }
+    std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
+        return a.toString().compare(b.toString());
+    });
+    Data result(Data::Type::Array);
+    for (const auto& obj : objs) {
+        result.push_back(obj);
     }
     return result;
 }
@@ -541,9 +561,9 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("compact", compact);
     tmpl.registerFilter("map", map);
     tmpl.registerFilter("concat", concat);
+    tmpl.registerFilter("sort", sort);
     // date
     // escape_once
-    // sort
     // sort_natural
 }
 
@@ -875,6 +895,18 @@ TEST_CASE("Liquid::StandardFilters") {
         hash["names1"] = names1;
         hash["names2"] = names2;
         CHECK(t.parse("{{ names1 | concat: names2 | join: ',' }}").render(hash).toStdString() == "bill,steve,larry,michael");
+    }
+
+    SECTION("Concat") {
+        Liquid::Template t;
+        Liquid::Data::Array array;
+        Liquid::Data::Hash hash;
+        array.push_back("zebra");
+        array.push_back("octopus");
+        array.push_back("giraffe");
+        array.push_back("Sally Snake");
+        hash["array"] = array;
+        CHECK(t.parse("{{ array | sort | join: ', ' }}").render(hash).toStdString() == "Sally Snake, giraffe, octopus, zebra");
     }
 }
 
