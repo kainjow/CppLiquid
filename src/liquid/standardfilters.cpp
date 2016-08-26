@@ -498,28 +498,35 @@ Data concat(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
-Data sort(const Data& input, const std::vector<Data>& args)
+Data sort_imp(const Data& input, const std::vector<Data>& args, const QString& filterName, Qt::CaseSensitivity cs)
 {
     if (args.size() > 1) {
-        throw QString("sort takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw QString("%1 takes 0 or 1 arguments, but was passed %1.").arg(filterName).arg(args.size()).toStdString();
     }
     Data::Array objs = input.array();
-    std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
-        return a.toString().compare(b.toString()) < 0;
-    });
+    if (args.empty()) {
+        std::sort(objs.begin(), objs.end(), [cs](const Data& a, const Data& b) -> bool {
+            return a.toString().compare(b.toString(), cs) < 0;
+        });
+    } else {
+        const QString property = args[0].toString();
+        std::sort(objs.begin(), objs.end(), [&property, cs](const Data& a, const Data& b) -> bool {
+            const QString s1 = a[property].toString();
+            const QString s2 = b[property].toString();
+            return s1.compare(s2, cs) < 0;
+        });
+    }
     return objs;
+}
+
+Data sort(const Data& input, const std::vector<Data>& args)
+{
+    return sort_imp(input, args, "sort", Qt::CaseSensitive);
 }
 
 Data sort_natural(const Data& input, const std::vector<Data>& args)
 {
-    if (args.size() > 1) {
-        throw QString("sort_natural takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
-    }
-    Data::Array objs = input.array();
-    std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
-        return a.toString().compare(b.toString(), Qt::CaseInsensitive) < 0;
-    });
-    return objs;
+    return sort_imp(input, args, "sort_natural", Qt::CaseInsensitive);
 }
 
 void registerFilters(Template& tmpl)
@@ -903,6 +910,18 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back("Sally Snake");
         hash["array"] = array;
         CHECK(t.parse("{{ array | sort | join: ', ' }}").render(hash).toStdString() == "Sally Snake, giraffe, octopus, zebra");
+        Liquid::Data::Hash item;
+        Liquid::Data::Array names;
+        item["name"] = "bob";
+        names.push_back(item);
+        item["name"] = "Sally";
+        names.push_back(item);
+        item["name"] = "george";
+        names.push_back(item);
+        item["name"] = "Jane";
+        names.push_back(item);
+        hash["names"] = names;
+        CHECK(t.parse("{{ names | sort: 'name' | map: 'name' | join: ', ' }}").render(hash).toStdString() == "Jane, Sally, bob, george");
     }
 
     SECTION("SortNatural") {
@@ -915,6 +934,18 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back("Sally Snake");
         hash["array"] = array;
         CHECK(t.parse("{{ array | sort_natural | join: ', ' }}").render(hash).toStdString() == "giraffe, octopus, Sally Snake, zebra");
+        Liquid::Data::Hash item;
+        Liquid::Data::Array names;
+        item["name"] = "bob";
+        names.push_back(item);
+        item["name"] = "Sally";
+        names.push_back(item);
+        item["name"] = "george";
+        names.push_back(item);
+        item["name"] = "Jane";
+        names.push_back(item);
+        hash["names"] = names;
+        CHECK(t.parse("{{ names | sort_natural: 'name' | map: 'name' | join: ', ' }}").render(hash).toStdString() == "bob, george, Jane, Sally");
     }
 }
 
