@@ -134,8 +134,7 @@ int scanEntity(StringScanner& ss)
                         return 0;
                     }
                     mode = Mode::Hex;
-                    (void)ss.getch();
-                    (void)ss.getch();
+                    ss.setPosition(ss.position() + 2);
                     pos += 3;
                 } else if (isDecimalChar(nextch)) {
                     mode = Mode::Decimal;
@@ -149,19 +148,23 @@ int scanEntity(StringScanner& ss)
         } else if (ch == ';') {
             ++pos;
             break;
-        } else if (mode == Mode::Name) {
-            if (!isNameChar(ch)) {
-                return 0;
-            }
-            ++pos;
-        } else if (mode == Mode::Decimal) {
-            if (!isDecimalChar(ch)) {
-                return 0;
-            }
-            ++pos;
-        } else if (mode == Mode::Hex) {
-            if (!isHexChar(ch)) {
-                return 0;
+        } else {
+            switch (mode) {
+                case Mode::Name:
+                    if (!isNameChar(ch)) {
+                        return 0;
+                    }
+                    break;
+                case Mode::Decimal:
+                    if (!isDecimalChar(ch)) {
+                        return 0;
+                    }
+                    break;
+                case Mode::Hex:
+                    if (!isHexChar(ch)) {
+                        return 0;
+                    }
+                    break;
             }
             ++pos;
         }
