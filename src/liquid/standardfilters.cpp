@@ -503,11 +503,7 @@ Data sort(const Data& input, const std::vector<Data>& args)
     if (args.size() > 1) {
         throw QString("sort takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    Data::Array objs;
-    const int size = input.size();
-    for (int i = 0; i < size; ++i) {
-        objs.push_back(input.at(i));
-    }
+    Data::Array objs = input.array();
     std::sort(objs.begin(), objs.end(), [](const Data& a, const Data& b) -> bool {
         return a.toString().compare(b.toString()) < 0;
     });

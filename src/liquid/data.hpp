@@ -270,6 +270,10 @@ namespace Liquid {
             return array_.at(index);
         }
         
+        const Array& array() const {
+            return array_;
+        }
+        
         void insert(const QString& key, const Data& value) {
             hash_.insert(key, value);
         }
