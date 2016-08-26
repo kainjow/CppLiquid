@@ -506,7 +506,9 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const QString& f
     Data::Array objs = input.array();
     if (args.empty()) {
         std::sort(objs.begin(), objs.end(), [cs](const Data& a, const Data& b) -> bool {
-            return a.toString().compare(b.toString(), cs) < 0;
+            const QString s1 = a.toString();
+            const QString s2 = b.toString();
+            return s1.compare(s2, cs) < 0;
         });
     } else {
         const QString property = args[0].toString();
