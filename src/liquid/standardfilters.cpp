@@ -100,7 +100,6 @@ Data escape(const Data& input, const std::vector<Data>& args)
 int scanEntity(StringScanner& ss)
 {
     int pos = 0;
-    QStringRef str;
     const auto isNameChar = [](const ushort ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };
