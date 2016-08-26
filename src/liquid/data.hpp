@@ -3,8 +3,8 @@
 
 #include <QDebug>
 #include <QHash>
-#include <QList>
 #include <QString>
+#include <vector>
 #include "stringutils.hpp"
 
 namespace Liquid {
@@ -27,7 +27,7 @@ namespace Liquid {
         };
         
         using Hash = QHash<QString, Data>;
-        using Array = QList<Data>;
+        using Array = std::vector<Data>;
         
         Data()
             : type_(Type::Nil)
