@@ -163,7 +163,7 @@ namespace Liquid {
             return result;
         }
         
-        QStringRef scanInt() {
+        QStringRef peekInt() {
             int count = 0;
             const int size = input_.size();
             const auto isDigit = [](const ushort ch) {
@@ -176,6 +176,36 @@ namespace Liquid {
                         return QStringRef();
                     }
                 } else if (!isDigit(ch)) {
+                    break;
+                }
+            }
+            return input_.mid(pos_, count);
+        }
+
+        QStringRef scanInt() {
+            const QStringRef intStr = peekInt();
+            if (!intStr.isNull()) {
+                pos_ += intStr.size();
+            }
+            return intStr;
+        }
+
+        QStringRef scanFloat() {
+            const QStringRef intStr = peekInt();
+            if (intStr.isNull()) {
+                return intStr;
+            }
+            const int size = input_.size();
+            int count = intStr.size();
+            int pos = pos_ + count;
+            if (pos > (size - 1) || input_.at(pos).unicode() != '.') {
+                return QStringRef();
+            }
+            ++pos;
+            ++count;
+            for (int i = pos ; i < size; ++i, ++count) {
+                const ushort ch = input_.at(i).unicode();
+                if (!(ch >= '0' && ch <= '9')) {
                     break;
                 }
             }

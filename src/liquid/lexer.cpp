@@ -18,8 +18,6 @@ namespace {
         {'?', Liquid::Token::Type::Question},
         {'-', Liquid::Token::Type::Dash},
     };
-    
-    const QRegularExpression kNumberFloatLiteral("-?\\d+\\.\\d*");
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
@@ -39,7 +37,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        tok = ss.scan(kNumberFloatLiteral);
+        tok = ss.scanFloat();
         if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::NumberFloat, tok);
             continue;
