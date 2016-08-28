@@ -773,8 +773,8 @@ TEST_CASE("Liquid::StandardFilters") {
 
     SECTION("UrlEncode") {
         Liquid::Template t;
-        t.parse("{{ \"hello @world\" | url_encode }}");
-        CHECK(t.render().toStdString() == "hello%20%40world");
+        CHECK(t.parse("{{ 'hello @world' | url_encode }}").render().toStdString() == "hello%20%40world");
+        CHECK(t.parse("{{ 'foo+1@example.com' | url_encode }}").render().toStdString() == "foo%2B1%40example.com");
     }
     
     SECTION("UrlDecode") {
