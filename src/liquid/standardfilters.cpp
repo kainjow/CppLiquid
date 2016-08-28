@@ -653,6 +653,59 @@ Data sort_natural(const Data& input, const std::vector<Data>& args)
     return sort_imp(input, args, "sort_natural", Qt::CaseInsensitive);
 }
 
+bool string_to_date(const std::string& input, struct ::tm& tm)
+{
+    const char *cstr = input.c_str();
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    if (::sscanf(cstr, "%04d-%02d-%02d %02d:%02d:%02d", &year, &month, &day, &hour, &minute, &second) == 6) {
+        // ok
+    } else if (::sscanf(cstr, "%04d-%02d-%02d", &year, &month, &day) == 3) {
+        // ok
+    } else {
+        return false;
+    }
+    ::memset(&tm, 0, sizeof(tm));
+    tm.tm_year = year - 1900;
+    tm.tm_mon = month - 1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = minute;
+    tm.tm_sec = second;
+    return true;
+}
+
+Data date(const Data& input, const std::vector<Data>& args)
+{
+    if (args.size() != 1) {
+        throw QString("date takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+    }
+    const Data& arg = args.at(0);
+    if (!arg.isString() || arg.size() == 0) {
+        return input;
+    }
+    struct ::tm tm;
+    if (!string_to_date(input.toString().toUtf8().constData(), tm)) {
+        return nullptr;
+    }
+    const QByteArray formatBytes = arg.toString().toUtf8();
+    const char *formatCstr = formatBytes.constData();
+    size_t bufSize = 100;
+    std::vector<char> buf(bufSize + 1, 0);
+    size_t numChars;
+    int infiniteLoopProtector = 0; // strftime() can return a valid empty string in some cases
+    while ((numChars = ::strftime(buf.data(), bufSize, formatCstr, &tm)) == 0 && (infiniteLoopProtector < 100)) {
+        bufSize *= 2;
+        buf.resize(bufSize + 1, 0);
+        ++infiniteLoopProtector;
+    }
+    return QString::fromUtf8(buf.data(), numChars);
+}
+
 void registerFilters(Template& tmpl)
 {
     tmpl.registerFilter("append", append);
@@ -699,7 +752,7 @@ void registerFilters(Template& tmpl)
     tmpl.registerFilter("concat", concat);
     tmpl.registerFilter("sort", sort);
     tmpl.registerFilter("sort_natural", sort_natural);
-    // date
+    tmpl.registerFilter("date", date);
 }
 
 } } // namespace
@@ -1090,6 +1143,20 @@ TEST_CASE("Liquid::StandardFilters") {
         names.push_back(item);
         hash["names"] = names;
         CHECK(t.parse("{{ names | sort_natural: 'name' | map: 'name' | join: ', ' }}").render(hash).toStdString() == "bob, george, Jane, Sally");
+    }
+    
+    SECTION("Date") {
+        using namespace Liquid::StandardFilters;
+        CHECK(date("2006-05-05 10:00:00", {"%B"}).toString().toStdString() == "May");
+        CHECK(date("2006-06-05 10:00:00", {"%B"}).toString().toStdString() == "June");
+        CHECK(date("2006-07-05 10:00:00", {"%B"}).toString().toStdString() == "July");
+
+        CHECK(date("2006-07-05 10:00:00", {""}).toString().toStdString() == "2006-07-05 10:00:00");
+        CHECK(date("2006-07-05 10:00:00", {nullptr}).toString().toStdString() == "2006-07-05 10:00:00");
+
+        CHECK(date("2006-07-05", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
+        CHECK(date("2006-07-05 10:00:00", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
+        CHECK(date("2006-07-05 10:32:11", {"%m/%d/%Y %k.%M.%S"}).toString().toStdString() == "07/05/2006 10.32.11");
     }
 }
 
