@@ -20,7 +20,6 @@ namespace {
     };
     
     const QRegularExpression kNumberFloatLiteral("-?\\d+\\.\\d*");
-    const QRegularExpression kNumberIntLiteral("-?\\d+");
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
@@ -46,7 +45,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        tok = ss.scan(kNumberIntLiteral);
+        tok = ss.scanInt();
         if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::NumberInt, tok);
             continue;

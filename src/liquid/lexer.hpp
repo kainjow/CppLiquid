@@ -163,6 +163,27 @@ namespace Liquid {
             return result;
         }
         
+        QStringRef scanInt() {
+            int count = 0;
+            const int size = input_.size();
+            const auto isDigit = [](const ushort ch) {
+                return ch >= '0' && ch <= '9';
+            };
+            for (int i = pos_ ; i < size; ++i, ++count) {
+                const ushort ch = input_.at(i).unicode();
+                if (count == 0) {
+                    if (!(isDigit(ch) || (ch == '-' && i < (size - 1) && isDigit(input_.at(i + 1).unicode())))) {
+                        return QStringRef();
+                    }
+                } else if (!isDigit(ch)) {
+                    break;
+                }
+            }
+            const QStringRef result = input_.mid(pos_, count);
+            pos_ += count;
+            return result;
+        }
+        
         bool eof() const {
             return pos_ >= input_.size();
         }
