@@ -145,6 +145,24 @@ namespace Liquid {
             return QStringRef();
         }
         
+        QStringRef scanIdentifier() {
+            int count = 0;
+            const int size = input_.size();
+            for (int i = pos_; i < size; ++i, ++count) {
+                const ushort ch = input_.at(i).unicode();
+                if (count == 0) {
+                    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_')) {
+                        return QStringRef();
+                    }
+                } else if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_' || ch == '-')) {
+                    break;
+                }
+            }
+            const QStringRef result = input_.mid(pos_, count);
+            pos_ += count;
+            return result;
+        }
+        
         bool eof() const {
             return pos_ >= input_.size();
         }

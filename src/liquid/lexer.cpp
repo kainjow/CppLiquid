@@ -19,7 +19,6 @@ namespace {
         {'-', Liquid::Token::Type::Dash},
     };
     
-    const QRegularExpression kIdentifier("[a-zA-Z_][\\w-]+");
     const QRegularExpression kNumberFloatLiteral("-?\\d+\\.\\d*");
     const QRegularExpression kNumberIntLiteral("-?\\d+");
 }
@@ -53,7 +52,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        tok = ss.scan(kIdentifier);
+        tok = ss.scanIdentifier();
         if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::Id, tok);
             continue;
