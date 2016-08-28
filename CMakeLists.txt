@@ -8,7 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)
 
 add_executable(${PROJECT_NAME}
-  src/main.cpp
+  tests/main.cpp
 
   src/liquid/component.cpp
   src/liquid/component.hpp
