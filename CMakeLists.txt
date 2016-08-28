@@ -10,6 +10,8 @@ find_package(Qt5Core)
 add_executable(${PROJECT_NAME}
   tests/main.cpp
 
+  src/liquid/blockbody.cpp
+  src/liquid/blockbody.hpp
   src/liquid/component.cpp
   src/liquid/component.hpp
   src/liquid/context.cpp

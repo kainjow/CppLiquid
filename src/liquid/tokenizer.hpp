@@ -7,9 +7,32 @@ namespace Liquid {
 
     class Tokenizer {
     public:
-        using ComponentPtr = std::unique_ptr<Component>;
+        using ComponentPtr = std::shared_ptr<Component>;
+        
+        Tokenizer(const QString& source)
+            : tokens_(tokenize(source))
+            , pos_(0)
+        {
+        }
+        
+        ComponentPtr next() {
+            if (pos_ >= tokens_.size()) {
+                return nullptr;
+            }
+            const ComponentPtr ptr = tokens_.at(pos_);
+            ++pos_;
+            return ptr;
+        }
+        
+        const std::vector<ComponentPtr>& tokens() const {
+            return tokens_;
+        }
 
-        static std::vector<ComponentPtr> tokenize(const QString& source);
+    private:
+        std::vector<ComponentPtr> tokens_;
+        size_t pos_;
+
+        std::vector<ComponentPtr> tokenize(const QString& source) const;
     };
 
 }

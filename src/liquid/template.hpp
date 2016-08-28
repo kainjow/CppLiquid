@@ -3,7 +3,7 @@
 
 #include "data.hpp"
 #include "filter.hpp"
-#include "tokenizer.hpp"
+#include "blockbody.hpp"
 
 namespace Liquid {
 
@@ -18,7 +18,7 @@ namespace Liquid {
         
         void registerFilter(const std::string& name, const FilterHandler& filter);
     private:
-        std::vector<Tokenizer::ComponentPtr> components_;
+        BlockBody root_;
         QString source_;
         FilterList filters_;
     };

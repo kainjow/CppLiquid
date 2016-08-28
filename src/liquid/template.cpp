@@ -10,7 +10,8 @@ Liquid::Template::Template()
 Liquid::Template& Liquid::Template::parse(const QString& source)
 {
     source_ = source;
-    components_ = Tokenizer::tokenize(source_);
+    Tokenizer tokenizer(source_);
+    root_ = BlockBody(tokenizer);
     return *this;
 }
 
@@ -23,11 +24,7 @@ QString Liquid::Template::render()
 QString Liquid::Template::render(const Data& data)
 {
     const Context ctx(data, filters_);
-    QString str;
-    for (const auto& component : components_) {
-        str += component->render(ctx);
-    }
-    return str;
+    return root_.render(ctx);
 }
 
 void Liquid::Template::registerFilter(const std::string& name, const FilterHandler& filter)

@@ -1,7 +1,7 @@
 #include "tokenizer.hpp"
 #include <QDebug>
 
-std::vector<Liquid::Tokenizer::ComponentPtr> Liquid::Tokenizer::tokenize(const QString& source)
+std::vector<Liquid::Tokenizer::ComponentPtr> Liquid::Tokenizer::tokenize(const QString& source) const
 {
     std::vector<ComponentPtr> components;
     int lastStartPos = 0;
