@@ -1,7 +1,6 @@
 #include "standardfilters.hpp"
 #include "stringutils.hpp"
 #include <QDebug>
-#include <QUrl>
 
 namespace Liquid { namespace StandardFilters {
 
@@ -196,7 +195,18 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return QString::fromUtf8(QUrl::toPercentEncoding(input.toString()));
+    QString result;
+    const QString inputStr = input.toString();
+    const int inputStrSize = inputStr.size();
+    for (int i = 0; i < inputStrSize; ++i) {
+        const ushort ch = inputStr.at(i).unicode();
+        if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
+            result += QChar(ch);
+        } else {
+            result += '%' + QString::number(ch, 16).toUpper();
+        }
+    }
+    return result;
 }
 
 Data url_decode(const Data& input, const std::vector<Data>& args)
