@@ -7,7 +7,7 @@ namespace Liquid { namespace StandardFilters {
 
     void registerFilters(Template& tmpl);
 
-    Data size_imp(const Data& input);
+    size_t size_imp(const Data& input);
     const Data& first_imp(const Data& input);
     const Data& last_imp(const Data& input);
 

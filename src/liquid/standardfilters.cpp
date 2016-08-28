@@ -447,9 +447,9 @@ Data uniq(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
-Data size_imp(const Data& input)
+size_t size_imp(const Data& input)
 {
-    return static_cast<int>(input.size());
+    return input.size();
 }
 
 Data size(const Data& input, const std::vector<Data>& args)
@@ -457,7 +457,7 @@ Data size(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return size_imp(input);
+    return static_cast<int>(size_imp(input));
 }
 
 const Data& first_imp(const Data& input)
