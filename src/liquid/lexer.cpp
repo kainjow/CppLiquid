@@ -22,8 +22,6 @@ namespace {
     const QRegularExpression kIdentifier("[a-zA-Z_][\\w-]+");
     const QRegularExpression kNumberFloatLiteral("-?\\d+\\.\\d*");
     const QRegularExpression kNumberIntLiteral("-?\\d+");
-    const QRegularExpression kDotDot("\\.\\.");
-    const QRegularExpression kComparisonOperator("==|!=|<>|<=?|>=?|contains");
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
@@ -35,11 +33,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
     while (!ss.eof()) {
         ss.skipWhitespace();
         
-        tok = ss.scan(kComparisonOperator);
-        if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::Comparison, tok);
-            continue;
-        }
+        // TODO: Token::Type::Comparison
 
         tok = ss.scanStringLiteral();
         if (!tok.isNull()) {
@@ -65,11 +59,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        tok = ss.scan(kDotDot);
-        if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::Dotdot, tok);
-            continue;
-        }
+        // TODO: Token::Type::Dotdot
         
         tok = ss.getch();
         if (!tok.isNull()) {
