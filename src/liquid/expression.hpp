@@ -22,6 +22,13 @@ namespace Liquid {
             LookupBracketKey,
         };
         
+        enum class LookupKeyFilter {
+            None,
+            Size,
+            First,
+            Last,
+        };
+        
         Expression(Type type)
             : type_(type)
         {
@@ -31,6 +38,8 @@ namespace Liquid {
             : type_(other.type_)
             , var_(other.var_)
             , lookups_(other.lookups_)
+            , filter_(other.filter_)
+            , filterResults_(other.filterResults_)
         {
         }
         
@@ -39,12 +48,19 @@ namespace Liquid {
                 type_ = other.type_;
                 var_ = other.var_;
                 lookups_ = other.lookups_;
+                filter_ = other.filter_;
+                filterResults_ = other.filterResults_;
             }
             return *this;
         }
         
         bool operator==(const Expression& other) const {
-            return type_ == other.type_ && var_ == other.var_ && lookups_ == other.lookups_;
+            return type_ == other.type_
+                && var_ == other.var_
+                && lookups_ == other.lookups_
+                && filter_ == other.filter_
+                && filterResults_ == other.filterResults_
+            ;
         }
         
         Expression()
@@ -163,6 +179,14 @@ namespace Liquid {
             lookups_.push_back(exp);
         }
         
+        void setLookupKeyFilter(LookupKeyFilter filter) {
+            filter_ = filter;
+        }
+        
+        LookupKeyFilter lookupKeyFilter() const {
+            return filter_;
+        }
+        
         static Expression parse(const QStringRef& input) {
             Parser parser(input);
             return parse(parser);
@@ -176,6 +200,8 @@ namespace Liquid {
         Type type_;
         Data var_;
         std::vector<Expression> lookups_;
+        LookupKeyFilter filter_ = LookupKeyFilter::None;
+        mutable std::unordered_map<int, Data> filterResults_;
     };
 
 }

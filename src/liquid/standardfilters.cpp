@@ -446,12 +446,25 @@ Data uniq(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
+Data size_imp(const Data& input)
+{
+    return static_cast<int>(input.size());
+}
+
 Data size(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
         throw QString("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return static_cast<int>(input.size());
+    return size_imp(input);
+}
+
+const Data& first_imp(const Data& input)
+{
+    if (input.isArray() && input.size() > 0) {
+        return input.at(0);
+    }
+    return kNilData;
 }
 
 Data first(const Data& input, const std::vector<Data>& args)
@@ -459,11 +472,13 @@ Data first(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    if (input.isArray()) {
-        const int size = input.size();
-        if (size > 0) {
-            return input.at(0);
-        }
+    return first_imp(input);
+}
+
+const Data& last_imp(const Data& input)
+{
+    if (input.isArray() && input.size() > 0) {
+        return input.at(input.size() - 1);
     }
     return kNilData;
 }
@@ -473,13 +488,7 @@ Data last(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("last doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    if (input.isArray()) {
-        const int size = input.size();
-        if (size > 0) {
-            return input.at(size - 1);
-        }
-    }
-    return kNilData;
+    return last_imp(input);
 }
 
 Data def(const Data& input, const std::vector<Data>& args)
@@ -991,16 +1000,35 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Size") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'Ground control to Major Tom.' | size }}").render().toStdString() == "28");
+        Liquid::Data::Hash hash;
+        hash["what"] = "Ground control to Major Tom.";
+        CHECK(t.parse("{{ what.size }}").render(hash).toStdString() == "28");
     }
 
     SECTION("First") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | first }}").render().toStdString() == "John");
+        Liquid::Data::Hash hash;
+        Liquid::Data::Array names;
+        names.push_back("John");
+        names.push_back("Paul");
+        names.push_back("George");
+        names.push_back("Ringo");
+        hash["names"] = names;
+        CHECK(t.parse("{{ names.first }}").render(hash).toStdString() == "John");
     }
 
     SECTION("Last") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | last }}").render().toStdString() == "Ringo");
+        Liquid::Data::Hash hash;
+        Liquid::Data::Array names;
+        names.push_back("John");
+        names.push_back("Paul");
+        names.push_back("George");
+        names.push_back("Ringo");
+        hash["names"] = names;
+        CHECK(t.parse("{{ names.last }}").render(hash).toStdString() == "Ringo");
     }
 
     SECTION("Default") {

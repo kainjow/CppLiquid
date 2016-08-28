@@ -1,4 +1,5 @@
 #include "expression.hpp"
+#include "standardfilters.hpp"
 #include <QDebug>
 
 Liquid::Expression Liquid::Expression::parse(Parser& parser)
@@ -18,6 +19,13 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
         const QStringRef key = parser.consume(Token::Type::Id);
         Expression sub(Type::LookupKey);
         sub.setKey(key.toString());
+        if (key == "size") {
+            sub.setLookupKeyFilter(Expression::LookupKeyFilter::Size);
+        } else if (key == "first") {
+            sub.setLookupKeyFilter(Expression::LookupKeyFilter::First);
+        } else if (key == "last") {
+            sub.setLookupKeyFilter(Expression::LookupKeyFilter::Last);
+        }
         exp.addLookup(sub);
         
         if (parser.look(Token::Type::Dot)) {
@@ -60,6 +68,24 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
             if (!result.isNil()) {
                 return result;
             }
+        }
+        switch (expression.lookupKeyFilter()) {
+            case LookupKeyFilter::None:
+                break;
+            case LookupKeyFilter::Size: {
+                // Since this function returns a value by reference, and 'size' is 'dynamic, we need to store it.
+                const Data size = StandardFilters::size_imp(data);
+                const int sizeValue = size.toInt();
+                const auto existingResult = filterResults_.find(sizeValue);
+                if (existingResult != filterResults_.end()) {
+                    return existingResult->second;
+                }
+                return filterResults_.insert(std::make_pair(sizeValue, size)).first->second;
+            }
+            case LookupKeyFilter::First:
+                return StandardFilters::first_imp(data);
+            case LookupKeyFilter::Last:
+                return StandardFilters::last_imp(data);
         }
     } else if (expression.isLookup() || expression.isLookupBracketKey()) {
         const Data* currentCtx = &data;
