@@ -104,10 +104,6 @@ namespace Liquid {
             }
         }
         
-        QStringRef scan(const QString& str) {
-            return scan(QRegularExpression(str));
-        }
-        
         QStringRef scan(const QRegularExpression& regex) {
             if (!regex.isValid()) {
                 return QStringRef();
