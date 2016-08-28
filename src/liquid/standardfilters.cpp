@@ -812,6 +812,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 'foo%2B1%40example.com' | url_decode }}").render().toStdString() == "foo+1@example.com");
         CHECK(t.parse("{{ 'foo%2b1%40example.com' | url_decode }}").render().toStdString() == "foo+1@example.com");
         CHECK(Liquid::StandardFilters::url_decode("%20", {}) == " ");
+        CHECK(Liquid::StandardFilters::url_decode("%2", {}) == "%2");
         CHECK(Liquid::StandardFilters::url_decode("%", {}) == "%");
     }
 
