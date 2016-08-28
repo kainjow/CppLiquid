@@ -40,7 +40,7 @@ namespace Liquid {
         {
         }
         
-        Data(std::nullptr_t nil)
+        Data(std::nullptr_t)
             : type_(Type::Nil)
         {
         }
@@ -256,7 +256,7 @@ namespace Liquid {
             }
         }
         
-        int size() const {
+        size_t size() const {
             switch (type_) {
                 case Type::Hash:
                     return hash_.size();
@@ -269,7 +269,7 @@ namespace Liquid {
             }
         }
         
-        const Data& at(int index) const {
+        const Data& at(size_t index) const {
             if (index >= array_.size()) {
                 return kNilData;
             }

@@ -10,7 +10,7 @@ namespace Liquid {
     public:
         Parser(const QStringRef& input);
         
-        void jump(int position) {
+        void jump(size_t position) {
             pos_ = position;
         }
         
@@ -24,13 +24,13 @@ namespace Liquid {
         
         bool consume(Token::Type type, QStringRef& value);
         
-        bool look(Token::Type type, int ahead = 0);
+        bool look(Token::Type type, size_t ahead = 0);
 
     private:
         std::vector<Token> tokens_;
-        int pos_;
+        size_t pos_;
 
-        const Token& tokenAt(int position) const;
+        const Token& tokenAt(size_t position) const;
         QStringRef consume(const Token::Type* type);
     };
 

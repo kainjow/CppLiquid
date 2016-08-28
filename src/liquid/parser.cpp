@@ -7,7 +7,7 @@ Liquid::Parser::Parser(const QStringRef& input)
 {
 }
 
-const Liquid::Token& Liquid::Parser::tokenAt(int position) const
+const Liquid::Token& Liquid::Parser::tokenAt(size_t position) const
 {
     if (tokens_.empty() || position >= tokens_.size()) {
         return kTokenInvalid;
@@ -37,7 +37,7 @@ bool Liquid::Parser::consume(Token::Type type, QStringRef& value)
     return true;
 }
 
-bool Liquid::Parser::look(Token::Type type, int ahead)
+bool Liquid::Parser::look(Token::Type type, size_t ahead)
 {
     const Token& token = tokenAt(pos_ + ahead);
     if (!token.isValid()) {

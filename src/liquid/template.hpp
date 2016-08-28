@@ -24,7 +24,7 @@ namespace Liquid {
         QString source_;
         FilterList filters_;
         
-        std::vector<ComponentPtr> tokenize(const QString& source) const;
+        static std::vector<ComponentPtr> tokenize(const QString& source);
     };
 
 }

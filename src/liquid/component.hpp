@@ -30,7 +30,7 @@ namespace Liquid {
         {
         }
         
-        virtual QString render(const Context& context) const {
+        virtual QString render(const Context&) const {
             return text().toString();
         }
     };
@@ -57,7 +57,7 @@ namespace Liquid {
         {
         }
         
-        virtual QString render(const Context& context) const {
+        virtual QString render(const Context&) const {
             return "";
         }
     };

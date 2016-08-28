@@ -423,7 +423,7 @@ Data size(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return input.size();
+    return static_cast<int>(input.size());
 }
 
 Data first(const Data& input, const std::vector<Data>& args)
