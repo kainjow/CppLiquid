@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/parser.hpp
   src/liquid/standardfilters.cpp
   src/liquid/standardfilters.hpp
+  src/liquid/stringscanner.cpp
+  src/liquid/stringscanner.hpp
   src/liquid/stringutils.cpp
   src/liquid/stringutils.hpp
   src/liquid/template.cpp

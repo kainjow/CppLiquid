@@ -1,4 +1,5 @@
 #include "standardfilters.hpp"
+#include "stringscanner.hpp"
 #include "stringutils.hpp"
 #include <QDebug>
 

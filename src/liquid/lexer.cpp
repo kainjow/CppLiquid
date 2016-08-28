@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "stringscanner.hpp"
 #include "stringutils.hpp"
 #include <QDebug>
 #include <unordered_map>
@@ -79,17 +80,6 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
 #ifdef TESTS
 
 #include "catch.hpp"
-
-TEST_CASE("Liquid::StringScanner") {
-
-    QString input = "Hello World";
-    Liquid::StringScanner ss(&input);
-    CHECK_FALSE(ss.eof());
-    CHECK(ss.scanIdentifier() == "Hello");
-    ss.skipWhitespace();
-    CHECK(ss.scanIdentifier() == "World");
-    CHECK(ss.eof());
-}
 
 TEST_CASE("Liquid::Lexer") {
     
