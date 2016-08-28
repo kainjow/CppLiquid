@@ -13,22 +13,32 @@ namespace Liquid {
         }
         
         BlockBody(Tokenizer& tokenizer) {
-            Tokenizer::ComponentPtr comp;
+            const Component *comp = nullptr;
             while ((comp = tokenizer.next()) != nullptr) {
-                components_.push_back(comp);
+                switch (comp->type) {
+                    case Component::Type::Text:
+                        nodes_.push_back(std::make_unique<TextNode>(comp->text));
+                        break;
+                    case Component::Type::Object:
+                        nodes_.push_back(std::make_unique<ObjectNode>(comp->text, Variable(comp->innerText)));
+                        break;
+                    case Component::Type::Tag:
+                        nodes_.push_back(std::make_unique<TagNode>(comp->text));
+                        break;
+                }
             }
         }
         
         QString render(const Context& context) {
             QString str;
-            for (const auto& component : components_) {
-                str += component->render(context);
+            for (const auto& node : nodes_) {
+                str += node->render(context);
             }
             return str;
         }
 
     private:
-        std::vector<Tokenizer::ComponentPtr> components_;
+        std::vector<NodePtr> nodes_;
     };
 
 }

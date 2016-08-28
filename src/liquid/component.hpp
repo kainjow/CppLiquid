@@ -8,7 +8,25 @@ namespace Liquid {
     
     class Component {
     public:
-        Component(const QStringRef& text)
+        enum class Type {
+            Text,
+            Object,
+            Tag,
+        };
+        Component(Type theType, const QStringRef& theText, const QStringRef& theInnerText)
+            : type(theType)
+            , text(theText)
+            , innerText(theInnerText)
+        {
+        }
+        Type type;
+        QStringRef text;
+        QStringRef innerText;
+    };
+    
+    class Node {
+    public:
+        Node(const QStringRef& text)
             : text_(text)
         {
         }
@@ -23,10 +41,10 @@ namespace Liquid {
         const QStringRef text_;
     };
 
-    class TextComponent : public Component {
+    class TextNode : public Node {
     public:
-        TextComponent(const QStringRef& text)
-            : Component(text)
+        TextNode(const QStringRef& text)
+            : Node(text)
         {
         }
         
@@ -35,10 +53,10 @@ namespace Liquid {
         }
     };
     
-    class ObjectComponent : public Component {
+    class ObjectNode : public Node {
     public:
-        ObjectComponent(const QStringRef& text, const Variable& var)
-            : Component(text)
+        ObjectNode(const QStringRef& text, const Variable& var)
+            : Node(text)
             , var_(var)
         {
         }
@@ -50,10 +68,10 @@ namespace Liquid {
         const Variable var_;
     };
 
-    class TagComponent : public Component {
+    class TagNode : public Node {
     public:
-        TagComponent(const QStringRef& text)
-            : Component(text)
+        TagNode(const QStringRef& text)
+            : Node(text)
         {
         }
         
@@ -61,6 +79,8 @@ namespace Liquid {
             return "";
         }
     };
+    
+    using NodePtr = std::shared_ptr<Node>;
 }
 
 #endif

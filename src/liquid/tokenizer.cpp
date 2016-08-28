@@ -1,9 +1,9 @@
 #include "tokenizer.hpp"
 #include <QDebug>
 
-std::vector<Liquid::Tokenizer::ComponentPtr> Liquid::Tokenizer::tokenize(const QString& source) const
+std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const QString& source) const
 {
-    std::vector<ComponentPtr> components;
+    std::vector<Component> components;
     int lastStartPos = 0;
     const int len = source.size();
     const int lastCharPos = len - 1;
@@ -30,18 +30,14 @@ std::vector<Liquid::Tokenizer::ComponentPtr> Liquid::Tokenizer::tokenize(const Q
             const int chunkLen = startPos - lastStartPos;
             if (chunkLen > 0) {
                 const QStringRef text = source.midRef(lastStartPos, chunkLen);
-                components.push_back(std::make_unique<TextComponent>(text));
+                components.emplace_back(Component::Type::Text, text, text);
             }
             
             // Collect the complete text of the object or tag
             const int tagEndPos = endPos + 2;
             const QStringRef tag = source.midRef(startPos, tagEndPos - startPos);
             const QStringRef tagTrimmed = tag.mid(2, tag.size() - 4).trimmed();
-            if (isObject) {
-                components.push_back(std::make_unique<ObjectComponent>(tag, Variable(tagTrimmed)));
-            } else {
-                components.push_back(std::make_unique<TagComponent>(tag));
-            }
+            components.emplace_back(isObject ? Component::Type::Object : Component::Type::Tag, tag, tagTrimmed);
             
             lastStartPos = tagEndPos;
         }
@@ -50,7 +46,7 @@ std::vector<Liquid::Tokenizer::ComponentPtr> Liquid::Tokenizer::tokenize(const Q
     // Process any remaining text
     if (lastStartPos < len) {
         const QStringRef text = source.midRef(lastStartPos);
-        components.push_back(std::make_unique<TextComponent>(text));
+        components.emplace_back(Component::Type::Text, text, text);
     }
     
     return components;
