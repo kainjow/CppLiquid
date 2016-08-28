@@ -1,7 +1,6 @@
 #ifndef LIQUID_EXPRESSION_HPP
 #define LIQUID_EXPRESSION_HPP
 
-#include <QVariant>
 #include <vector>
 #include "parser.hpp"
 #include "data.hpp"
