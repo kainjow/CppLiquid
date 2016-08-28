@@ -72,7 +72,7 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
             case LookupKeyFilter::None:
                 break;
             case LookupKeyFilter::Size: {
-                // Since this function returns a value by reference, and 'size' is 'dynamic, we need to store it.
+                // Since this function returns a value by reference, and size is dynamic, we need to store it.
                 const Data size = StandardFilters::size_imp(data);
                 const int sizeValue = size.toInt();
                 const auto existingResult = filterResults_.find(sizeValue);
