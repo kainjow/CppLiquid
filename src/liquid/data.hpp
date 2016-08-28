@@ -2,8 +2,8 @@
 #define LIQUID_DATA_HPP
 
 #include <QDebug>
-#include <QHash>
 #include <QString>
+#include <unordered_map>
 #include <vector>
 #include "stringutils.hpp"
 
@@ -26,7 +26,13 @@ namespace Liquid {
             Nil,
         };
         
-        using Hash = QHash<QString, Data>;
+        struct QStringHash {
+            std::size_t operator()(const QString& k) const {
+                return qHash(k);
+            }
+        };
+
+        using Hash = std::unordered_map<QString, Data, QStringHash>;
         using Array = std::vector<Data>;
         
         Data()
@@ -275,15 +281,15 @@ namespace Liquid {
         }
         
         void insert(const QString& key, const Data& value) {
-            hash_.insert(key, value);
+            hash_[key] = value;
         }
         
         const Data& operator[](const QString& key) const {
-            const Hash::const_iterator it = hash_.find(key);
+            const auto it = hash_.find(key);
             if (it == hash_.end()) {
                 return kNilData;
             }
-            return it.value();
+            return it->second;
         }
         
     private:
