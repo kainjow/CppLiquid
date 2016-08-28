@@ -797,7 +797,6 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(hash).toStdString() == "&amp;; &amp;#x; &amp;#;");
         CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(hash).toStdString() == "&#x0; &#0;");
     }
-    
 
     SECTION("UrlEncode") {
         Liquid::Template t;
@@ -811,6 +810,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 'foo+bar' | url_decode }}").render().toStdString() == "foo bar");
         CHECK(t.parse("{{ 'foo%20bar' | url_decode }}").render().toStdString() == "foo bar");
         CHECK(t.parse("{{ 'foo%2B1%40example.com' | url_decode }}").render().toStdString() == "foo+1@example.com");
+        CHECK(t.parse("{{ 'foo%2b1%40example.com' | url_decode }}").render().toStdString() == "foo+1@example.com");
         CHECK(Liquid::StandardFilters::url_decode("%20", {}) == " ");
         CHECK(Liquid::StandardFilters::url_decode("%", {}) == "%");
     }
