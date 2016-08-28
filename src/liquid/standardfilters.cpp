@@ -204,7 +204,25 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw QString("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return QUrl::fromPercentEncoding(input.toString().toUtf8());
+    QString result;
+    const QString inputStr = input.toString();
+    const int inputStrSize = inputStr.size();
+    for (int i = 0; i < inputStrSize; ++i) {
+        const ushort ch = inputStr.at(i).unicode();
+        if (ch == '+') {
+            result += ' ';
+        } else if (ch == '%' && i < (inputStrSize - 2)) {
+            bool ok;
+            const ushort value = inputStr.mid(i + 1, 2).toUShort(&ok, 16);
+            if (ok) {
+                result += QChar(value);
+                i += 2;
+            }
+        } else {
+            result += QChar(ch);
+        }
+    }
+    return result;
 }
 
 Data strip_html(const Data& input, const std::vector<Data>& args)
@@ -779,8 +797,12 @@ TEST_CASE("Liquid::StandardFilters") {
     
     SECTION("UrlDecode") {
         Liquid::Template t;
-        t.parse("{{ \"hello%20%40world\" | url_decode }}");
-        CHECK(t.render().toStdString() == "hello @world");
+        CHECK(t.parse("{{ 'hello%20%40world' | url_decode }}").render().toStdString() == "hello @world");
+        CHECK(t.parse("{{ 'foo+bar' | url_decode }}").render().toStdString() == "foo bar");
+        CHECK(t.parse("{{ 'foo%20bar' | url_decode }}").render().toStdString() == "foo bar");
+        CHECK(t.parse("{{ 'foo%2B1%40example.com' | url_decode }}").render().toStdString() == "foo+1@example.com");
+        CHECK(Liquid::StandardFilters::url_decode("%20", {}) == " ");
+        CHECK(Liquid::StandardFilters::url_decode("%", {}) == "%");
     }
 
     SECTION("StripHtml") {
