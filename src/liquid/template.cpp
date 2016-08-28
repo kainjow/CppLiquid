@@ -3,8 +3,6 @@
 #include "standardfilters.hpp"
 #include <QDebug>
 
-#define ABORT(msg) throw QString(msg).toStdString()
-
 Liquid::Template::Template()
 {
     StandardFilters::registerFilters(*this);
@@ -39,7 +37,7 @@ std::vector<Liquid::Template::ComponentPtr> Liquid::Template::tokenize(const QSt
             const bool isObject = nextChar == '{';
             const int endPos = source.indexOf(endStr[isObject ? 0 : 1], startPos + 2);
             if (endPos == -1) {
-                ABORT("Tag not properly terminated");
+                throw std::string("Tag not properly terminated");
             }
             
             // Collect any text component before the object or tag
