@@ -85,12 +85,9 @@ TEST_CASE("Liquid::StringScanner") {
     QString input = "Hello World";
     Liquid::StringScanner ss(&input);
     CHECK_FALSE(ss.eof());
-    CHECK(ss.scan(QRegularExpression("\\w+")) == "Hello");
-    CHECK(ss.scan(QRegularExpression("\\w+")).isNull());
-    CHECK(ss.scan(QRegularExpression("\\s+")) == " ");
-    CHECK(ss.scan(QRegularExpression("\\s+")).isNull());
-    CHECK(ss.scan(QRegularExpression("\\w+")) == "World");
-    CHECK(ss.scan(QRegularExpression("\\w+")).isNull());
+    CHECK(ss.scanIdentifier() == "Hello");
+    ss.skipWhitespace();
+    CHECK(ss.scanIdentifier() == "World");
     CHECK(ss.eof());
 }
 

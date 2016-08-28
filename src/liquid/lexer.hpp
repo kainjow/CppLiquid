@@ -3,7 +3,6 @@
 
 #include <QDebug>
 #include <QString>
-#include <QRegularExpression>
 #include <vector>
 
 namespace Liquid {
@@ -93,33 +92,11 @@ namespace Liquid {
         {
         }
         
-        void skip(const QRegularExpression& regex) {
-            (void)scan(regex);
-        }
-        
         void skipWhitespace() {
             const int size = input_.size();
             while (pos_ < size && input_.at(pos_).isSpace()) {
                 ++pos_;
             }
-        }
-        
-        QStringRef scan(const QRegularExpression& regex) {
-            if (!regex.isValid()) {
-                return QStringRef();
-            }
-            const QRegularExpressionMatch match = regex.match(input_, pos_, QRegularExpression::NormalMatch, QRegularExpression::AnchoredMatchOption);
-            if (!match.isValid()) {
-                return QStringRef();
-            }
-            // Don't use capturedRef() as that's relative to QRegEx's copy of input :(
-            const int capturedLen = match.capturedLength();
-            if (capturedLen == 0) {
-                return QStringRef();
-            }
-            const QStringRef captured = input_.mid(pos_, capturedLen);
-            pos_ += capturedLen;
-            return captured;
         }
         
         QStringRef scanStringLiteral() {
