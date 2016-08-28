@@ -61,15 +61,14 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
 
 const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
 {
-    const Expression& expression = *this;
-    if (expression.isLookupKey()) {
+    if (isLookupKey()) {
         if (data.isHash()) {
-            const Data& result = data[expression.key()];
+            const Data& result = data[key()];
             if (!result.isNil()) {
                 return result;
             }
         }
-        switch (expression.lookupKeyFilter()) {
+        switch (lookupKeyFilter()) {
             case LookupKeyFilter::None:
                 break;
             case LookupKeyFilter::Size: {
@@ -87,9 +86,9 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
             case LookupKeyFilter::Last:
                 return StandardFilters::last_imp(data);
         }
-    } else if (expression.isLookup() || expression.isLookupBracketKey()) {
+    } else if (isLookup() || isLookupBracketKey()) {
         const Data* currentCtx = &data;
-        for (const auto& lookup : expression.lookups()) {
+        for (const auto& lookup : lookups()) {
             if (lookup.isLookupBracketKey()) {
                 const Data& bracketResult = lookup.evaluate(data);
                 if (bracketResult.isString() && currentCtx->isHash()) {
@@ -116,10 +115,10 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
             }
         }
         return *currentCtx;
-    } else if (expression.isString() || expression.isNumber() || expression.isNil()) {
-        return expression.var_;
+    } else if (isString() || isNumber() || isNil()) {
+        return var_;
     } else {
-        throw QString("Can't evaluate expression %1").arg(expression.typeString()).toStdString();
+        throw QString("Can't evaluate expression %1").arg(typeString()).toStdString();
     }
     return kNilData;
 }
