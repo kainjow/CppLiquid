@@ -124,7 +124,7 @@ int scanEntity(StringScanner& ss)
                     return 0;
                 }
                 const ushort nextch = peek.at(0).unicode();
-                if (nextch == 'x') {
+                if (nextch == 'x' || nextch == 'X') {
                     const QStringRef firsthexch = ss.peekch(1);
                     if (firsthexch.isNull() || !isHexChar(firsthexch.at(0).unicode())) {
                         return 0;
@@ -859,6 +859,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(hash).toStdString() == "&ctdot; &#x022EF; &#8943;");
         CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(hash).toStdString() == "&amp;; &amp;#x; &amp;#;");
         CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(hash).toStdString() == "&#x0; &#0;");
+        CHECK(t.parse("{{ '&#x000BE;&#X000BE;' | escape_once }}").render(hash).toStdString() == "&#x000BE;&#X000BE;");
     }
 
     SECTION("UrlEncode") {
