@@ -190,6 +190,16 @@ TEST_CASE("Liquid::Template") {
     SECTION("TagRaw") {
         Liquid::Template t;
         CHECK(t.parse("{% raw %}In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.{% endraw %}").render().toStdString() == "In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.");
+        CHECK(t.parse("{% raw %}{% comment %} test {% endcomment %}{% endraw %}").render().toStdString() == "{% comment %} test {% endcomment %}");
+        CHECK(t.parse("{% raw %}{{ test }}{% endraw %}").render().toStdString() == "{{ test }}");
+        CHECK(t.parse("{% raw %} Foobar {% invalid {% endraw %}").render().toStdString() == " Foobar {% invalid ");
+        CHECK(t.parse("{% raw %} Foobar invalid %} {% endraw %}").render().toStdString() == " Foobar invalid %} ");
+        CHECK(t.parse("{% raw %} Foobar {{ invalid {% endraw %}").render().toStdString() == " Foobar {{ invalid ");
+        CHECK(t.parse("{% raw %} Foobar invalid }} {% endraw %}").render().toStdString() == " Foobar invalid }} ");
+        CHECK(t.parse("{% raw %} Foobar {% invalid {% {% endraw {% endraw %}").render().toStdString() == " Foobar {% invalid {% {% endraw ");
+        CHECK(t.parse("{% raw %} Foobar {% {% {% {% endraw %}").render().toStdString() == " Foobar {% {% {% ");
+        CHECK(t.parse("{% raw %} test {% raw %} {% {% endraw %}endraw %}").render().toStdString() == " test {% raw %} {% endraw %}");
+        CHECK(t.parse("{% raw %} Foobar {{ invalid {% endraw %}{{ 1 }}").render().toStdString() == " Foobar {{ invalid 1");
     }
 }
 

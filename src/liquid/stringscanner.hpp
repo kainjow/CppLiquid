@@ -8,17 +8,20 @@ namespace Liquid {
 
     class StringScanner {
     public:
-        StringScanner(const QStringRef& input)
+        StringScanner(const QStringRef& input, int pos = 0)
             : input_(input)
-            , pos_(0)
+            , pos_(pos)
         {
         }
         
-        void skipWhitespace() {
+        bool skipWhitespace() {
             const int size = input_.size();
+            bool skipped = false;
             while (pos_ < size && input_.at(pos_).isSpace()) {
                 ++pos_;
+                skipped = true;
             }
+            return skipped;
         }
         
         QStringRef scanStringLiteral() {
@@ -113,6 +116,23 @@ namespace Liquid {
             return result;
         }
         
+        bool scanUpTo(const QString& string) {
+            const int index = input_.indexOf(string, pos_);
+            if (index == -1) {
+                return false;
+            }
+            pos_ = index;
+            return true;
+        }
+        
+        bool scanString(const QString& string) {
+            if (input_.mid(pos_, string.size()) == string) {
+                pos_ += string.size();
+                return true;
+            }
+            return false;
+        }
+        
         bool eof() const {
             return pos_ >= input_.size();
         }
@@ -133,6 +153,10 @@ namespace Liquid {
         
         void setPosition(int pos) {
             pos_ = pos;
+        }
+        
+        void advance(int num) {
+            pos_ += num;
         }
         
         int position() const {

@@ -28,7 +28,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
     QStringRef tok;
     
     while (!ss.eof()) {
-        ss.skipWhitespace();
+        (void)ss.skipWhitespace();
         
         // TODO: Token::Type::Comparison
 
