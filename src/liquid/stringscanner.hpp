@@ -47,13 +47,16 @@ namespace Liquid {
         QStringRef scanIdentifier() {
             int count = 0;
             const int size = input_.size();
+            const auto isLetter = [](const ushort ch) {
+                return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+            };
             for (int i = pos_; i < size; ++i, ++count) {
                 const ushort ch = input_.at(i).unicode();
                 if (count == 0) {
-                    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_')) {
+                    if (!(isLetter(ch) || ch == '_')) {
                         return QStringRef();
                     }
-                } else if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_' || ch == '-')) {
+                } else if (!(isLetter(ch) || isDigit(ch) || ch == '_' || ch == '-')) {
                     break;
                 }
             }
@@ -65,9 +68,6 @@ namespace Liquid {
         QStringRef peekInt() {
             int count = 0;
             const int size = input_.size();
-            const auto isDigit = [](const ushort ch) {
-                return ch >= '0' && ch <= '9';
-            };
             for (int i = pos_ ; i < size; ++i, ++count) {
                 const ushort ch = input_.at(i).unicode();
                 if (count == 0) {
@@ -104,7 +104,7 @@ namespace Liquid {
             ++count;
             for (int i = pos ; i < size; ++i, ++count) {
                 const ushort ch = input_.at(i).unicode();
-                if (!(ch >= '0' && ch <= '9')) {
+                if (!isDigit(ch)) {
                     break;
                 }
             }
@@ -142,6 +142,10 @@ namespace Liquid {
     private:
         const QStringRef& input_;
         int pos_;
+        
+        bool isDigit(const ushort ch) const {
+            return ch >= '0' && ch <= '9';
+        };
     };
 
 }
