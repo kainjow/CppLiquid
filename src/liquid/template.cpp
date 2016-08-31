@@ -186,6 +186,11 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.parse("{{ 32.0 }}").render().toStdString() == "32");
         CHECK(t.parse("{{ 32.1 }}").render().toStdString() == "32.1");
     }
+    
+    SECTION("TagRaw") {
+        Liquid::Template t;
+        CHECK(t.parse("{% raw %}In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.{% endraw %}").render().toStdString() == "In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.");
+    }
 }
 
 #endif
