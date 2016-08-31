@@ -3,7 +3,7 @@
 
 #include "tokenizer.hpp"
 #include "context.hpp"
-#include "component.hpp"
+#include "node.hpp"
 #include "parser.hpp"
 
 namespace Liquid {

@@ -1,4 +1,4 @@
-#include "component.hpp"
+#include "node.hpp"
 #include <QDebug>
 
 

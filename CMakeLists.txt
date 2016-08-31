@@ -12,8 +12,6 @@ add_executable(${PROJECT_NAME}
 
   src/liquid/blockbody.cpp
   src/liquid/blockbody.hpp
-  src/liquid/component.cpp
-  src/liquid/component.hpp
   src/liquid/context.cpp
   src/liquid/context.hpp
   src/liquid/data.cpp
@@ -23,6 +21,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/filter.hpp
   src/liquid/lexer.cpp
   src/liquid/lexer.hpp
+  src/liquid/node.cpp
+  src/liquid/node.hpp
   src/liquid/parser.cpp
   src/liquid/parser.hpp
   src/liquid/standardfilters.cpp

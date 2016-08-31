@@ -1,5 +1,5 @@
-#ifndef LIQUID_COMPONENT_HPP
-#define LIQUID_COMPONENT_HPP
+#ifndef LIQUID_NODE_HPP
+#define LIQUID_NODE_HPP
 
 #include "context.hpp"
 #include "tokenizer.hpp"
