@@ -1,7 +1,6 @@
 #ifndef LIQUID_CONTEXT_HPP
 #define LIQUID_CONTEXT_HPP
 
-#include "data.hpp"
 #include "filter.hpp"
 
 namespace Liquid {

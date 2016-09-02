@@ -1,6 +1,7 @@
 #include "standardfilters.hpp"
 #include "stringscanner.hpp"
 #include "stringutils.hpp"
+#include "template.hpp"
 #include <QDebug>
 
 namespace Liquid { namespace StandardFilters {

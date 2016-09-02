@@ -1,11 +1,7 @@
 #ifndef LIQUID_FILTER_HPP
 #define LIQUID_FILTER_HPP
 
-#include "data.hpp"
 #include "expression.hpp"
-#include <memory>
-#include <unordered_map>
-#include <vector>
 
 namespace Liquid {
     

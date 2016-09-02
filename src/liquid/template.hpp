@@ -1,12 +1,11 @@
 #ifndef LIQUID_TEMPLATE_HPP
 #define LIQUID_TEMPLATE_HPP
 
-#include "data.hpp"
-#include "filter.hpp"
 #include "blockbody.hpp"
+#include "filter.hpp"
 
 namespace Liquid {
-
+    
     class Template {
     public:
         Template();
