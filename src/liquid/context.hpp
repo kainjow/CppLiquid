@@ -8,7 +8,7 @@ namespace Liquid {
     
     class Context {
     public:
-        Context(const Data& data, const FilterList& filters)
+        Context(Data& data, const FilterList& filters)
             : data_(data)
             , filters_(filters)
         {
@@ -18,12 +18,16 @@ namespace Liquid {
             return data_;
         }
         
+        Data& data() {
+            return data_;
+        }
+        
         const FilterList& filters() const {
             return filters_;
         }
         
     private:
-        const Data& data_;
+        Data& data_;
         const FilterList& filters_;
     };
 

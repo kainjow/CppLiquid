@@ -1,9 +1,20 @@
 #include "variable.hpp"
+#include "context.hpp"
 #include <QDebug>
 
 Liquid::Variable::Variable(const QStringRef& input)
 {
     Parser parser(input);
+    parse(parser);
+}
+
+Liquid::Variable::Variable(Parser& parser)
+{
+    parse(parser);
+}
+
+void Liquid::Variable::parse(Parser& parser)
+{
     exp_ = Expression::parse(parser);
     
     while (parser.look(Token::Type::Pipe)) {

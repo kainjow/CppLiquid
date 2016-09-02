@@ -1,5 +1,7 @@
 #include "template.hpp"
 #include "standardfilters.hpp"
+#include "tokenizer.hpp"
+#include "context.hpp"
 #include <QDebug>
 
 Liquid::Template::Template()
@@ -17,13 +19,13 @@ Liquid::Template& Liquid::Template::parse(const QString& source)
 
 QString Liquid::Template::render()
 {
-    const Data ctx;
+    Data ctx(Data::Type::Hash);
     return render(ctx);
 }
 
-QString Liquid::Template::render(const Data& data)
+QString Liquid::Template::render(Data& data)
 {
-    const Context ctx(data, filters_);
+    Context ctx(data, filters_);
     return root_.render(ctx);
 }
 
@@ -79,7 +81,8 @@ TEST_CASE("Liquid::Template") {
         hash["what"] = "World";
         Liquid::Data ctx(hash);
         t.parse("Hello {{what}}!");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Hello World!");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Hello World!");
     }
     
     SECTION("BasicMultipleObjects") {
@@ -89,7 +92,8 @@ TEST_CASE("Liquid::Template") {
         hash["lname"] = "Gates";
         Liquid::Data ctx(hash);
         t.parse("Dear {{ fname }} {{ lname }},");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Dear Bill Gates,");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Dear Bill Gates,");
     }
     
     SECTION("ObjectKey") {
@@ -100,7 +104,8 @@ TEST_CASE("Liquid::Template") {
         hash["user"] = user;
         Liquid::Data ctx(hash);
         t.parse("Welcome {{user.name}}!");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectBracketKeyStringLiteral") {
@@ -111,7 +116,8 @@ TEST_CASE("Liquid::Template") {
         hash["user"] = user;
         Liquid::Data ctx(hash);
         t.parse("Welcome {{user[\"name\"]}}!");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectBracketKeyObjectNil") {
@@ -122,7 +128,8 @@ TEST_CASE("Liquid::Template") {
         hash["user"] = user;
         Liquid::Data ctx(hash);
         t.parse("Welcome {{user[name]}}!");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome !");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Welcome !");
     }
 
     SECTION("ObjectBracketKeyObjectSet") {
@@ -134,7 +141,8 @@ TEST_CASE("Liquid::Template") {
         hash["name"] = "name";
         Liquid::Data ctx(hash);
         t.parse("Welcome {{user[name]}}!");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "Welcome Bob!");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "Welcome Bob!");
     }
 
     SECTION("ObjectMultipleBracketKey") {
@@ -153,7 +161,8 @@ TEST_CASE("Liquid::Template") {
         hash["keys"] = keys;
         Liquid::Data ctx(hash);
         t.parse("{{states[keys[1]][\"capital\"][\"areacode\"]}} {{keys[0]}} {{keys[9999]}}");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "916 arizona ");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "916 arizona ");
     }
     
     SECTION("AppendFilter") {
@@ -176,7 +185,8 @@ TEST_CASE("Liquid::Template") {
         hash["what"] = "world";
         Liquid::Data ctx(hash);
         t.parse("{{ \"hello \" | append: what }}");
-        CHECK(t.render(Liquid::Data(hash)).toStdString() == "hello world");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "hello world");
     }
 
     SECTION("Floats") {
@@ -218,6 +228,11 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.parse("{% comment %} Foobar {% {% {% {% endcomment %}").render().toStdString() == "");
         CHECK(t.parse("{% comment %} test {% raw %} {% {% endcomment %}endraw %}").render().toStdString() == "endraw %}");
         CHECK(t.parse("{% comment %} Foobar {{ invalid {% endcomment %}{{ 1 }}").render().toStdString() == "1");
+    }
+    
+    SECTION("TagAssign") {
+        Liquid::Template t;
+        CHECK(t.parse("{% assign name = 'Steve' %}{{ name }}").render().toStdString() == "Steve");
     }
 }
 

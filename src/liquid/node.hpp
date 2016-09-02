@@ -1,28 +1,25 @@
 #ifndef LIQUID_NODE_HPP
 #define LIQUID_NODE_HPP
 
-#include "context.hpp"
-#include "tokenizer.hpp"
-#include "parser.hpp"
 #include "variable.hpp"
+#include <QStringRef>
 
 namespace Liquid {
     
+    class Context;
+    class Tokenizer;
+    class Parser;
+    
     class Node {
     public:
-        virtual QString render(const Context& context) const = 0;
+        virtual QString render(Context& context) const = 0;
     };
 
     class TextNode : public Node {
     public:
-        TextNode(const QStringRef& text)
-            : text_(text)
-        {
-        }
+        TextNode(const QStringRef& text);
         
-        virtual QString render(const Context&) const {
-            return text_.toString();
-        }
+        virtual QString render(Context&) const override;
         
     private:
         const QStringRef text_;
@@ -30,59 +27,28 @@ namespace Liquid {
     
     class ObjectNode : public Node {
     public:
-        ObjectNode(const Variable& var)
-            : var_(var)
-        {
-        }
+        ObjectNode(const Variable& var);
 
-        virtual QString render(const Context& context) const {
-            return var_.evaluate(context).toString();
-        }
+        virtual QString render(Context& context) const override;
+
     private:
         const Variable var_;
     };
+    
+    class BlockTag : public Node {
+    public:
+        BlockTag(Tokenizer& tokenizer);
+    };
 
-    class TagNode : public Node {
+    class AssignTag : public Node {
     public:
-        TagNode(const QStringRef& tagName, Parser& parser)
-            : tagName_(tagName)
-        {
-            parse(parser);
-        }
+        AssignTag(Parser& parser);
         
-        virtual QString render(const Context&) const {
-            return "";
-        }
-                  
-        virtual void parse(Parser& /*parser*/) {
-            
-        }
+        virtual QString render(Context& ctx) const override;
         
     private:
-        QStringRef tagName_;
-    };
-    
-    class BlockTag : public TagNode {
-    public:
-        BlockTag(const QStringRef& tagName, Parser& parser) : TagNode(tagName, parser) {}
-    };
-    
-    class RawTag : public TagNode {
-    public:
-        RawTag(const std::vector<QStringRef>& refs, const QStringRef& tagName, Parser& parser)
-            : TagNode(tagName, parser)
-            , refs_(refs)
-        {}
-        
-        virtual QString render(const Context&) const {
-            QString str;
-            for (const auto& ref : refs_) {
-                str += ref.toString();
-            }
-            return str;
-        }
-    private:
-        std::vector<QStringRef> refs_;
+        QStringRef to_;
+        Variable from_;
     };
     
     using NodePtr = std::shared_ptr<Node>;

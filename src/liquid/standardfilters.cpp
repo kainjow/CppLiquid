@@ -844,22 +844,24 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Data::Hash hash;
         hash["what"] = "' \" & < > ' \" & < >";
         t.parse("{{ what | escape }}");
-        CHECK(t.render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+        Liquid::Data data(hash);
+        CHECK(t.render(data).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
     }
 
     SECTION("EscapeOnce") {
         Liquid::Template t;
         Liquid::Data::Hash hash;
         hash["what"] = "' \" & < > ' \" & < >";
-        CHECK(t.parse("{{ what | escape_once }}").render(hash).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
-        CHECK(t.parse("{{ '1 < 2 & 3' | escape_once }}").render(hash).toStdString() == "1 &lt; 2 &amp; 3");
-        CHECK(t.parse("{{ '1 &lt; 2 &amp; 3' | escape_once }}").render(hash).toStdString() == "1 &lt; 2 &amp; 3");
-        CHECK(t.parse("{{ '&excl; &#x00021; &#33;' | escape_once }}").render(hash).toStdString() == "&excl; &#x00021; &#33;");
-        CHECK(t.parse("{{ '&frac34; &#x000BE; &#190;' | escape_once }}").render(hash).toStdString() == "&frac34; &#x000BE; &#190;");
-        CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(hash).toStdString() == "&ctdot; &#x022EF; &#8943;");
-        CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(hash).toStdString() == "&amp;; &amp;#x; &amp;#;");
-        CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(hash).toStdString() == "&#x0; &#0;");
-        CHECK(t.parse("{{ '&#x000BE;&#X000BE;' | escape_once }}").render(hash).toStdString() == "&#x000BE;&#X000BE;");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ what | escape_once }}").render(data).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+        CHECK(t.parse("{{ '1 < 2 & 3' | escape_once }}").render(data).toStdString() == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '1 &lt; 2 &amp; 3' | escape_once }}").render(data).toStdString() == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '&excl; &#x00021; &#33;' | escape_once }}").render(data).toStdString() == "&excl; &#x00021; &#33;");
+        CHECK(t.parse("{{ '&frac34; &#x000BE; &#190;' | escape_once }}").render(data).toStdString() == "&frac34; &#x000BE; &#190;");
+        CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(data).toStdString() == "&ctdot; &#x022EF; &#8943;");
+        CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(data).toStdString() == "&amp;; &amp;#x; &amp;#;");
+        CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(data).toStdString() == "&#x0; &#0;");
+        CHECK(t.parse("{{ '&#x000BE;&#X000BE;' | escape_once }}").render(data).toStdString() == "&#x000BE;&#X000BE;");
     }
 
     SECTION("UrlEncode") {
@@ -1004,7 +1006,8 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ 'Ground control to Major Tom.' | size }}").render().toStdString() == "28");
         Liquid::Data::Hash hash;
         hash["what"] = "Ground control to Major Tom.";
-        CHECK(t.parse("{{ what.size }}").render(hash).toStdString() == "28");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ what.size }}").render(data).toStdString() == "28");
     }
 
     SECTION("First") {
@@ -1017,7 +1020,8 @@ TEST_CASE("Liquid::StandardFilters") {
         names.push_back("George");
         names.push_back("Ringo");
         hash["names"] = names;
-        CHECK(t.parse("{{ names.first }}").render(hash).toStdString() == "John");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ names.first }}").render(data).toStdString() == "John");
     }
 
     SECTION("Last") {
@@ -1030,7 +1034,8 @@ TEST_CASE("Liquid::StandardFilters") {
         names.push_back("George");
         names.push_back("Ringo");
         hash["names"] = names;
-        CHECK(t.parse("{{ names.last }}").render(hash).toStdString() == "Ringo");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ names.last }}").render(data).toStdString() == "Ringo");
     }
 
     SECTION("Default") {
@@ -1039,9 +1044,11 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.parse("{{ product_price | default: 2.99 }}").render().toStdString() == "2.99");
         Liquid::Data::Hash hash;
         hash["product_price"] = 4.99;
-        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(hash).toStdString() == "4.99");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(data).toStdString() == "4.99");
         hash["product_price"] = "";
-        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(hash).toStdString() == "2.99");
+        data = Liquid::Data(hash);
+        CHECK(t.parse("{{ product_price | default: 2.99 }}").render(data).toStdString() == "2.99");
     }
 
     SECTION("Replace") {
@@ -1087,9 +1094,10 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back(nullptr);
         Liquid::Data::Hash hash;
         hash["array"] = array;
-        CHECK(t.parse("{{ array | size }}").render(hash).toStdString() == "6");
-        CHECK(t.parse("{{ array | compact | size }}").render(hash).toStdString() == "2");
-        CHECK(t.parse("{{ array | compact | join: ' ' }}").render(hash).toStdString() == "hello world");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ array | size }}").render(data).toStdString() == "6");
+        CHECK(t.parse("{{ array | compact | size }}").render(data).toStdString() == "2");
+        CHECK(t.parse("{{ array | compact | join: ' ' }}").render(data).toStdString() == "hello world");
     }
 
     SECTION("Map") {
@@ -1108,9 +1116,10 @@ TEST_CASE("Liquid::StandardFilters") {
         pages.push_back(item);
         Liquid::Data::Hash hash;
         hash["pages"] = pages;
-        CHECK(t.parse("{{ pages | size }}").render(hash).toStdString() == "5");
-        CHECK(t.parse("{{ pages | map: 'category' | size }}").render(hash).toStdString() == "5");
-        CHECK(t.parse("{{ pages | map: 'category' | join: ' ' }}").render(hash).toStdString() == "business celebrities lifestyle sports technology");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ pages | size }}").render(data).toStdString() == "5");
+        CHECK(t.parse("{{ pages | map: 'category' | size }}").render(data).toStdString() == "5");
+        CHECK(t.parse("{{ pages | map: 'category' | join: ' ' }}").render(data).toStdString() == "business celebrities lifestyle sports technology");
     }
 
     SECTION("Concat") {
@@ -1124,7 +1133,8 @@ TEST_CASE("Liquid::StandardFilters") {
         names2.push_back("michael");
         hash["names1"] = names1;
         hash["names2"] = names2;
-        CHECK(t.parse("{{ names1 | concat: names2 | join: ',' }}").render(hash).toStdString() == "bill,steve,larry,michael");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ names1 | concat: names2 | join: ',' }}").render(data).toStdString() == "bill,steve,larry,michael");
     }
 
     SECTION("Sort") {
@@ -1136,7 +1146,8 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back("giraffe");
         array.push_back("Sally Snake");
         hash["array"] = array;
-        CHECK(t.parse("{{ array | sort | join: ', ' }}").render(hash).toStdString() == "Sally Snake, giraffe, octopus, zebra");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ array | sort | join: ', ' }}").render(data).toStdString() == "Sally Snake, giraffe, octopus, zebra");
         Liquid::Data::Hash item;
         Liquid::Data::Array names;
         item["name"] = "bob";
@@ -1148,7 +1159,8 @@ TEST_CASE("Liquid::StandardFilters") {
         item["name"] = "Jane";
         names.push_back(item);
         hash["names"] = names;
-        CHECK(t.parse("{{ names | sort: 'name' | map: 'name' | join: ', ' }}").render(hash).toStdString() == "Jane, Sally, bob, george");
+        data = Liquid::Data(hash);
+        CHECK(t.parse("{{ names | sort: 'name' | map: 'name' | join: ', ' }}").render(data).toStdString() == "Jane, Sally, bob, george");
     }
 
     SECTION("SortNatural") {
@@ -1160,7 +1172,8 @@ TEST_CASE("Liquid::StandardFilters") {
         array.push_back("giraffe");
         array.push_back("Sally Snake");
         hash["array"] = array;
-        CHECK(t.parse("{{ array | sort_natural | join: ', ' }}").render(hash).toStdString() == "giraffe, octopus, Sally Snake, zebra");
+        Liquid::Data data(hash);
+        CHECK(t.parse("{{ array | sort_natural | join: ', ' }}").render(data).toStdString() == "giraffe, octopus, Sally Snake, zebra");
         Liquid::Data::Hash item;
         Liquid::Data::Array names;
         item["name"] = "bob";
@@ -1172,7 +1185,8 @@ TEST_CASE("Liquid::StandardFilters") {
         item["name"] = "Jane";
         names.push_back(item);
         hash["names"] = names;
-        CHECK(t.parse("{{ names | sort_natural: 'name' | map: 'name' | join: ', ' }}").render(hash).toStdString() == "bob, george, Jane, Sally");
+        data = Liquid::Data(hash);
+        CHECK(t.parse("{{ names | sort_natural: 'name' | map: 'name' | join: ', ' }}").render(data).toStdString() == "bob, george, Jane, Sally");
     }
     
     SECTION("Date") {

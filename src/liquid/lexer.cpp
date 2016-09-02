@@ -18,6 +18,7 @@ namespace {
         {')', Liquid::Token::Type::CloseRound},
         {'?', Liquid::Token::Type::Question},
         {'-', Liquid::Token::Type::Dash},
+        {'=', Liquid::Token::Type::Equal},
     };
 }
 

@@ -14,7 +14,7 @@ namespace Liquid {
         Template& parse(const QString& source);
         
         QString render();
-        QString render(const Data& data);
+        QString render(Data& data);
         
         void registerFilter(const std::string& name, const FilterHandler& filter);
     private:

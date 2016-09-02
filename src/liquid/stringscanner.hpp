@@ -2,7 +2,7 @@
 #define LIQUID_STRINGSCANNER_HPP
 
 #include <QDebug>
-#include <QString>
+#include <QStringRef>
 
 namespace Liquid {
 

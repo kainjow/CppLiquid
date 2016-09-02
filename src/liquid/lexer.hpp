@@ -22,6 +22,7 @@ namespace Liquid {
             CloseRound,
             Question,
             Dash,
+            Equal,
             Comparison,
             String,
             NumberInt,
@@ -44,6 +45,7 @@ namespace Liquid {
                 case Type::CloseRound: return "CloseRound";
                 case Type::Question: return "Question";
                 case Type::Dash: return "Dash";
+                case Type::Equal: return "Equal";
                 case Type::Comparison: return "Comparison";
                 case Type::String: return "String";
                 case Type::NumberInt: return "NumberInt";
