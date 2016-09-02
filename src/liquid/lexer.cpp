@@ -4,8 +4,6 @@
 #include <QDebug>
 #include <unordered_map>
 
-const Liquid::Token Liquid::kTokenInvalid;
-
 namespace {
     const std::unordered_map<char, Liquid::Token::Type> kSpecials{
         {'|', Liquid::Token::Type::Pipe},

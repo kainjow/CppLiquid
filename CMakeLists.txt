@@ -33,6 +33,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/stringutils.hpp
   src/liquid/template.cpp
   src/liquid/template.hpp
+  src/liquid/token.cpp
+  src/liquid/token.hpp
   src/liquid/tokenizer.cpp
   src/liquid/tokenizer.hpp
   src/liquid/variable.cpp
