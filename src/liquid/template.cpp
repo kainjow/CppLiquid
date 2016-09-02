@@ -201,6 +201,24 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.parse("{% raw %} test {% raw %} {% {% endraw %}endraw %}").render().toStdString() == " test {% raw %} {% endraw %}");
         CHECK(t.parse("{% raw %} Foobar {{ invalid {% endraw %}{{ 1 }}").render().toStdString() == " Foobar {{ invalid 1");
     }
+
+    SECTION("TagComment") {
+        Liquid::Template t;
+        CHECK(t.parse("{% comment %}{% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("hello {% comment %}{% endcomment %} world").render().toStdString() == "hello  world");
+        CHECK(t.parse("one {% comment %} two {% endcomment %} three").render().toStdString() == "one  three");
+        CHECK(t.parse("{% comment %}In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.{% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %}{% comment %} test {% endcomment %}{% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %}{{ test }}{% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar {% invalid {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar invalid %} {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar {{ invalid {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar invalid }} {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar {% invalid {% {% endraw {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} Foobar {% {% {% {% endcomment %}").render().toStdString() == "");
+        CHECK(t.parse("{% comment %} test {% raw %} {% {% endcomment %}endraw %}").render().toStdString() == "endraw %}");
+        CHECK(t.parse("{% comment %} Foobar {{ invalid {% endcomment %}{{ 1 }}").render().toStdString() == "1");
+    }
 }
 
 #endif

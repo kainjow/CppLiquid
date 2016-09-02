@@ -68,12 +68,40 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const QString& source
                         ss.setPosition(savePos + 1);
                     }
                     if (!foundRawEnd) {
-                        throw std::string("raw tag now properly terminated");
+                        throw std::string("raw tag not properly terminated");
                     }
                     const int chunkLen = rawendPos - lastStartPos;
                     if (chunkLen > 0) {
                         const QStringRef text = source.midRef(lastStartPos, chunkLen);
                         components.emplace_back(Component::Type::Text, text, text);
+                    }
+                    addComponent = false;
+                    lastStartPos = ss.position();
+                } else if (tagTrimmed == "comment") {
+                    // We have a {% comment %} tag. Scan for the complete {% endcomment %} tag
+                    StringScanner ss(&source, lastStartPos);
+                    bool foundEnd = false;
+                    int rawendPos = -1;
+                    const QString tagStartStr = "{%";
+                    while (!ss.eof()) {
+                        const int savePos = ss.position();
+                        if (ss.scanUpTo(tagStartStr)) {
+                            rawendPos = ss.position();
+                            ss.advance(tagStartStr.size());
+                            (void)ss.skipWhitespace();
+                            const QStringRef tagIdentifier = ss.scanIdentifier();
+                            if (tagIdentifier == "endcomment") {
+                                (void)ss.skipWhitespace();
+                                if (ss.scanString(endStr[1])) {
+                                    foundEnd = true;
+                                    break;
+                                }
+                            }
+                        }
+                        ss.setPosition(savePos + 1);
+                    }
+                    if (!foundEnd) {
+                        throw std::string("comment tag not properly terminated");
                     }
                     addComponent = false;
                     lastStartPos = ss.position();
