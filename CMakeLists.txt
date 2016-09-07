@@ -14,8 +14,6 @@ add_executable(${PROJECT_NAME}
   src/liquid/block.hpp
   src/liquid/blockbody.cpp
   src/liquid/blockbody.hpp
-  src/liquid/comment.cpp
-  src/liquid/comment.hpp
   src/liquid/context.cpp
   src/liquid/context.hpp
   src/liquid/data.cpp
@@ -43,6 +41,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tokenizer.hpp
   src/liquid/variable.cpp
   src/liquid/variable.hpp
+  src/liquid/tags/comment.cpp
+  src/liquid/tags/comment.hpp
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -52,6 +52,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
   src
   src/liquid
+  src/liquid/tags
   tests
 )
 
