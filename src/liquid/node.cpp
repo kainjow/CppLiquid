@@ -22,6 +22,12 @@ QString Liquid::ObjectNode::render(Context& context)
     return var_.evaluate(context).toString();
 }
 
+QString Liquid::TagNode::render(Context&)
+{
+    return "";
+}
+
+
 
 
 #ifdef TESTS

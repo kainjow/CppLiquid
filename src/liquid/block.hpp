@@ -6,9 +6,9 @@
 
 namespace Liquid {
     
-    class BlockTag : public Node {
+    class BlockTag : public TagNode {
     public:
-        BlockTag(const QStringRef& tagName);
+        BlockTag(const QStringRef& tagName, Parser& parser);
         void parse(Tokenizer& tokenizer);
         
         bool parseBody(BlockBody& body, Tokenizer& tokenizer);

@@ -1,6 +1,7 @@
 #include "blockbody.hpp"
 #include "tokenizer.hpp"
 #include "assign.hpp"
+#include "capture.hpp"
 #include "comment.hpp"
 #include <QDebug>
 
@@ -26,11 +27,15 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                 Parser parser(comp->innerText);
                 const QStringRef tagName = parser.consume(Token::Type::Id);
                 if (tagName == "assign") {
-                    nodes_.push_back(std::make_shared<AssignTag>(parser));
+                    nodes_.push_back(std::make_shared<AssignTag>(tagName, parser));
                 } else if (tagName == "comment") {
-                    std::shared_ptr<CommentTag> comment = std::make_shared<CommentTag>(tagName);
-                    comment->parse(tokenizer);
-                    nodes_.push_back(comment);
+                    std::shared_ptr<CommentTag> tag = std::make_shared<CommentTag>(tagName, parser);
+                    tag->parse(tokenizer);
+                    nodes_.push_back(tag);
+                } else if (tagName == "capture") {
+                    std::shared_ptr<CaptureTag> tag = std::make_shared<CaptureTag>(tagName, parser);
+                    tag->parse(tokenizer);
+                    nodes_.push_back(tag);
                 } else {
                     unknownTagHandler(tagName, tokenizer);
                     return;

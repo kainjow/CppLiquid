@@ -36,6 +36,12 @@ namespace Liquid {
         const Variable var_;
     };
     
+    class TagNode : public Node {
+    public:
+        TagNode(const QStringRef&, Parser&) {}
+        virtual QString render(Context& context) override;
+    };
+    
     using NodePtr = std::shared_ptr<Node>;
 }
 
