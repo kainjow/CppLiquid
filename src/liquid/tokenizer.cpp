@@ -45,7 +45,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const QString& source
             bool addComponent = true;
             if (!isObject) {
                 const bool isRaw = tagTrimmed == "raw";
-                if (isRaw || tagTrimmed == "comment") {
+                if (isRaw) {
                     const QString endTag = "end" + tagTrimmed.toString();
                     // Scan for the complete {% endxxx %} tag
                     StringScanner ss(&source, lastStartPos);

@@ -12,14 +12,14 @@ namespace Liquid {
     
     class Node {
     public:
-        virtual QString render(Context& context) const = 0;
+        virtual QString render(Context& context) = 0;
     };
 
     class TextNode : public Node {
     public:
         TextNode(const QStringRef& text);
         
-        virtual QString render(Context&) const override;
+        virtual QString render(Context&) override;
         
     private:
         const QStringRef text_;
@@ -29,22 +29,17 @@ namespace Liquid {
     public:
         ObjectNode(const Variable& var);
 
-        virtual QString render(Context& context) const override;
+        virtual QString render(Context& context) override;
 
     private:
         const Variable var_;
     };
     
-    class BlockTag : public Node {
-    public:
-        BlockTag(Tokenizer& tokenizer);
-    };
-
     class AssignTag : public Node {
     public:
         AssignTag(Parser& parser);
         
-        virtual QString render(Context& ctx) const override;
+        virtual QString render(Context& ctx) override;
         
     private:
         QStringRef to_;

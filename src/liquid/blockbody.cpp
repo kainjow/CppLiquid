@@ -1,13 +1,17 @@
 #include "blockbody.hpp"
 #include "tokenizer.hpp"
-#include "node.hpp"
+#include "comment.hpp"
 #include <QDebug>
 
-Liquid::BlockBody::BlockBody()
+void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, Tokenizer&)
 {
+    if (!tagName.isNull()) {
+        throw QString("Unknown tag '%1'").arg(tagName.toString()).toStdString();
+    }
 }
 
-Liquid::BlockBody::BlockBody(Tokenizer& tokenizer) {
+void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler) {
+    nodes_.clear();
     const Component *comp = nullptr;
     while ((comp = tokenizer.next()) != nullptr) {
         switch (comp->type) {
@@ -22,13 +26,19 @@ Liquid::BlockBody::BlockBody(Tokenizer& tokenizer) {
                 const QStringRef tagName = parser.consume(Token::Type::Id);
                 if (tagName == "assign") {
                     nodes_.push_back(std::make_shared<AssignTag>(parser));
+                } else if (tagName == "comment") {
+                    std::shared_ptr<CommentTag> comment = std::make_shared<CommentTag>(tagName);
+                    comment->parse(tokenizer);
+                    nodes_.push_back(comment);
                 } else {
-                    throw QString("Unknown tag '%1'").arg(tagName.toString()).toStdString();
+                    unknownTagHandler(tagName, tokenizer);
+                    return;
                 }
                 break;
             }
         }
     }
+    unknownTagHandler(QStringRef(), tokenizer);
 }
 
 QString Liquid::BlockBody::render(Context& context) {

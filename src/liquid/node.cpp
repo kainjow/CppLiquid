@@ -1,5 +1,4 @@
 #include "node.hpp"
-#include "blockbody.hpp"
 #include "context.hpp"
 #include <QDebug>
 
@@ -8,7 +7,7 @@ Liquid::TextNode::TextNode(const QStringRef& text)
 {
 }
     
-QString Liquid::TextNode::render(Context&) const
+QString Liquid::TextNode::render(Context&)
 {
     return text_.toString();
 }
@@ -18,16 +17,9 @@ Liquid::ObjectNode::ObjectNode(const Variable& var)
 {
 }
     
-QString Liquid::ObjectNode::render(Context& context) const
+QString Liquid::ObjectNode::render(Context& context)
 {
     return var_.evaluate(context).toString();
-}
-
-Liquid::BlockTag::BlockTag(Tokenizer& tokenizer)
-{
-    BlockBody body(tokenizer);
-    //while (parseBody(body)) {
-    //}
 }
 
 Liquid::AssignTag::AssignTag(Parser& parser)
@@ -37,7 +29,7 @@ Liquid::AssignTag::AssignTag(Parser& parser)
     from_ = Variable(parser);
 }
     
-QString Liquid::AssignTag::render(Context& ctx) const
+QString Liquid::AssignTag::render(Context& ctx)
 {
     Data& data = ctx.data();
     data.insert(to_.toString(), from_.evaluate(ctx));
@@ -50,7 +42,7 @@ QString Liquid::AssignTag::render(Context& ctx) const
 
 #include "catch.hpp"
 
-TEST_CASE("Liquid::Component") {
+TEST_CASE("Liquid::Node") {
     
 
 }
