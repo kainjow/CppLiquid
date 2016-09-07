@@ -25,8 +25,13 @@ namespace Liquid {
             return filters_;
         }
         
+        Data& environments() {
+            return environments_;
+        }
+        
     private:
         Data& data_;
+        Data environments_;
         const FilterList& filters_;
     };
 

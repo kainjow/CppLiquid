@@ -3,6 +3,7 @@
 #include "assign.hpp"
 #include "capture.hpp"
 #include "comment.hpp"
+#include "increment.hpp"
 #include <QDebug>
 
 void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, Tokenizer&)
@@ -36,6 +37,10 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     std::shared_ptr<CaptureTag> tag = std::make_shared<CaptureTag>(tagName, parser);
                     tag->parse(tokenizer);
                     nodes_.push_back(tag);
+                } else if (tagName == "increment") {
+                    nodes_.push_back(std::make_shared<IncrementTag>(tagName, parser));
+                } else if (tagName == "decrement") {
+                    nodes_.push_back(std::make_shared<DecrementTag>(tagName, parser));
                 } else {
                     unknownTagHandler(tagName, tokenizer);
                     return;
