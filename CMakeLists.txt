@@ -58,6 +58,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   tests
 )
 
+source_group(liquid\\tags REGULAR_EXPRESSION src/liquid/tags/*)
 source_group(liquid REGULAR_EXPRESSION src/liquid/*)
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
