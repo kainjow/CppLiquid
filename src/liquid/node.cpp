@@ -22,20 +22,6 @@ QString Liquid::ObjectNode::render(Context& context)
     return var_.evaluate(context).toString();
 }
 
-Liquid::AssignTag::AssignTag(Parser& parser)
-{
-    to_ = parser.consume(Token::Type::Id);
-    (void)parser.consume(Token::Type::Equal);
-    from_ = Variable(parser);
-}
-    
-QString Liquid::AssignTag::render(Context& ctx)
-{
-    Data& data = ctx.data();
-    data.insert(to_.toString(), from_.evaluate(ctx));
-    return "";
-}
-
 
 
 #ifdef TESTS

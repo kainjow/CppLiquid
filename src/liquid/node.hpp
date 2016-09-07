@@ -35,17 +35,6 @@ namespace Liquid {
         const Variable var_;
     };
     
-    class AssignTag : public Node {
-    public:
-        AssignTag(Parser& parser);
-        
-        virtual QString render(Context& ctx) override;
-        
-    private:
-        QStringRef to_;
-        Variable from_;
-    };
-    
     using NodePtr = std::shared_ptr<Node>;
 }
 

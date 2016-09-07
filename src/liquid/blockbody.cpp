@@ -1,5 +1,6 @@
 #include "blockbody.hpp"
 #include "tokenizer.hpp"
+#include "assign.hpp"
 #include "comment.hpp"
 #include <QDebug>
 

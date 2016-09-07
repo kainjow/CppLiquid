@@ -41,6 +41,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tokenizer.hpp
   src/liquid/variable.cpp
   src/liquid/variable.hpp
+  src/liquid/tags/assign.cpp
+  src/liquid/tags/assign.hpp
   src/liquid/tags/comment.cpp
   src/liquid/tags/comment.hpp
 )

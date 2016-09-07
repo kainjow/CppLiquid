@@ -211,11 +211,6 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.parse("{% raw %} test {% raw %} {% {% endraw %}endraw %}").render().toStdString() == " test {% raw %} {% endraw %}");
         CHECK(t.parse("{% raw %} Foobar {{ invalid {% endraw %}{{ 1 }}").render().toStdString() == " Foobar {{ invalid 1");
     }
-    
-    SECTION("TagAssign") {
-        Liquid::Template t;
-        CHECK(t.parse("{% assign name = 'Steve' %}{{ name }}").render().toStdString() == "Steve");
-    }
 }
 
 #endif
