@@ -3,6 +3,7 @@
 #include "stringutils.hpp"
 #include "template.hpp"
 #include <QDebug>
+#include <ctime>
 
 namespace Liquid { namespace StandardFilters {
 
@@ -423,7 +424,7 @@ Data join(const Data& input, const std::vector<Data>& args)
         throw QString("join takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     QStringList inputList;
-    const int inputSize = input.size();
+    const int inputSize = static_cast<int>(input.size());
     for (int i = 0; i < inputSize; ++i) {
         inputList << input.at(i).toString();
     }
@@ -437,7 +438,7 @@ Data uniq(const Data& input, const std::vector<Data>& args)
     }
     Data result(Data::Type::Array);
     std::vector<Data> dupes;
-    const int inputSize = input.size();
+    const int inputSize = static_cast<int>(input.size());
     for (int i = 0; i < inputSize; ++i) {
         const Data& item = input.at(i);
         if (std::find(dupes.begin(), dupes.end(), item) == dupes.end()) {
@@ -573,7 +574,7 @@ Data reverse(const Data& input, const std::vector<Data>& args)
         throw QString("reverse takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
-    const int size = input.size();
+    const int size = static_cast<int>(input.size());
     for (int i = size - 1; i >= 0; --i) {
         result.push_back(input.at(i));
     }
@@ -586,7 +587,7 @@ Data compact(const Data& input, const std::vector<Data>& args)
         throw QString("compact takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
-    const int size = input.size();
+    const int size = static_cast<int>(input.size());
     for (int i = 0; i < size; ++i) {
         const Data& item = input.at(i);
         if (!item.isNil()) {
@@ -603,7 +604,7 @@ Data map(const Data& input, const std::vector<Data>& args)
     }
     const Data& property = args[0];
     Data result(Data::Type::Array);
-    const int size = input.size();
+    const int size = static_cast<int>(input.size());
     for (int i = 0; i < size; ++i) {
         result.push_back(input.at(i)[property.toString()]);
     }
@@ -620,11 +621,11 @@ Data concat(const Data& input, const std::vector<Data>& args)
         throw QString("concat requires an array argument").toStdString();
     }
     Data result(Data::Type::Array);
-    int size = input.size();
+    int size = static_cast<int>(input.size());
     for (int i = 0; i < size; ++i) {
         result.push_back(input.at(i));
     }
-    size = arg.size();
+    size = static_cast<int>(arg.size());
     for (int i = 0; i < size; ++i) {
         result.push_back(arg.at(i));
     }
@@ -673,13 +674,19 @@ bool string_to_date(const std::string& input, struct ::tm& tm)
     int hour = 0;
     int minute = 0;
     int second = 0;
-    if (::sscanf(cstr, "%04d-%02d-%02d %02d:%02d:%02d", &year, &month, &day, &hour, &minute, &second) == 6) {
+#ifdef _MSC_VER
+#define SSCANF ::sscanf_s
+#else
+#define SSCANF ::sscanf
+#endif
+    if (SSCANF(cstr, "%04d-%02d-%02d %02d:%02d:%02d", &year, &month, &day, &hour, &minute, &second) == 6) {
         // ok
-    } else if (::sscanf(cstr, "%04d-%02d-%02d", &year, &month, &day) == 3) {
+    } else if (SSCANF(cstr, "%04d-%02d-%02d", &year, &month, &day) == 3) {
         // ok
     } else {
         return false;
     }
+#undef SSCANF
     ::memset(&tm, 0, sizeof(tm));
     tm.tm_year = year - 1900;
     tm.tm_mon = month - 1;
@@ -714,7 +721,7 @@ Data date(const Data& input, const std::vector<Data>& args)
         buf.resize(bufSize + 1, 0);
         ++infiniteLoopProtector;
     }
-    return QString::fromUtf8(buf.data(), numChars);
+    return QString::fromUtf8(buf.data(), static_cast<int>(numChars));
 }
 
 void registerFilters(Template& tmpl)
@@ -1201,7 +1208,7 @@ TEST_CASE("Liquid::StandardFilters") {
 
         CHECK(date("2006-07-05", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
         CHECK(date("2006-07-05 10:00:00", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
-        CHECK(date("2006-07-05 10:32:11", {"%m/%d/%Y %k.%M.%S"}).toString().toStdString() == "07/05/2006 10.32.11");
+        CHECK(date("2006-07-05 10:32:11", {"%m/%d/%Y %H.%M.%S"}).toString().toStdString() == "07/05/2006 10.32.11");
     }
 }
 

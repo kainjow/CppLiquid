@@ -52,6 +52,7 @@ namespace Liquid {
                 case Type::Id: return "Identifier";
                 case Type::Dotdot: return "DotDot";
                 case Type::EndOfString: return "EndOfString";
+                default: return "";
             }
         }
         

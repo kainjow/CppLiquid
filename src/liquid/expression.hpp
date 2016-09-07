@@ -106,6 +106,7 @@ namespace Liquid {
                 case Type::Lookup: return "Lookup";
                 case Type::LookupKey: return "LookupKey";
                 case Type::LookupBracketKey: return "LookupBracketKey";
+                default: return "";
             }
         }
         

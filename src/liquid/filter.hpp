@@ -2,6 +2,7 @@
 #define LIQUID_FILTER_HPP
 
 #include "expression.hpp"
+#include <functional>
 
 namespace Liquid {
     

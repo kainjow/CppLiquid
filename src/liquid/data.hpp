@@ -123,6 +123,8 @@ namespace Liquid {
                 case Type::BooleanFalse:
                 case Type::Nil:
                     return true;
+                default:
+                    return false;
             }
         }
         

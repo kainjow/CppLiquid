@@ -58,16 +58,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   tests
 )
 
+if(MSVC)
+  get_target_property(QtCore_location Qt5::Core LOCATION_Debug)
+  file(COPY ${QtCore_location} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug)
+endif()
+
 source_group(liquid\\tags REGULAR_EXPRESSION src/liquid/tags/*)
 source_group(liquid REGULAR_EXPRESSION src/liquid/*)
 
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
 
-if (NOT MSVC)
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE
+	/WX
+	/W3
+  )
+else()
   target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall
     -Wextra
     -Werror
   )
 endif()
-

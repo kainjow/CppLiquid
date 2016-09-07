@@ -3,6 +3,7 @@
 
 #include "variable.hpp"
 #include <QStringRef>
+#include <memory>
 
 namespace Liquid {
     
