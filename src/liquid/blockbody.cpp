@@ -3,6 +3,7 @@
 #include "assign.hpp"
 #include "capture.hpp"
 #include "comment.hpp"
+#include "decrement.hpp"
 #include "increment.hpp"
 #include <QDebug>
 

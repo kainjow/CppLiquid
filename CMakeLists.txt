@@ -47,6 +47,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/capture.hpp
   src/liquid/tags/comment.cpp
   src/liquid/tags/comment.hpp
+  src/liquid/tags/decrement.cpp
+  src/liquid/tags/decrement.hpp
   src/liquid/tags/increment.cpp
   src/liquid/tags/increment.hpp
 )

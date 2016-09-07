@@ -1,13 +1,13 @@
-#ifndef LIQUID_INCREMENT_HPP
-#define LIQUID_INCREMENT_HPP
+#ifndef LIQUID_DECREMENT_HPP
+#define LIQUID_DECREMENT_HPP
 
 #include "node.hpp"
 
 namespace Liquid {
     
-    class IncrementTag : public TagNode {
+    class DecrementTag : public TagNode {
     public:
-        IncrementTag(const QStringRef& tagName, Parser& parser);
+        DecrementTag(const QStringRef& tagName, Parser& parser);
         
         virtual QString render(Context& context) override;
         
