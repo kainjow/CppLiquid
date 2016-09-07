@@ -38,6 +38,11 @@ TEST_CASE("Liquid::Assign") {
         Liquid::Data data(hash);
         CHECK(t.parse("a-b:{{a-b}} {%assign a-b = 2 %}a-b:{{a-b}}").render(data) == "a-b:1 a-b:2");
     }
+
+    SECTION("Filter") {
+        Liquid::Template t;
+        CHECK(t.parse("{% assign age = 32 | plus: 4 | divided_by: 2 %}{{ age }}").render().toStdString() == "18");
+    }
 }
 
 #endif
