@@ -124,10 +124,6 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
 
 QString Liquid::Expression::stringDescription() const
 {
-#if 0
-    LookupKey,
-    LookupBracketKey
-#endif
     switch (type_) {
         case Type::Nil:
             return "Nil";
@@ -144,8 +140,12 @@ QString Liquid::Expression::stringDescription() const
             }
             return ret;
         }
-            
+        case Type::LookupKey:
+            return key();
+        case Type::LookupBracketKey:
+            return "[" + (lookups_.empty() ? "" : lookups_[0].stringDescription()) + "]";
         default:
+            throw QString("Unimplemented stringDescription for type %1").arg(typeString()).toStdString();
             return "";
     };
 }
