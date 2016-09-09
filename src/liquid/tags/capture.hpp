@@ -7,7 +7,7 @@ namespace Liquid {
     
     class CaptureTag : public BlockTag {
     public:
-        CaptureTag(const QStringRef& tagName, Parser& parser);
+        CaptureTag(const QStringRef& tagName, const QStringRef& markup);
         
         virtual QString render(Context& context) override;
         

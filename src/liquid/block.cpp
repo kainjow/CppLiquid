@@ -1,7 +1,7 @@
 #include "block.hpp"
 
-Liquid::BlockTag::BlockTag(const QStringRef& tagName, Parser& parser)
-    : TagNode(tagName, parser)
+Liquid::BlockTag::BlockTag(const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(tagName, markup)
     , tagName_(tagName)
 {
 }

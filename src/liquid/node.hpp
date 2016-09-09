@@ -9,7 +9,6 @@ namespace Liquid {
     
     class Context;
     class Tokenizer;
-    class Parser;
     
     class Node {
     public:
@@ -38,7 +37,7 @@ namespace Liquid {
     
     class TagNode : public Node {
     public:
-        TagNode(const QStringRef&, Parser&) {}
+        TagNode(const QStringRef&, const QStringRef&) {}
         virtual QString render(Context& context) override;
     };
     

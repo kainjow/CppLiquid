@@ -7,7 +7,7 @@ namespace Liquid {
     
     class CommentTag : public BlockTag {
     public:
-        CommentTag(const QStringRef& tagName, Parser& parser) : BlockTag(tagName, parser) {
+        CommentTag(const QStringRef& tagName, const QStringRef& markup) : BlockTag(tagName, markup) {
         }
         
         virtual QString render(Context&) override {

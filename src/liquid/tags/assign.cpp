@@ -3,9 +3,10 @@
 #include "template.hpp"
 #include <QDebug>
 
-Liquid::AssignTag::AssignTag(const QStringRef& tagName, Parser& parser)
-    : TagNode(tagName, parser)
+Liquid::AssignTag::AssignTag(const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(tagName, markup)
 {
+    Parser parser(markup);
     to_ = parser.consume(Token::Type::Id);
     (void)parser.consume(Token::Type::Equal);
     from_ = Variable(parser);

@@ -3,9 +3,10 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CaptureTag::CaptureTag(const QStringRef& tagName, Parser& parser)
-    : BlockTag(tagName, parser)
+Liquid::CaptureTag::CaptureTag(const QStringRef& tagName, const QStringRef& markup)
+    : BlockTag(tagName, markup)
 {
+    Parser parser(markup);
     to_ = parser.consume(Token::Type::Id);
     (void)parser.consume(Token::Type::EndOfString);
 }

@@ -7,7 +7,7 @@ namespace Liquid {
     
     class AssignTag : public TagNode {
     public:
-        AssignTag(const QStringRef& tagName, Parser& parser);
+        AssignTag(const QStringRef& tagName, const QStringRef& markup);
         
         virtual QString render(Context& ctx) override;
         

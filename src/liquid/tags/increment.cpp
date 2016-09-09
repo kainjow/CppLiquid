@@ -3,9 +3,10 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::IncrementTag::IncrementTag(const QStringRef& tagName, Parser& parser)
-    : TagNode(tagName, parser)
+Liquid::IncrementTag::IncrementTag(const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(tagName, markup)
 {
+    Parser parser(markup);
     to_ = parser.consume(Token::Type::Id);
     (void)parser.consume(Token::Type::EndOfString);
 }

@@ -1,5 +1,6 @@
 #include "blockbody.hpp"
 #include "tokenizer.hpp"
+#include "stringscanner.hpp"
 #include "assign.hpp"
 #include "capture.hpp"
 #include "comment.hpp"
@@ -26,22 +27,23 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                 nodes_.push_back(std::make_shared<ObjectNode>(Variable(comp->innerText)));
                 break;
             case Component::Type::Tag: {
-                Parser parser(comp->innerText);
-                const QStringRef tagName = parser.consume(Token::Type::Id);
+                StringScanner ss(comp->innerText);
+                const QStringRef tagName = ss.scanIdentifier();
+                const QStringRef markup = comp->innerText.mid(ss.position());
                 if (tagName == "assign") {
-                    nodes_.push_back(std::make_shared<AssignTag>(tagName, parser));
+                    nodes_.push_back(std::make_shared<AssignTag>(tagName, markup));
                 } else if (tagName == "comment") {
-                    std::shared_ptr<CommentTag> tag = std::make_shared<CommentTag>(tagName, parser);
+                    std::shared_ptr<CommentTag> tag = std::make_shared<CommentTag>(tagName, markup);
                     tag->parse(tokenizer);
                     nodes_.push_back(tag);
                 } else if (tagName == "capture") {
-                    std::shared_ptr<CaptureTag> tag = std::make_shared<CaptureTag>(tagName, parser);
+                    std::shared_ptr<CaptureTag> tag = std::make_shared<CaptureTag>(tagName, markup);
                     tag->parse(tokenizer);
                     nodes_.push_back(tag);
                 } else if (tagName == "increment") {
-                    nodes_.push_back(std::make_shared<IncrementTag>(tagName, parser));
+                    nodes_.push_back(std::make_shared<IncrementTag>(tagName, markup));
                 } else if (tagName == "decrement") {
-                    nodes_.push_back(std::make_shared<DecrementTag>(tagName, parser));
+                    nodes_.push_back(std::make_shared<DecrementTag>(tagName, markup));
                 } else {
                     unknownTagHandler(tagName, tokenizer);
                     return;
