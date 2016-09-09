@@ -13,8 +13,10 @@ namespace Liquid {
         virtual QString render(Context& context) override;
         
     private:
+        Expression nameExpression_;
+        QString nameString_;
         std::vector<Expression> expressions_;
-        QString name_;
+        bool nameIsExpression_;
     };
 
 }

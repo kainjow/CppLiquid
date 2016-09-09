@@ -7,14 +7,25 @@ Liquid::CycleTag::CycleTag(const QStringRef& tagName, const QStringRef& markup)
     : TagNode(tagName, markup)
 {
     Parser parser(markup);
-    expressions_.push_back(Expression::parse(parser));
+    const Expression firstExpression = Expression::parse(parser);
+    if (parser.look(Token::Type::Colon)) {
+        (void)parser.consume(Token::Type::Colon);
+        nameExpression_ = firstExpression;
+        expressions_.push_back(Expression::parse(parser));
+        nameIsExpression_ = true;
+    } else {
+        expressions_.push_back(firstExpression);
+        nameIsExpression_ = false;
+    }
     while (parser.look(Token::Type::Comma)) {
         (void)parser.consume(Token::Type::Comma);
         expressions_.push_back(Expression::parse(parser));
     }
     (void)parser.consume(Token::Type::EndOfString);
-    for (const auto& expression : expressions_) {
-        name_ += expression.stringDescription();
+    if (!nameIsExpression_) {
+        for (const auto& expression : expressions_) {
+            nameString_ += expression.stringDescription();
+        }
     }
 }
 
@@ -27,15 +38,16 @@ QString Liquid::CycleTag::render(Context& context)
     }
     int iteration = 0;
     Data& reg = registers[name];
-    if (reg.containsKey(name_)) {
-        iteration = reg[name_].toInt();
+    const QString lookupKey = nameIsExpression_ ? nameExpression_.evaluate(context.data()).toString() : nameString_;
+    if (reg.containsKey(lookupKey)) {
+        iteration = reg[lookupKey].toInt();
     }
     const QString result = expressions_[iteration].evaluate(context.data()).toString();
     ++iteration;
     if (iteration >= static_cast<int>(expressions_.size())) {
         iteration = 0;
     }
-    reg.insert(name_, iteration);
+    reg.insert(lookupKey, iteration);
     return result;
 }
 
@@ -54,6 +66,12 @@ TEST_CASE("Liquid::Cycle") {
         CHECK(t.parse("{%cycle 'one', 'two'%} {%cycle 'one', 'two'%} {%cycle 'one', 'two'%}").render().toStdString() == "one two one");
         CHECK(t.parse("{%cycle 'text-align: left', 'text-align: right' %} {%cycle 'text-align: left', 'text-align: right'%}").render().toStdString() == "text-align: left text-align: right");
         CHECK(t.parse("{%cycle 1,2%} {%cycle 1,2%} {%cycle 1,2%} {%cycle 1,2,3%} {%cycle 1,2,3%} {%cycle 1,2,3%} {%cycle 1,2,3%}").render().toStdString() == "1 2 1 1 2 3 1");
+        CHECK(t.parse("{%cycle 1: 'one', 'two' %} {%cycle 2: 'one', 'two' %} {%cycle 1: 'one', 'two' %} {%cycle 2: 'one', 'two' %} {%cycle 1: 'one', 'two' %} {%cycle 2: 'one', 'two' %}").render().toStdString() == "one one two two one one");
+        Liquid::Data::Hash hash;
+        hash["var1"] = 1;
+        hash["var2"] = 2;
+        Liquid::Data data(hash);
+        CHECK(t.parse("{%cycle var1: 'one', 'two' %} {%cycle var2: 'one', 'two' %} {%cycle var1: 'one', 'two' %} {%cycle var2: 'one', 'two' %} {%cycle var1: 'one', 'two' %} {%cycle var2: 'one', 'two' %}").render(data).toStdString() == "one one two two one one");
     }
 }
 
