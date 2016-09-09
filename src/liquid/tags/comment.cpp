@@ -13,7 +13,7 @@ TEST_CASE("Liquid::Comment") {
         CHECK(t.parse("{% comment %}{% endcomment %}").render().toStdString() == "");
         CHECK(t.parse("hello {% comment %}{% endcomment %} world").render().toStdString() == "hello  world");
         CHECK(t.parse("one {% comment %} two {% endcomment %} three").render().toStdString() == "one  three");
-        CHECK(t.parse("{% comment %}In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.{% endcomment %}").render().toStdString() == "");
+        CHECK_THROWS_WITH(t.parse("{% comment %}In Mustache, {{ this }} will be HTML-escaped, but {{{ that }}} will not.{% endcomment %}").render(), "Unexpected character {");
         CHECK(t.parse("{% comment %}{% comment %} test {% endcomment %}{% endcomment %}").render().toStdString() == "");
         CHECK(t.parse("{% comment %}{{ test }}{% endcomment %}").render().toStdString() == "");
         

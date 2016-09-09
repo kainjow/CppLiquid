@@ -63,7 +63,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             if (it != kSpecials.end()) {
                 tokens.emplace_back(it->second, tok);
             } else {
-                qDebug() << "Unexpected character " << tok;
+                throw QString("Unexpected character %1").arg(tok.toString()).toStdString();
             }
         }
     }
