@@ -25,13 +25,18 @@ namespace Liquid {
             return filters_;
         }
         
-        Data& environments() {
+        Data::Hash& environments() {
             return environments_;
+        }
+        
+        Data::Hash& registers() {
+            return registers_;
         }
         
     private:
         Data& data_;
-        Data environments_;
+        Data::Hash environments_;
+        Data::Hash registers_;
         const FilterList& filters_;
     };
 

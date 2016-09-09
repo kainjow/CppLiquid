@@ -122,6 +122,34 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
     return kNilData;
 }
 
+QString Liquid::Expression::stringDescription() const
+{
+#if 0
+    LookupKey,
+    LookupBracketKey
+#endif
+    switch (type_) {
+        case Type::Nil:
+            return "Nil";
+        case Type::String:
+        case Type::NumberInt:
+        case Type::NumberFloat:
+        case Type::BooleanTrue:
+        case Type::BooleanFalse:
+            return toString();
+        case Type::Lookup: {
+            QString ret;
+            for (const auto &lookup : lookups_) {
+                ret += lookup.stringDescription();
+            }
+            return ret;
+        }
+            
+        default:
+            return "";
+    };
+}
+
 
 
 #ifdef TESTS

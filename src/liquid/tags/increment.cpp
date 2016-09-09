@@ -13,10 +13,10 @@ Liquid::IncrementTag::IncrementTag(const QStringRef& tagName, const QStringRef& 
 
 QString Liquid::IncrementTag::render(Context& context)
 {
-    Data& env = context.environments();
+    Data::Hash& env = context.environments();
     const QString name = to_.toString();
     const int value = env[name].toInt();
-    env.insert(name, value + 1);
+    env[name] = value + 1;
     return QString::number(value);
 }
 

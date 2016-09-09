@@ -4,6 +4,7 @@
 #include "assign.hpp"
 #include "capture.hpp"
 #include "comment.hpp"
+#include "cycle.hpp"
 #include "decrement.hpp"
 #include "increment.hpp"
 #include <QDebug>
@@ -44,6 +45,8 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     nodes_.push_back(std::make_shared<IncrementTag>(tagName, markup));
                 } else if (tagName == "decrement") {
                     nodes_.push_back(std::make_shared<DecrementTag>(tagName, markup));
+                } else if (tagName == "cycle") {
+                    nodes_.push_back(std::make_shared<CycleTag>(tagName, markup));
                 } else {
                     unknownTagHandler(tagName, tokenizer);
                     return;

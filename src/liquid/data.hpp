@@ -294,6 +294,10 @@ namespace Liquid {
             return it->second;
         }
         
+        bool containsKey(const QString& key) const {
+            return hash_.find(key) != hash_.end();
+        }
+        
     private:
         Type type_;
         Hash hash_;

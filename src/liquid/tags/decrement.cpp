@@ -13,10 +13,10 @@ Liquid::DecrementTag::DecrementTag(const QStringRef& tagName, const QStringRef& 
 
 QString Liquid::DecrementTag::render(Context& context)
 {
-    Data& env = context.environments();
+    Data::Hash& env = context.environments();
     const QString name = to_.toString();
     const int value = env[name].toInt() - 1;
-    env.insert(name, value);
+    env[name] = value;
     return QString::number(value);
 }
 

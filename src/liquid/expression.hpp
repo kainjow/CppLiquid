@@ -195,6 +195,8 @@ namespace Liquid {
         
         const Data& evaluate(const Data& data) const;
         
+        QString stringDescription() const;
+        
     private:
         Type type_;
         Data var_;
