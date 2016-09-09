@@ -106,7 +106,9 @@ namespace Liquid {
                 case Type::Lookup: return "Lookup";
                 case Type::LookupKey: return "LookupKey";
                 case Type::LookupBracketKey: return "LookupBracketKey";
-                default: return "";
+                default:
+                    throw QString("Unimplemented typeString for type %1").arg(static_cast<int>(type_)).toStdString();
+                    return "";
             }
         }
         
