@@ -19,9 +19,10 @@ namespace Liquid {
     protected:
         virtual void handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer);
 
+        BlockBody body_;
+
     private:
         QStringRef tagName_;
-        BlockBody body_;
     };
 }
 

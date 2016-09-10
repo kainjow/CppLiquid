@@ -18,6 +18,7 @@ namespace {
         {'-', Liquid::Token::Type::Dash},
         {'=', Liquid::Token::Type::Equal},
     };
+    const QString kDotDot = "..";
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
@@ -39,8 +40,13 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
 
         tok = ss.scanFloat();
         if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::NumberFloat, tok);
-            continue;
+            if (tok.endsWith(".") && ss.peekch() == ".") {
+                // This is actually an int in a range, so continue processing.
+                ss.advance(-tok.size());
+            } else {
+                tokens.emplace_back(Token::Type::NumberFloat, tok);
+                continue;
+            }
         }
 
         tok = ss.scanInt();
@@ -55,7 +61,10 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
             continue;
         }
 
-        // TODO: Token::Type::Dotdot
+        if (ss.scanString(kDotDot, &tok)) {
+            tokens.emplace_back(Token::Type::DotDot, tok);
+            continue;
+        }
         
         tok = ss.getch();
         if (!tok.isNull()) {
@@ -155,7 +164,20 @@ TEST_CASE("Liquid::Lexer") {
         CHECK(tokens[0].type() == Liquid::Token::Type::String);
         CHECK(tokens[0].value().toString() == "Hello");
     }
-    
+
+    SECTION("DotDot") {
+        QString input = "1..2";
+        QStringRef inputRef(&input);
+        std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
+        REQUIRE(tokens.size() == 4);
+        CHECK(tokens[0].type() == Liquid::Token::Type::NumberInt);
+        CHECK(tokens[0].value().toString().toStdString() == "1");
+        CHECK(tokens[1].type() == Liquid::Token::Type::DotDot);
+        CHECK(tokens[1].value().toString().toStdString() == "..");
+        CHECK(tokens[2].type() == Liquid::Token::Type::NumberInt);
+        CHECK(tokens[2].value().toString().toStdString() == "2");
+    }
+
 }
 
 #endif

@@ -125,9 +125,13 @@ namespace Liquid {
             return true;
         }
         
-        bool scanString(const QString& string) {
-            if (input_.mid(pos_, string.size()) == string) {
+        bool scanString(const QString& string, QStringRef* result = nullptr) {
+            const QStringRef mid = input_.mid(pos_, string.size());
+            if (mid == string) {
                 pos_ += string.size();
+                if (result) {
+                    *result = mid;
+                }
                 return true;
             }
             return false;

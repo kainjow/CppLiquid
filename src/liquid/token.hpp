@@ -27,7 +27,7 @@ namespace Liquid {
             NumberInt,
             NumberFloat,
             Id,
-            Dotdot,
+            DotDot,
             EndOfString,
         };
         
@@ -50,7 +50,7 @@ namespace Liquid {
                 case Type::NumberInt: return "NumberInt";
                 case Type::NumberFloat: return "NumberFloat";
                 case Type::Id: return "Identifier";
-                case Type::Dotdot: return "DotDot";
+                case Type::DotDot: return "DotDot";
                 case Type::EndOfString: return "EndOfString";
                 default: return "";
             }

@@ -7,6 +7,7 @@
 #include "comment.hpp"
 #include "cycle.hpp"
 #include "decrement.hpp"
+#include "for.hpp"
 #include "increment.hpp"
 #include <QDebug>
 
@@ -50,6 +51,10 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     nodes_.push_back(std::make_shared<CycleTag>(tagName, markup));
                 } else if (tagName == "case") {
                     std::shared_ptr<CaseTag> tag = std::make_shared<CaseTag>(tagName, markup);
+                    tag->parse(tokenizer);
+                    nodes_.push_back(tag);
+                } else if (tagName == "for") {
+                    std::shared_ptr<ForTag> tag = std::make_shared<ForTag>(tagName, markup);
                     tag->parse(tokenizer);
                     nodes_.push_back(tag);
                 } else {
