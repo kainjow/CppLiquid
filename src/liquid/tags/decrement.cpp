@@ -23,14 +23,13 @@ QString Liquid::DecrementTag::render(Context& context)
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::Decrement") {
     
     SECTION("Decrement") {
-        Liquid::Template t;
-        CHECK(t.parse("{% decrement my_count %} {% decrement my_count %} {% decrement my_count %}").render().toStdString() == "-1 -2 -3");
-        CHECK(t.parse("{% assign var = 10 %}{% decrement var %} {% decrement var %} {% decrement var %} {{ var }}").render().toStdString() == "-1 -2 -3 10");
+        CHECK_TEMPLATE_RESULT("{% decrement my_count %} {% decrement my_count %} {% decrement my_count %}", "-1 -2 -3");
+        CHECK_TEMPLATE_RESULT("{% assign var = 10 %}{% decrement var %} {% decrement var %} {% decrement var %} {{ var }}", "-1 -2 -3 10");
     }
 }
 

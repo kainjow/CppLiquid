@@ -22,18 +22,17 @@ QString Liquid::CaptureTag::render(Context& context)
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::Capture") {
     
     SECTION("Capture") {
-        Liquid::Template t;
-        CHECK(t.parse("{% capture my_variable %}I am being captured.{% endcapture %}{{ my_variable }}").render().toStdString() == "I am being captured.");
-
-        Liquid::Data::Hash hash;
-        hash["var"] = "content";
-        Liquid::Data data(hash);
-        CHECK(t.parse("{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}").render(data).toStdString() == "content foo content foo ");
+        CHECK_TEMPLATE_RESULT("{% capture my_variable %}I am being captured.{% endcapture %}{{ my_variable }}", "I am being captured.");
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}",
+            "content foo content foo ",
+            (Liquid::Data::Hash{{"var", "content"}})
+        );
     }
 }
 

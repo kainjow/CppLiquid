@@ -24,14 +24,13 @@ QString Liquid::IncrementTag::render(Context& context)
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::Increment") {
     
     SECTION("Increment") {
-        Liquid::Template t;
-        CHECK(t.parse("{% increment my_count %} {% increment my_count %} {% increment my_count %}").render().toStdString() == "0 1 2");
-        CHECK(t.parse("{% assign var = 10 %}{% increment var %} {% increment var %} {% increment var %} {{ var }}").render().toStdString() == "0 1 2 10");
+        CHECK_TEMPLATE_RESULT("{% increment my_count %} {% increment my_count %} {% increment my_count %}", "0 1 2");
+        CHECK_TEMPLATE_RESULT("{% assign var = 10 %}{% increment var %} {% increment var %} {% increment var %} {{ var }}", "0 1 2 10");
     }
 }
 
