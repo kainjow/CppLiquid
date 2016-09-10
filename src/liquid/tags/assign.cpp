@@ -29,17 +29,17 @@ TEST_CASE("Liquid::Assign") {
     
     SECTION("Assign") {
         CHECK_TEMPLATE_RESULT("{% assign name = 'Steve' %}{{ name }}", "Steve");
-    }
-    
-    SECTION("Hyphenated") {
+        CHECK_TEMPLATE_RESULT("{% assign a = ""%}{{a}}", "");
+        CHECK_TEMPLATE_DATA_RESULT(
+            "var2:{{var2}} {%assign var2 = var%} var2:{{var2}}",
+            "var2:  var2:content",
+            (Liquid::Data::Hash{{"var", "content"}})
+        );
         CHECK_TEMPLATE_DATA_RESULT(
             "a-b:{{a-b}} {%assign a-b = 2 %}a-b:{{a-b}}",
             "a-b:1 a-b:2",
             (Liquid::Data::Hash{{"a-b", "1"}})
         );
-    }
-
-    SECTION("Filter") {
         CHECK_TEMPLATE_RESULT("{% assign age = 32 | plus: 4 | divided_by: 2 %}{{ age }}", "18");
     }
 }
