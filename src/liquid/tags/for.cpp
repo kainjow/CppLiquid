@@ -84,10 +84,6 @@ void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRe
 TEST_CASE("Liquid::For") {
     
     SECTION("For") {
-        CHECK_TEMPLATE_RESULT(
-            "{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}",
-            "variable"
-        );
         CHECK_TEMPLATE_DATA_RESULT(
             "{%for item in array%} yo {%endfor%}",
             " yo  yo  yo  yo ",
@@ -107,6 +103,17 @@ TEST_CASE("Liquid::For") {
             "{%for item in array%}{%endfor%}",
             "",
             (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2}}})
+        );
+    }
+
+    SECTION("ForRange") {
+        CHECK_TEMPLATE_RESULT(
+            "{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}",
+            "variable"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) %} {{item}} {%endfor%}",
+            " 1  2  3 "
         );
     }
 }
