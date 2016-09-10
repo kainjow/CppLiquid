@@ -27,17 +27,17 @@ namespace Liquid {
                 , block_(block)
             {
             }
-            explicit CaseCondition(const Expression& expression, const BlockBody& block)
+            explicit CaseCondition(const std::vector<Expression>& expressions, const BlockBody& block)
                 : else_(false)
-                , expression_(expression)
+                , expressions_(expressions)
                 , block_(block)
             {
             }
             bool isElse() const {
                 return else_;
             }
-            const Expression& expression() const {
-                return expression_;
+            const std::vector<Expression>& expressions() const {
+                return expressions_;
             }
             const BlockBody& block() const {
                 return block_;
@@ -47,7 +47,7 @@ namespace Liquid {
             }
         private:
             bool else_;
-            Expression expression_;
+            std::vector<Expression> expressions_;
             BlockBody block_;
         };
         

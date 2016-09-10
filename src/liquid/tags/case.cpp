@@ -30,9 +30,13 @@ QString Liquid::CaseTag::render(Context& context)
             if (executeElseBlock) {
                 return cond.block().render(context);
             }
-        } else if (cond.expression().evaluate(context.data()) == leftValue) {
-            executeElseBlock = false;
-            output += cond.block().render(context);
+        } else {
+            for (const auto& exp : cond.expressions()) {
+                if (exp.evaluate(context.data()) == leftValue) {
+                    executeElseBlock = false;
+                    output += cond.block().render(context);
+                }
+            }
         }
     }
     return output;
@@ -43,10 +47,18 @@ void Liquid::CaseTag::handleUnknownTag(const QStringRef& tagName, const QStringR
     if (tagName == "when") {
         BlockBody body;
         Parser parser(markup);
-        const Expression condition = Expression::parse(parser);
-        // TODO: comma and or separated multiple arguments
+        std::vector<Expression> expressions;
+        expressions.push_back(Expression::parse(parser));
+        // TODO: comma separated multiple arguments
+        while (parser.look(Token::Type::Id)) {
+            const QStringRef orId = parser.consume(Token::Type::Id);
+            if (orId != "or") {
+                throw QString("Expected \"or\" but found %1").arg(orId.toString()).toStdString();
+            }
+            expressions.push_back(Expression::parse(parser));
+        }
         (void)parser.consume(Token::Type::EndOfString);
-        conditions_.emplace_back(condition, body);
+        conditions_.emplace_back(expressions, body);
     } else if (tagName == "else") {
         conditions_.emplace_back(true, BlockBody());
     } else {
@@ -117,6 +129,25 @@ TEST_CASE("Liquid::Case") {
         CHECK_DATA_RESULT(t, "womenswear",
             (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "z"}}}})
         );
+    }
+    
+    SECTION("CaseOr1") {
+        const char* code = "{% case condition %}{% when 1 or 2 or 3 %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        Liquid::Template t = Liquid::Template{}.parse(code);
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 2}}));
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 3}}));
+        CHECK_DATA_RESULT(t, " it's 4 ", (Liquid::Data::Hash{{"condition", 4}}));
+        CHECK_DATA_RESULT(t, "", (Liquid::Data::Hash{{"condition", 5}}));
+    }
+
+    SECTION("CaseOr2") {
+        const char* code = "{% case condition %}{% when 1 or 'string' or null %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        Liquid::Template t = Liquid::Template{}.parse(code);
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", "string"}}));
+        CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", nullptr}}));
+        CHECK_DATA_RESULT(t, "", (Liquid::Data::Hash{{"condition", "something else"}}));
     }
 }
 
