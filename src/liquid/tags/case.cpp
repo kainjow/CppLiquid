@@ -98,6 +98,26 @@ TEST_CASE("Liquid::Case") {
             " else "
         );
     }
+    
+    SECTION("CaseAssign") {
+        const char* code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
+        Liquid::Template t = Liquid::Template{}.parse(code);
+        CHECK_DATA_RESULT(t, "menswear",
+            (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "menswear-jackets"}}}})
+        );
+        CHECK_DATA_RESULT(t, "menswear",
+            (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "menswear-t-shirts"}}}})
+        );
+        CHECK_DATA_RESULT(t, "womenswear",
+            (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "x"}}}})
+        );
+        CHECK_DATA_RESULT(t, "womenswear",
+            (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "y"}}}})
+        );
+        CHECK_DATA_RESULT(t, "womenswear",
+            (Liquid::Data::Hash{{"collection", Liquid::Data::Hash{{"handle", "z"}}}})
+        );
+    }
 }
 
 #endif
