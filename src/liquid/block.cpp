@@ -8,7 +8,7 @@ Liquid::BlockTag::BlockTag(const QStringRef& tagName, const QStringRef& markup)
 
 void Liquid::BlockTag::parse(Tokenizer& tokenizer)
 {
-    while (parseBody(body_, tokenizer)) {
+    while (parseBody(&body_, tokenizer)) {
     }
 }
 
@@ -21,16 +21,10 @@ bool Liquid::BlockTag::parseBody(BlockBody* body, Tokenizer& tokenizer)
 {
     if (!body) {
         throw std::string("body cannot be null");
-        return false;
     }
-    return parseBody(*body, tokenizer);
-}
-
-bool Liquid::BlockTag::parseBody(BlockBody& body, Tokenizer& tokenizer)
-{
     const QString endTagName = "end" + tagName_.toString();
     bool ret = true;
-    body.parse(tokenizer, [endTagName, &ret, this](const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    body->parse(tokenizer, [endTagName, &ret, this](const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
         if (tagName == endTagName) {
             ret = false;
             return;

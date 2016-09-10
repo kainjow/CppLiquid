@@ -13,7 +13,6 @@ namespace Liquid {
         virtual void parse(Tokenizer& tokenizer);
         
         bool parseBody(BlockBody* body, Tokenizer& tokenizer);
-        bool parseBody(BlockBody& body, Tokenizer& tokenizer);
         
         virtual QString render(Context& context) override;
         
