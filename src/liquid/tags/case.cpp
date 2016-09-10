@@ -59,13 +59,35 @@ void Liquid::CaseTag::handleUnknownTag(const QStringRef& tagName, const QStringR
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::Case") {
     
-    SECTION("CaseTag") {
-        Liquid::Template t;
-        CHECK(t.parse("{% assign condition = 2 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}").render().toStdString() == " it's 2 ");
+    SECTION("Case") {
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 2 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
+            " it's 2 "
+        );
+
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 1 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
+            " it's 1 "
+        );
+
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 3 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
+            ""
+        );
+
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 'string here' %}{% case condition %}{% when 'string here' %} hit {% endcase %}",
+            " hit "
+        );
+
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 'bad string here' %}{% case condition %}{% when 'string here' %} hit {% endcase %}",
+            ""
+        );
     }
 }
 
