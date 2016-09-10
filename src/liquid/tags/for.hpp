@@ -20,8 +20,10 @@ namespace Liquid {
     private:
         QStringRef varName_;
         BlockBody elseBlock_;
+        bool range_;
         Expression rangeStart_;
         Expression rangeEnd_;
+        Expression collection_;
     };
 }
 
