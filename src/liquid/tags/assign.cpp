@@ -23,26 +23,24 @@ QString Liquid::AssignTag::render(Context& ctx)
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::Assign") {
     
     SECTION("Assign") {
-        Liquid::Template t;
-        CHECK(t.parse("{% assign name = 'Steve' %}{{ name }}").render().toStdString() == "Steve");
+        CHECK_TEMPLATE_RESULT("{% assign name = 'Steve' %}{{ name }}", "Steve");
     }
     
     SECTION("Hyphenated") {
-        Liquid::Template t;
-        Liquid::Data::Hash hash;
-        hash["a-b"] = "1";
-        Liquid::Data data(hash);
-        CHECK(t.parse("a-b:{{a-b}} {%assign a-b = 2 %}a-b:{{a-b}}").render(data) == "a-b:1 a-b:2");
+        CHECK_TEMPLATE_DATA_RESULT(
+            "a-b:{{a-b}} {%assign a-b = 2 %}a-b:{{a-b}}",
+            "a-b:1 a-b:2",
+            (Liquid::Data::Hash{{"a-b", "1"}})
+        );
     }
 
     SECTION("Filter") {
-        Liquid::Template t;
-        CHECK(t.parse("{% assign age = 32 | plus: 4 | divided_by: 2 %}{{ age }}").render().toStdString() == "18");
+        CHECK_TEMPLATE_RESULT("{% assign age = 32 | plus: 4 | divided_by: 2 %}{{ age }}", "18");
     }
 }
 
