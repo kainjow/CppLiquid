@@ -12,16 +12,25 @@ void Liquid::BlockTag::parse(Tokenizer& tokenizer)
     }
 }
 
-void Liquid::BlockTag::handleUnknownTag(const QStringRef& tagName, Tokenizer& tokenizer)
+void Liquid::BlockTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
 {
-    BlockBody::defaultUnknownTagHandler(tagName, tokenizer);
+    BlockBody::defaultUnknownTagHandler(tagName, markup, tokenizer);
+}
+
+bool Liquid::BlockTag::parseBody(BlockBody* body, Tokenizer& tokenizer)
+{
+    if (!body) {
+        throw std::string("body cannot be null");
+        return false;
+    }
+    return parseBody(*body, tokenizer);
 }
 
 bool Liquid::BlockTag::parseBody(BlockBody& body, Tokenizer& tokenizer)
 {
     const QString endTagName = "end" + tagName_.toString();
     bool ret = true;
-    body.parse(tokenizer, [endTagName, &ret, this](const QStringRef& tagName, Tokenizer& tokenizer) {
+    body.parse(tokenizer, [endTagName, &ret, this](const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
         if (tagName == endTagName) {
             ret = false;
             return;
@@ -29,7 +38,7 @@ bool Liquid::BlockTag::parseBody(BlockBody& body, Tokenizer& tokenizer)
         if (tagName.isNull()) {
             throw QString("%1 tag was never closed").arg(tagName_.toString()).toStdString();
         }
-        handleUnknownTag(tagName, tokenizer);
+        handleUnknownTag(tagName, markup, tokenizer);
     });
     return ret;
 }

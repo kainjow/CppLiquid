@@ -13,8 +13,8 @@ namespace Liquid {
 
     class BlockBody {
     public:
-        using UnknownTagHandler = std::function<void(const QStringRef& tagName, Tokenizer& tokenizer)>;
-        static void defaultUnknownTagHandler(const QStringRef& tagName, Tokenizer& tokenizer);
+        using UnknownTagHandler = std::function<void(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)>;
+        static void defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer);
 
         void parse(Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler = defaultUnknownTagHandler);
         

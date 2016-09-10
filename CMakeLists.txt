@@ -45,6 +45,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/assign.hpp
   src/liquid/tags/capture.cpp
   src/liquid/tags/capture.hpp
+  src/liquid/tags/case.cpp
+  src/liquid/tags/case.hpp
   src/liquid/tags/comment.cpp
   src/liquid/tags/comment.hpp
   src/liquid/tags/cycle.cpp

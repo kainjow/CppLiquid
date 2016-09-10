@@ -15,7 +15,7 @@ namespace Liquid {
         }
 
     protected:
-        virtual void handleUnknownTag(const QStringRef&, Tokenizer&) override {
+        virtual void handleUnknownTag(const QStringRef&, const QStringRef&, Tokenizer&) override {
             // ignore
         }
     };

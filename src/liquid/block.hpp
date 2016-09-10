@@ -9,14 +9,16 @@ namespace Liquid {
     class BlockTag : public TagNode {
     public:
         BlockTag(const QStringRef& tagName, const QStringRef& markup);
-        void parse(Tokenizer& tokenizer);
         
+        virtual void parse(Tokenizer& tokenizer);
+        
+        bool parseBody(BlockBody* body, Tokenizer& tokenizer);
         bool parseBody(BlockBody& body, Tokenizer& tokenizer);
         
         virtual QString render(Context& context) override;
         
     protected:
-        virtual void handleUnknownTag(const QStringRef& tagName, Tokenizer& tokenizer);
+        virtual void handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer);
 
     private:
         QStringRef tagName_;

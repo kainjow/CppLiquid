@@ -3,13 +3,14 @@
 #include "stringscanner.hpp"
 #include "assign.hpp"
 #include "capture.hpp"
+#include "case.hpp"
 #include "comment.hpp"
 #include "cycle.hpp"
 #include "decrement.hpp"
 #include "increment.hpp"
 #include <QDebug>
 
-void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, Tokenizer&)
+void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef&, Tokenizer&)
 {
     if (!tagName.isNull()) {
         throw QString("Unknown tag '%1'").arg(tagName.toString()).toStdString();
@@ -47,15 +48,19 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     nodes_.push_back(std::make_shared<DecrementTag>(tagName, markup));
                 } else if (tagName == "cycle") {
                     nodes_.push_back(std::make_shared<CycleTag>(tagName, markup));
+                } else if (tagName == "case") {
+                    std::shared_ptr<CaseTag> tag = std::make_shared<CaseTag>(tagName, markup);
+                    tag->parse(tokenizer);
+                    nodes_.push_back(tag);
                 } else {
-                    unknownTagHandler(tagName, tokenizer);
+                    unknownTagHandler(tagName, markup, tokenizer);
                     return;
                 }
                 break;
             }
         }
     }
-    unknownTagHandler(QStringRef(), tokenizer);
+    unknownTagHandler(QStringRef(), QStringRef(), tokenizer);
 }
 
 QString Liquid::BlockBody::render(Context& context) {
