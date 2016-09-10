@@ -13,8 +13,8 @@ Liquid::CaseTag::CaseTag(const QStringRef& tagName, const QStringRef& markup)
 
 void Liquid::CaseTag::parse(Tokenizer& tokenizer)
 {
-    BlockBody newBody;
-    BlockBody* currentBody = &newBody;
+    BlockBody body;
+    BlockBody* currentBody = &body;
     while (parseBody(currentBody, tokenizer)) {
         currentBody = &conditions_.back().block();
     }
@@ -48,9 +48,7 @@ void Liquid::CaseTag::handleUnknownTag(const QStringRef& tagName, const QStringR
         (void)parser.consume(Token::Type::EndOfString);
         conditions_.emplace_back(condition, body);
     } else if (tagName == "else") {
-        BlockBody body;
-        body.parse(tokenizer);
-        conditions_.emplace_back(true, body);
+        conditions_.emplace_back(true, BlockBody());
     } else {
         BlockTag::handleUnknownTag(tagName, markup, tokenizer);
     }
@@ -68,25 +66,36 @@ TEST_CASE("Liquid::Case") {
             "{% assign condition = 2 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
             " it's 2 "
         );
-
         CHECK_TEMPLATE_RESULT(
             "{% assign condition = 1 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
             " it's 1 "
         );
-
         CHECK_TEMPLATE_RESULT(
             "{% assign condition = 3 %}{% case condition %}{% when 1 %} it's 1 {% when 2 %} it's 2 {% endcase %}",
             ""
         );
-
         CHECK_TEMPLATE_RESULT(
             "{% assign condition = 'string here' %}{% case condition %}{% when 'string here' %} hit {% endcase %}",
             " hit "
         );
-
         CHECK_TEMPLATE_RESULT(
             "{% assign condition = 'bad string here' %}{% case condition %}{% when 'string here' %} hit {% endcase %}",
             ""
+        );
+    }
+    
+    SECTION("CaseElse") {
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 5 %}{% case condition %}{% when 5 %} hit {% else %} else {% endcase %}",
+            " hit "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 6 %}{% case condition %}{% when 5 %} hit {% else %} else {% endcase %}",
+            " else "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% assign condition = 6 %}{% case condition %} {% when 5 %} hit {% else %} else {% endcase %}",
+            " else "
         );
     }
 }
