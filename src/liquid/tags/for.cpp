@@ -52,6 +52,19 @@ QString Liquid::ForTag::render(Context& context)
     Data& data = context.data();
     const QString varName = varName_.toString();
     int index0 = 0;
+    
+    const auto insertForloop = [] (int i, int start, int end, int len, int index0, Data& data) {
+        Data::Hash forloop;
+        forloop["first"] = i == start;
+        forloop["last"] = i == end;
+        forloop["length"] = len;
+        const int rindex0 = len - index0 - 1;
+        forloop["index0"] = index0;
+        forloop["index"] = index0 + 1;
+        forloop["rindex0"] = rindex0;
+        forloop["rindex"] = rindex0 + 1;
+        data.insert("forloop", forloop);
+    };
 
     if (range_) {
         const int start = rangeStart_.evaluate(data).toInt();
@@ -80,16 +93,7 @@ QString Liquid::ForTag::render(Context& context)
             }
         } else {
             for (int i = start; i <= end; ++i, ++index0) {
-                Data::Hash forloop;
-                forloop["first"] = i == start;
-                forloop["last"] = i == end;
-                forloop["length"] = len;
-                const int rindex0 = len - index0 - 1;
-                forloop["index0"] = index0;
-                forloop["index"] = index0 + 1;
-                forloop["rindex0"] = rindex0;
-                forloop["rindex"] = rindex0 + 1;
-                data.insert("forloop", forloop);
+                insertForloop(i, start, end, len, index0, data);
 
                 data.insert(varName, i);
                 
@@ -128,16 +132,7 @@ QString Liquid::ForTag::render(Context& context)
             }
         } else {
             for (int i = start; i <= end; ++i, ++index0) {
-                Data::Hash forloop;
-                forloop["first"] = i == start;
-                forloop["last"] = i == end;
-                forloop["length"] = len;
-                const int rindex0 = len - index0 - 1;
-                forloop["index0"] = index0;
-                forloop["index"] = index0 + 1;
-                forloop["rindex0"] = rindex0;
-                forloop["rindex"] = rindex0 + 1;
-                data.insert("forloop", forloop);
+                insertForloop(i, start, end, len, index0, data);
 
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
 
