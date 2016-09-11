@@ -8,9 +8,9 @@ namespace Liquid {
     
     class ForTag : public BlockTag {
     public:
-        ForTag(const QStringRef& tagName, const QStringRef& markup);
+        ForTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
-        virtual void parse(Tokenizer& tokenizer) override;
+        virtual void parse(const Context& context, Tokenizer& tokenizer) override;
         
         virtual QString render(Context& context) override;
         

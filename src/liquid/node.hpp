@@ -12,12 +12,13 @@ namespace Liquid {
     
     class Node {
     public:
+        Node(const Context&) {}
         virtual QString render(Context& context) = 0;
     };
 
     class TextNode : public Node {
     public:
-        TextNode(const QStringRef& text);
+        TextNode(const Context& context, const QStringRef& text);
         
         virtual QString render(Context&) override;
         
@@ -27,7 +28,7 @@ namespace Liquid {
     
     class ObjectNode : public Node {
     public:
-        ObjectNode(const Variable& var);
+        ObjectNode(const Context& context, const Variable& var);
 
         virtual QString render(Context& context) override;
 
@@ -37,8 +38,9 @@ namespace Liquid {
     
     class TagNode : public Node {
     public:
-        TagNode(const QStringRef& tagName, const QStringRef&)
-            : tagName_(tagName)
+        TagNode(const Context& context, const QStringRef& tagName, const QStringRef&)
+            : Node(context)
+            , tagName_(tagName)
         {}
         virtual QString render(Context& context) override;
         const QStringRef& tagName() {

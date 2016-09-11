@@ -28,12 +28,14 @@ add_executable(${PROJECT_NAME}
   src/liquid/node.hpp
   src/liquid/parser.cpp
   src/liquid/parser.hpp
+  src/liquid/qstringhash.hpp
   src/liquid/standardfilters.cpp
   src/liquid/standardfilters.hpp
   src/liquid/stringscanner.cpp
   src/liquid/stringscanner.hpp
   src/liquid/stringutils.cpp
   src/liquid/stringutils.hpp
+  src/liquid/tag.hpp
   src/liquid/template.cpp
   src/liquid/template.hpp
   src/liquid/token.cpp

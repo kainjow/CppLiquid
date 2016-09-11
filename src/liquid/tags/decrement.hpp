@@ -7,7 +7,7 @@ namespace Liquid {
     
     class DecrementTag : public TagNode {
     public:
-        DecrementTag(const QStringRef& tagName, const QStringRef& markup);
+        DecrementTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
         virtual QString render(Context& context) override;
         

@@ -1,14 +1,14 @@
 #include "block.hpp"
 
-Liquid::BlockTag::BlockTag(const QStringRef& tagName, const QStringRef& markup)
-    : TagNode(tagName, markup)
+Liquid::BlockTag::BlockTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(context, tagName, markup)
     , tagName_(tagName)
 {
 }
 
-void Liquid::BlockTag::parse(Tokenizer& tokenizer)
+void Liquid::BlockTag::parse(const Context& context, Tokenizer& tokenizer)
 {
-    while (parseBody(&body_, tokenizer)) {
+    while (parseBody(context, &body_, tokenizer)) {
     }
 }
 
@@ -17,14 +17,14 @@ void Liquid::BlockTag::handleUnknownTag(const QStringRef& tagName, const QString
     BlockBody::defaultUnknownTagHandler(tagName, markup, tokenizer);
 }
 
-bool Liquid::BlockTag::parseBody(BlockBody* body, Tokenizer& tokenizer)
+bool Liquid::BlockTag::parseBody(const Context& context, BlockBody* body, Tokenizer& tokenizer)
 {
     if (!body) {
         throw std::string("body cannot be null");
     }
     const QString endTagName = "end" + tagName_.toString();
     bool ret = true;
-    body->parse(tokenizer, [endTagName, &ret, this](const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    body->parse(context, tokenizer, [endTagName, &ret, this](const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
         if (tagName == endTagName) {
             ret = false;
             return;

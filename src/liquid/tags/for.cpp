@@ -3,8 +3,8 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::ForTag::ForTag(const QStringRef& tagName, const QStringRef& markup)
-    : BlockTag(tagName, markup)
+Liquid::ForTag::ForTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+    : BlockTag(context, tagName, markup)
     , range_(false)
 {
     Parser parser(markup);
@@ -38,12 +38,12 @@ Liquid::ForTag::ForTag(const QStringRef& tagName, const QStringRef& markup)
     (void)parser.consume(Token::Type::EndOfString);
 }
 
-void Liquid::ForTag::parse(Tokenizer& tokenizer)
+void Liquid::ForTag::parse(const Context& context, Tokenizer& tokenizer)
 {
-    if (!parseBody(&body_, tokenizer)) {
+    if (!parseBody(context, &body_, tokenizer)) {
         return;
     }
-    (void)parseBody(&elseBlock_, tokenizer);
+    (void)parseBody(context, &elseBlock_, tokenizer);
 }
 
 QString Liquid::ForTag::render(Context& context)

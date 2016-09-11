@@ -2,8 +2,9 @@
 #include "context.hpp"
 #include <QDebug>
 
-Liquid::TextNode::TextNode(const QStringRef& text)
-    : text_(text)
+Liquid::TextNode::TextNode(const Context& context, const QStringRef& text)
+    : Node(context)
+    , text_(text)
 {
 }
     
@@ -12,8 +13,9 @@ QString Liquid::TextNode::render(Context&)
     return text_.toString();
 }
     
-Liquid::ObjectNode::ObjectNode(const Variable& var)
-    : var_(var)
+Liquid::ObjectNode::ObjectNode(const Context& context, const Variable& var)
+    : Node(context)
+    , var_(var)
 {
 }
     

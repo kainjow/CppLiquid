@@ -7,7 +7,9 @@ namespace Liquid {
     
     class BreakTag : public TagNode {
     public:
-        BreakTag(const QStringRef& tagName, const QStringRef& markup) : TagNode(tagName, markup) {}
+        BreakTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+            : TagNode(context, tagName, markup)
+        {}
         
         virtual QString render(Context& ctx) override;
     };

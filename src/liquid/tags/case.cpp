@@ -3,19 +3,19 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CaseTag::CaseTag(const QStringRef& tagName, const QStringRef& markup)
-    : BlockTag(tagName, markup)
+Liquid::CaseTag::CaseTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+    : BlockTag(context, tagName, markup)
 {
     Parser parser(markup);
     left_ = Expression::parse(parser);
     (void)parser.consume(Token::Type::EndOfString);
 }
 
-void Liquid::CaseTag::parse(Tokenizer& tokenizer)
+void Liquid::CaseTag::parse(const Context& context, Tokenizer& tokenizer)
 {
     BlockBody body;
     BlockBody* currentBody = &body;
-    while (parseBody(currentBody, tokenizer)) {
+    while (parseBody(context, currentBody, tokenizer)) {
         currentBody = &conditions_.back().block();
     }
 }

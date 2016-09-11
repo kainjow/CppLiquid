@@ -2,14 +2,16 @@
 #define LIQUID_CONTEXT_HPP
 
 #include "filter.hpp"
+#include "tag.hpp"
 
 namespace Liquid {
     
     class Context {
     public:
-        Context(Data& data, const FilterList& filters)
+        Context(Data& data, const FilterList& filters, const TagHash& tags)
             : data_(data)
             , filters_(filters)
+            , tags_(tags)
         {
         }
         
@@ -23,6 +25,10 @@ namespace Liquid {
         
         const FilterList& filters() const {
             return filters_;
+        }
+        
+        const TagHash& tags() const {
+            return tags_;
         }
         
         Data::Hash& environments() {
@@ -61,6 +67,7 @@ namespace Liquid {
         Data::Hash registers_;
         const FilterList& filters_;
         std::vector<Interrupt> interrupts_;
+        const TagHash& tags_;
     };
 
 }

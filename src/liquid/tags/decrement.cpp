@@ -3,8 +3,8 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::DecrementTag::DecrementTag(const QStringRef& tagName, const QStringRef& markup)
-    : TagNode(tagName, markup)
+Liquid::DecrementTag::DecrementTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
     to_ = parser.consume(Token::Type::Id);

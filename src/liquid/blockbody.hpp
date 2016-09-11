@@ -15,8 +15,8 @@ namespace Liquid {
     public:
         using UnknownTagHandler = std::function<void(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)>;
         static void defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer);
-
-        void parse(Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler = defaultUnknownTagHandler);
+        
+        void parse(const Context& context, Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler = defaultUnknownTagHandler);
         
         QString render(Context& context);
         

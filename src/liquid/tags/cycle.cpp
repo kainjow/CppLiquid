@@ -3,8 +3,8 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CycleTag::CycleTag(const QStringRef& tagName, const QStringRef& markup)
-    : TagNode(tagName, markup)
+Liquid::CycleTag::CycleTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+    : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
     const Expression firstExpression = Expression::parse(parser);

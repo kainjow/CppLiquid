@@ -8,11 +8,11 @@ namespace Liquid {
     
     class BlockTag : public TagNode {
     public:
-        BlockTag(const QStringRef& tagName, const QStringRef& markup);
+        BlockTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
-        virtual void parse(Tokenizer& tokenizer);
+        virtual void parse(const Context& context, Tokenizer& tokenizer);
         
-        bool parseBody(BlockBody* body, Tokenizer& tokenizer);
+        bool parseBody(const Context& context, BlockBody* body, Tokenizer& tokenizer);
         
         virtual QString render(Context& context) override;
         

@@ -8,7 +8,7 @@ namespace Liquid {
     
     class CycleTag : public TagNode {
     public:
-        CycleTag(const QStringRef& tagName, const QStringRef& markup);
+        CycleTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
         virtual QString render(Context& context) override;
         

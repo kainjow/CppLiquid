@@ -8,9 +8,9 @@ namespace Liquid {
     
     class CaseTag : public BlockTag {
     public:
-        CaseTag(const QStringRef& tagName, const QStringRef& markup);
+        CaseTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
-        virtual void parse(Tokenizer& tokenizer) override;
+        virtual void parse(const Context& context, Tokenizer& tokenizer) override;
         
         virtual QString render(Context& context) override;
         

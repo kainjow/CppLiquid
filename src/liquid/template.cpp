@@ -2,30 +2,81 @@
 #include "standardfilters.hpp"
 #include "tokenizer.hpp"
 #include "context.hpp"
+#include "assign.hpp"
+#include "break.hpp"
+#include "capture.hpp"
+#include "case.hpp"
+#include "comment.hpp"
+#include "continue.hpp"
+#include "cycle.hpp"
+#include "decrement.hpp"
+#include "for.hpp"
+#include "increment.hpp"
 #include <QDebug>
 
 Liquid::Template::Template()
 {
     StandardFilters::registerFilters(*this);
+    
+    tags_["capture"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<CaptureTag>(context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["case"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<CaseTag>(context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["comment"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<CommentTag>(context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["for"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<ForTag>(context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["assign"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<AssignTag>(context, tagName, markup);
+    };
+    tags_["break"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<BreakTag>(context, tagName, markup);
+    };
+    tags_["continue"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<ContinueTag>(context, tagName, markup);
+    };
+    tags_["cycle"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<CycleTag>(context, tagName, markup);
+    };
+    tags_["decrement"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<DecrementTag>(context, tagName, markup);
+    };
+    tags_["increment"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+        return std::make_shared<IncrementTag>(context, tagName, markup);
+    };
 }
 
 Liquid::Template& Liquid::Template::parse(const QString& source)
 {
     source_ = source;
     Tokenizer tokenizer(source_);
-    root_.parse(tokenizer);    
+    Data data(Data::Type::Hash);
+    Context ctx(data, filters_, tags_);
+    root_.parse(ctx, tokenizer);
     return *this;
 }
 
 QString Liquid::Template::render()
 {
-    Data ctx(Data::Type::Hash);
-    return render(ctx);
+    Data data(Data::Type::Hash);
+    return render(data);
 }
 
 QString Liquid::Template::render(Data& data)
 {
-    Context ctx(data, filters_);
+    Context ctx(data, filters_, tags_);
     return root_.render(ctx);
 }
 

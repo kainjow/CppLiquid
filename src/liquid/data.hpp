@@ -2,10 +2,9 @@
 #define LIQUID_DATA_HPP
 
 #include <QDebug>
-#include <QString>
-#include <unordered_map>
 #include <vector>
 #include "stringutils.hpp"
+#include "qstringhash.hpp"
 
 namespace Liquid {
 
@@ -26,12 +25,6 @@ namespace Liquid {
             Nil,
         };
         
-        struct QStringHash {
-            std::size_t operator()(const QString& k) const {
-                return qHash(k);
-            }
-        };
-
         using Hash = std::unordered_map<QString, Data, QStringHash>;
         using Array = std::vector<Data>;
         

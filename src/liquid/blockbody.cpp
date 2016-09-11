@@ -2,16 +2,6 @@
 #include "tokenizer.hpp"
 #include "stringscanner.hpp"
 #include "context.hpp"
-#include "assign.hpp"
-#include "break.hpp"
-#include "capture.hpp"
-#include "case.hpp"
-#include "comment.hpp"
-#include "continue.hpp"
-#include "cycle.hpp"
-#include "decrement.hpp"
-#include "for.hpp"
-#include "increment.hpp"
 #include <QDebug>
 
 void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef&, Tokenizer&)
@@ -21,49 +11,25 @@ void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, cons
     }
 }
 
-void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler) {
+void Liquid::BlockBody::parse(const Context& context, Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler) {
     nodes_.clear();
     const Component *comp = nullptr;
+    const auto& tags = context.tags();
     while ((comp = tokenizer.next()) != nullptr) {
         switch (comp->type) {
             case Component::Type::Text:
-                nodes_.push_back(std::make_shared<TextNode>(comp->text));
+                nodes_.push_back(std::make_shared<TextNode>(context, comp->text));
                 break;
             case Component::Type::Object:
-                nodes_.push_back(std::make_shared<ObjectNode>(Variable(comp->innerText)));
+                nodes_.push_back(std::make_shared<ObjectNode>(context, Variable(comp->innerText)));
                 break;
             case Component::Type::Tag: {
                 StringScanner ss(comp->innerText);
                 const QStringRef tagName = ss.scanIdentifier();
                 const QStringRef markup = comp->innerText.mid(ss.position());
-                if (tagName == "assign") {
-                    nodes_.push_back(std::make_shared<AssignTag>(tagName, markup));
-                } else if (tagName == "comment") {
-                    std::shared_ptr<CommentTag> tag = std::make_shared<CommentTag>(tagName, markup);
-                    tag->parse(tokenizer);
-                    nodes_.push_back(tag);
-                } else if (tagName == "capture") {
-                    std::shared_ptr<CaptureTag> tag = std::make_shared<CaptureTag>(tagName, markup);
-                    tag->parse(tokenizer);
-                    nodes_.push_back(tag);
-                } else if (tagName == "increment") {
-                    nodes_.push_back(std::make_shared<IncrementTag>(tagName, markup));
-                } else if (tagName == "decrement") {
-                    nodes_.push_back(std::make_shared<DecrementTag>(tagName, markup));
-                } else if (tagName == "cycle") {
-                    nodes_.push_back(std::make_shared<CycleTag>(tagName, markup));
-                } else if (tagName == "case") {
-                    std::shared_ptr<CaseTag> tag = std::make_shared<CaseTag>(tagName, markup);
-                    tag->parse(tokenizer);
-                    nodes_.push_back(tag);
-                } else if (tagName == "for") {
-                    std::shared_ptr<ForTag> tag = std::make_shared<ForTag>(tagName, markup);
-                    tag->parse(tokenizer);
-                    nodes_.push_back(tag);
-                } else if (tagName == "break") {
-                    nodes_.push_back(std::make_shared<BreakTag>(tagName, markup));
-                } else if (tagName == "continue") {
-                    nodes_.push_back(std::make_shared<ContinueTag>(tagName, markup));
+                const auto tag = tags.find(tagName.toString());
+                if (tag != tags.end()) {
+                    nodes_.push_back(tag->second(context, tagName, markup, tokenizer));
                 } else {
                     unknownTagHandler(tagName, markup, tokenizer);
                     return;

@@ -3,6 +3,7 @@
 
 #include "blockbody.hpp"
 #include "filter.hpp"
+#include "tag.hpp"
 
 namespace Liquid {
     
@@ -16,10 +17,12 @@ namespace Liquid {
         QString render(Data& data);
         
         void registerFilter(const std::string& name, const FilterHandler& filter);
+        
     private:
         BlockBody root_;
         QString source_;
         FilterList filters_;
+        TagHash tags_;
     };
 
 }
