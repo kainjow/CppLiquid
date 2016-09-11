@@ -296,7 +296,33 @@ TEST_CASE("Liquid::For") {
             "3456",
             hash
         );
+        hash["limit"] = 2;
+        hash["offset"] = 2;
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array limit: limit offset: offset %}{{ i }}{%endfor%}",
+            "34",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array offset:7 %}{{ i }}{%endfor%}",
+            "890",
+            hash
+        );
     }
+    
+    SECTION("ForNested") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Array{Liquid::Data::Array{1, 2}, Liquid::Data::Array{3, 4}, Liquid::Data::Array{5, 6}};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{%for i in item%}{{ i }}{%endfor%}{%endfor%}",
+            "123456",
+            hash
+        );
+    }
+    
+    // TODO: test_pause_resume*
+    
+    
 }
 
 #endif
