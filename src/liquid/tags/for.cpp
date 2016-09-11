@@ -51,22 +51,48 @@ QString Liquid::ForTag::render(Context& context)
     QString output;
     Data& data = context.data();
     const QString varName = varName_.toString();
+    int index0 = 0;
 
     if (range_) {
         const int start = rangeStart_.evaluate(data).toInt();
         const int end = rangeEnd_.evaluate(data).toInt();
         const bool empty = end < start;
+        const int len = (end - start) + 1;
         if (empty) {
             return elseBlock_.render(context);
         }
         if (reversed_) {
-            for (int i = end; i >= start; --i) {
+            for (int i = end; i >= start; --i, ++index0) {
+                Data::Hash forloop;
+                forloop["first"] = i == end;
+                forloop["last"] = i == start;
+                forloop["length"] = len;
+                const int rindex0 = len - index0 - 1;
+                forloop["index0"] = index0;
+                forloop["index"] = index0 + 1;
+                forloop["rindex0"] = rindex0;
+                forloop["rindex"] = rindex0 + 1;
+                data.insert("forloop", forloop);
+
                 data.insert(varName, i);
+                
                 output += body_.render(context);
             }
         } else {
-            for (int i = start; i <= end; ++i) {
+            for (int i = start; i <= end; ++i, ++index0) {
+                Data::Hash forloop;
+                forloop["first"] = i == start;
+                forloop["last"] = i == end;
+                forloop["length"] = len;
+                const int rindex0 = len - index0 - 1;
+                forloop["index0"] = index0;
+                forloop["index"] = index0 + 1;
+                forloop["rindex0"] = rindex0;
+                forloop["rindex"] = rindex0 + 1;
+                data.insert("forloop", forloop);
+
                 data.insert(varName, i);
+                
                 output += body_.render(context);
             }
         }
@@ -83,7 +109,6 @@ QString Liquid::ForTag::render(Context& context)
         if (empty) {
             return elseBlock_.render(context);
         }
-        int index0 = 0;
         if (reversed_) {
             for (int i = end; i >= start; --i, ++index0) {
                 Data::Hash forloop;
@@ -306,6 +331,68 @@ TEST_CASE("Liquid::For") {
         );
     }
     
+    SECTION("ForloopObjectRange") {
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.index}}/{{forloop.length}} {%endfor%}",
+            " 1/3  2/3  3/3 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.index}} {%endfor%}",
+            " 1  2  3 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.index0}} {%endfor%}",
+            " 0  1  2 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.rindex0}} {%endfor%}",
+            " 2  1  0 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.rindex}} {%endfor%}",
+            " 3  2  1 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.first}} {%endfor%}",
+            " true  false  false "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3)%} {{forloop.last}} {%endfor%}",
+            " false  false  true "
+        );
+    }
+
+        SECTION("ForloopObjectRangeReversed") {
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.index}}/{{forloop.length}} {%endfor%}",
+            " 1/3  2/3  3/3 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.index}} {%endfor%}",
+            " 1  2  3 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.index0}} {%endfor%}",
+            " 0  1  2 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.rindex0}} {%endfor%}",
+            " 2  1  0 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.rindex}} {%endfor%}",
+            " 3  2  1 "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.first}} {%endfor%}",
+            " true  false  false "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed%} {{forloop.last}} {%endfor%}",
+            " false  false  true "
+        );
+    }
+
     // TODO: test_for_and_if
 
     SECTION("ForElse") {
