@@ -53,7 +53,7 @@ QString Liquid::ForTag::render(Context& context)
     const QString varName = varName_.toString();
     int index0 = 0;
     
-    const auto insertForloop = [](int i, int start, int end, int len, int index0, Data& data) {
+    const auto insertLoopVars = [](int i, int start, int end, int len, int index0, Data& data) {
         Data::Hash forloop;
         forloop["first"] = i == start;
         forloop["last"] = i == end;
@@ -76,18 +76,14 @@ QString Liquid::ForTag::render(Context& context)
         }
         if (reversed_) {
             for (int i = end; i >= start; --i, ++index0) {
-                insertForloop(i, end, start, len, index0, data);
-
+                insertLoopVars(i, end, start, len, index0, data);
                 data.insert(varName, i);
-                
                 output += body_.render(context);
             }
         } else {
             for (int i = start; i <= end; ++i, ++index0) {
-                insertForloop(i, start, end, len, index0, data);
-
+                insertLoopVars(i, start, end, len, index0, data);
                 data.insert(varName, i);
-                
                 output += body_.render(context);
             }
         }
@@ -106,18 +102,14 @@ QString Liquid::ForTag::render(Context& context)
         }
         if (reversed_) {
             for (int i = end; i >= start; --i, ++index0) {
-                insertForloop(i, end, start, len, index0, data);
-
+                insertLoopVars(i, end, start, len, index0, data);
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
-                
                 output += body_.render(context);
             }
         } else {
             for (int i = start; i <= end; ++i, ++index0) {
-                insertForloop(i, start, end, len, index0, data);
-
+                insertLoopVars(i, start, end, len, index0, data);
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
-
                 output += body_.render(context);
             }
         }
@@ -127,9 +119,9 @@ QString Liquid::ForTag::render(Context& context)
 
 void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
 {
-    (void)tagName;
-    (void)markup;
-    (void)tokenizer;
+    if (tagName != "else") {
+        BlockTag::handleUnknownTag(tagName, markup, tokenizer);
+    }
 }
 
 
