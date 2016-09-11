@@ -52,6 +52,8 @@ QString Liquid::ForTag::render(Context& context)
     Data& data = context.data();
     const QString varName = varName_.toString();
     int index0 = 0;
+    const Data limitDat = limit_.evaluate(data);
+    const Data offsetDat = offset_.evaluate(data);
     
     const auto insertLoopVars = [](int i, int start, int end, int len, int index0, Data& data) {
         Data::Hash forloop;
@@ -67,8 +69,10 @@ QString Liquid::ForTag::render(Context& context)
     };
 
     if (range_) {
-        const int start = rangeStart_.evaluate(data).toInt();
-        const int end = rangeEnd_.evaluate(data).toInt();
+        const int initialStart = rangeStart_.evaluate(data).toInt();
+        const int initialEnd = rangeEnd_.evaluate(data).toInt();
+        const int start = offsetDat.isNumber() ? offsetDat.toInt() : initialStart;
+        const int end = limitDat.isNumber() ? start + (limitDat.toInt() - 1) : initialEnd;
         const bool empty = end < start;
         const int len = (end - start) + 1;
         if (empty) {
@@ -89,8 +93,6 @@ QString Liquid::ForTag::render(Context& context)
         }
     } else {
         const Data& collection = collection_.evaluate(data);
-        const Data limitDat = limit_.evaluate(data);
-        const Data offsetDat = offset_.evaluate(data);
         const int initialStart = 0;
         const int initialEnd = static_cast<int>(collection.size()) - 1;
         const int start = offsetDat.isNumber() ? offsetDat.toInt() : initialStart;
@@ -416,6 +418,35 @@ TEST_CASE("Liquid::For") {
             "{%for i in array offset:7 %}{{ i }}{%endfor%}",
             "890",
             hash
+        );
+    }
+
+    SECTION("ForLimitingRange") {
+        CHECK_TEMPLATE_RESULT(
+            "{%for i in (0..9) limit:2 %}{{ i }}{%endfor%}",
+            "01"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for i in (0..9) limit:4 %}{{ i }}{%endfor%}",
+            "0123"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for i in (0..9) limit:4 offset:2 %}{{ i }}{%endfor%}",
+            "2345"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{%for i in (0..9) limit: 4 offset: 2 %}{{ i }}{%endfor%}",
+            "2345"
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in (0..9) limit: limit offset: offset %}{{ i }}{%endfor%}",
+            "23",
+            (Liquid::Data::Hash{{"limit", 2}, {"offset", 2}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in (0..9) offset:7 %}{{ i }}{%endfor%}",
+            "789",
+            (Liquid::Data::Hash{{"offset", 2}})
         );
     }
     
