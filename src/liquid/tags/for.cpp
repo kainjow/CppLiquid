@@ -83,26 +83,39 @@ QString Liquid::ForTag::render(Context& context)
         if (empty) {
             return elseBlock_.render(context);
         }
+        int index0 = 0;
         if (reversed_) {
-            for (int i = end; i >= start; --i) {
-                data.insert(varName, collection.at(static_cast<size_t>(i)));
-                
-                output += body_.render(context);
-            }
-        } else {
-            for (int i = start; i <= end; ++i) {
+            for (int i = end; i >= start; --i, ++index0) {
                 Data::Hash forloop;
-                forloop["first"] = i == start;
-                forloop["last"] = i == end;
+                forloop["first"] = i == end;
+                forloop["last"] = i == start;
                 forloop["length"] = len;
-                const int index0 = i - start;
                 const int rindex0 = len - index0 - 1;
                 forloop["index0"] = index0;
                 forloop["index"] = index0 + 1;
                 forloop["rindex0"] = rindex0;
                 forloop["rindex"] = rindex0 + 1;
                 data.insert("forloop", forloop);
+
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
+                
+                output += body_.render(context);
+            }
+        } else {
+            for (int i = start; i <= end; ++i, ++index0) {
+                Data::Hash forloop;
+                forloop["first"] = i == start;
+                forloop["last"] = i == end;
+                forloop["length"] = len;
+                const int rindex0 = len - index0 - 1;
+                forloop["index0"] = index0;
+                forloop["index"] = index0 + 1;
+                forloop["rindex0"] = rindex0;
+                forloop["rindex"] = rindex0 + 1;
+                data.insert("forloop", forloop);
+
+                data.insert(varName, collection.at(static_cast<size_t>(i)));
+
                 output += body_.render(context);
             }
         }
@@ -248,6 +261,46 @@ TEST_CASE("Liquid::For") {
         );
         CHECK_TEMPLATE_DATA_RESULT(
             "{%for item in array%} {{forloop.last}} {%endfor%}",
+            " false  false  true ",
+            hash
+        );
+    }
+    
+    SECTION("ForloopObjectReversed") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Array{1, 2, 3};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.index}}/{{forloop.length}} {%endfor%}",
+            " 1/3  2/3  3/3 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.index}} {%endfor%}",
+            " 1  2  3 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.index0}} {%endfor%}",
+            " 0  1  2 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.rindex0}} {%endfor%}",
+            " 2  1  0 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.rindex}} {%endfor%}",
+            " 3  2  1 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.first}} {%endfor%}",
+            " true  false  false ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed%} {{forloop.last}} {%endfor%}",
             " false  false  true ",
             hash
         );
