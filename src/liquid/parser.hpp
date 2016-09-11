@@ -24,6 +24,8 @@ namespace Liquid {
         
         bool consume(Token::Type type, QStringRef& value);
         
+        bool consumeId(const QString& name);
+        
         bool look(Token::Type type, size_t ahead = 0);
 
     private:

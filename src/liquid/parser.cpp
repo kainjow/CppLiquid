@@ -37,6 +37,16 @@ bool Liquid::Parser::consume(Token::Type type, QStringRef& value)
     return true;
 }
 
+bool Liquid::Parser::consumeId(const QString& name)
+{
+    const Token& token = tokenAt(pos_);
+    if (!token.isValid() || token.type() != Token::Type::Id || token.value() != name) {
+        return false;
+    }
+    ++pos_;
+    return true;
+}
+
 bool Liquid::Parser::look(Token::Type type, size_t ahead)
 {
     const Token& token = tokenAt(pos_ + ahead);

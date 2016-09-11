@@ -22,6 +22,19 @@ Liquid::ForTag::ForTag(const QStringRef& tagName, const QStringRef& markup)
     } else {
         collection_ = Expression::parse(parser);
     }
+    reversed_ = parser.consumeId("reversed");
+    while (parser.look(Token::Type::Id)) {
+        const QStringRef attr = parser.consume();
+        (void)parser.consume(Token::Type::Colon);
+        const Expression value = Expression::parse(parser);
+        if (attr == "offset") {
+            offset_ = value;
+        } else if (attr == "limit") {
+            limit_ = value;
+        } else {
+            throw std::string("Invalid attribute in for loop. Valid attributes are limit and offset");
+        }
+    }
     (void)parser.consume(Token::Type::EndOfString);
 }
 
@@ -46,9 +59,16 @@ QString Liquid::ForTag::render(Context& context)
         }
         QString output;
         const QString varName = varName_.toString();
-        for (int i = start; i <= end; ++i) {
-            data.insert(varName, i);
-            output += body_.render(context);
+        if (reversed_) {
+            for (int i = end; i >= start; --i) {
+                data.insert(varName, i);
+                output += body_.render(context);
+            }
+        } else {
+            for (int i = start; i <= end; ++i) {
+                data.insert(varName, i);
+                output += body_.render(context);
+            }
         }
         return output;
     }
@@ -62,9 +82,16 @@ QString Liquid::ForTag::render(Context& context)
     const int end = static_cast<int>(collection.size()) - 1;
     QString output;
     const QString varName = varName_.toString();
-    for (int i = start; i <= end; ++i) {
-        data.insert(varName, collection.at(static_cast<size_t>(i)));
-        output += body_.render(context);
+    if (reversed_) {
+        for (int i = end; i >= start; --i) {
+            data.insert(varName, collection.at(static_cast<size_t>(i)));
+            output += body_.render(context);
+        }
+    } else {
+        for (int i = start; i <= end; ++i) {
+            data.insert(varName, collection.at(static_cast<size_t>(i)));
+            output += body_.render(context);
+        }
     }
     return output;
 }
@@ -114,6 +141,18 @@ TEST_CASE("Liquid::For") {
         CHECK_TEMPLATE_RESULT(
             "{%for item in (1..3) %} {{item}} {%endfor%}",
             " 1  2  3 "
+        );
+    }
+    
+    SECTION("ForReversed") {
+        CHECK_TEMPLATE_RESULT(
+            "{%for item in (1..3) reversed %} {{item}} {%endfor%}",
+            " 3  2  1 "
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array reversed %}{{item}}{%endfor%}",
+            "321",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
         );
     }
 }

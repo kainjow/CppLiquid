@@ -24,6 +24,9 @@ namespace Liquid {
         Expression rangeStart_;
         Expression rangeEnd_;
         Expression collection_;
+        bool reversed_;
+        Expression offset_;
+        Expression limit_;
     };
 }
 
