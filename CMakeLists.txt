@@ -52,6 +52,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/case.hpp
   src/liquid/tags/comment.cpp
   src/liquid/tags/comment.hpp
+  src/liquid/tags/continue.cpp
+  src/liquid/tags/continue.hpp
   src/liquid/tags/cycle.cpp
   src/liquid/tags/cycle.hpp
   src/liquid/tags/decrement.cpp

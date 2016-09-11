@@ -7,6 +7,7 @@
 #include "capture.hpp"
 #include "case.hpp"
 #include "comment.hpp"
+#include "continue.hpp"
 #include "cycle.hpp"
 #include "decrement.hpp"
 #include "for.hpp"
@@ -61,6 +62,8 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     nodes_.push_back(tag);
                 } else if (tagName == "break") {
                     nodes_.push_back(std::make_shared<BreakTag>(tagName, markup));
+                } else if (tagName == "continue") {
+                    nodes_.push_back(std::make_shared<ContinueTag>(tagName, markup));
                 } else {
                     unknownTagHandler(tagName, markup, tokenizer);
                     return;

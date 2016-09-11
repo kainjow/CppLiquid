@@ -492,6 +492,28 @@ TEST_CASE("Liquid::For") {
         
         // TODO for/if
     }
+
+    SECTION("ForContinue") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Hash{{"items", Liquid::Data::Array{1, 2, 3, 4, 5}}};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% continue %}{% endfor %}",
+            "",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{{ i }}{% continue %}{% endfor %}",
+            "12345",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% continue %}{{ i }}{% endfor %}",
+            "",
+            hash
+        );
+        
+        // TODO for/if
+    }
     
 }
 
