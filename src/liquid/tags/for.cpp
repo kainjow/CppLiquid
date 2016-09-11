@@ -113,6 +113,15 @@ QString Liquid::ForTag::render(Context& context)
                 insertLoopVars(i, start, end, len, index0, data);
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
                 output += body_.render(context);
+                
+                if (context.haveInterrupts()) {
+                    const Context::Interrupt interrupt = context.pop_interrupt();
+                    if (interrupt == Context::Interrupt::Break) {
+                        break;
+                    } else if (interrupt == Context::Interrupt::Continue) {
+                        continue;
+                    }
+                }
             }
         }
     }
@@ -462,6 +471,27 @@ TEST_CASE("Liquid::For") {
     
     // TODO: test_pause_resume*
     
+    SECTION("ForBreak") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Hash{{"items", Liquid::Data::Array{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}}};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% break %}{% endfor %}",
+            "",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{{ i }}{% break %}{% endfor %}",
+            "1",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% break %}{{ i }}{% endfor %}",
+            "",
+            hash
+        );
+        
+        // TODO for/if
+    }
     
 }
 

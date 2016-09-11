@@ -1,7 +1,9 @@
 #include "blockbody.hpp"
 #include "tokenizer.hpp"
 #include "stringscanner.hpp"
+#include "context.hpp"
 #include "assign.hpp"
+#include "break.hpp"
 #include "capture.hpp"
 #include "case.hpp"
 #include "comment.hpp"
@@ -57,6 +59,8 @@ void Liquid::BlockBody::parse(Tokenizer& tokenizer, const UnknownTagHandler unkn
                     std::shared_ptr<ForTag> tag = std::make_shared<ForTag>(tagName, markup);
                     tag->parse(tokenizer);
                     nodes_.push_back(tag);
+                } else if (tagName == "break") {
+                    nodes_.push_back(std::make_shared<BreakTag>(tagName, markup));
                 } else {
                     unknownTagHandler(tagName, markup, tokenizer);
                     return;
@@ -72,6 +76,9 @@ QString Liquid::BlockBody::render(Context& context) {
     QString str;
     for (const auto& node : nodes_) {
         str += node->render(context);
+        if (context.haveInterrupts()) {
+            break;
+        }
     }
     return str;
 }

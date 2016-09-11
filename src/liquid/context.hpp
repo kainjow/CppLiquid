@@ -33,11 +33,34 @@ namespace Liquid {
             return registers_;
         }
         
+        enum class Interrupt {
+            Break,
+            Continue,
+        };
+        
+        bool haveInterrupts() const {
+            return !interrupts_.empty();
+        }
+        
+        void push_interrupt(Interrupt interrupt) {
+            interrupts_.push_back(interrupt);
+        }
+        
+        Interrupt pop_interrupt() {
+            if (interrupts_.empty()) {
+                throw std::string("Can't pop interrupts when empty");
+            }
+            const Interrupt i = interrupts_.back();
+            interrupts_.pop_back();
+            return i;
+        }
+        
     private:
         Data& data_;
         Data::Hash environments_;
         Data::Hash registers_;
         const FilterList& filters_;
+        std::vector<Interrupt> interrupts_;
     };
 
 }
