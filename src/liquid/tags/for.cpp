@@ -75,16 +75,29 @@ QString Liquid::ForTag::render(Context& context)
         const int start = 0;
         const int end = static_cast<int>(collection.size()) - 1;
         const bool empty = (!collection.isArray() && collection.isHash()) || collection.size() == 0;
+        const int len = (end - start) + 1;
         if (empty) {
             return elseBlock_.render(context);
         }
         if (reversed_) {
             for (int i = end; i >= start; --i) {
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
+                
                 output += body_.render(context);
             }
         } else {
             for (int i = start; i <= end; ++i) {
+                Data::Hash forloop;
+                forloop["first"] = i == start;
+                forloop["last"] = i == end;
+                forloop["length"] = len;
+                const int index0 = i - start;
+                const int rindex0 = len - index0 - 1;
+                forloop["index0"] = index0;
+                forloop["index"] = index0 + 1;
+                forloop["rindex0"] = rindex0;
+                forloop["rindex"] = rindex0 + 1;
+                data.insert("forloop", forloop);
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
                 output += body_.render(context);
             }
@@ -195,7 +208,46 @@ TEST_CASE("Liquid::For") {
             (Liquid::Data::Hash{{"array", Liquid::Data::Array{"a", "", "b", "", "c"}}})
         );
     }
-
+    
+    SECTION("ForloopObject") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Array{1, 2, 3};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.index}}/{{forloop.length}} {%endfor%}",
+            " 1/3  2/3  3/3 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.index}} {%endfor%}",
+            " 1  2  3 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.index0}} {%endfor%}",
+            " 0  1  2 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.rindex0}} {%endfor%}",
+            " 2  1  0 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.rindex}} {%endfor%}",
+            " 3  2  1 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.first}} {%endfor%}",
+            " true  false  false ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{forloop.last}} {%endfor%}",
+            " false  false  true ",
+            hash
+        );
+    }
 }
 
 #endif
