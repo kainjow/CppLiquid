@@ -248,6 +248,26 @@ TEST_CASE("Liquid::For") {
             hash
         );
     }
+    
+    // TODO: test_for_and_if
+
+    SECTION("ForElse") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}+{%else%}-{%endfor%}",
+            "+++",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}+{%else%}-{%endfor%}",
+            "-",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}+{%else%}-{%endfor%}",
+            "-",
+            (Liquid::Data::Hash{{"array", nullptr}})
+        );
+    }
 }
 
 #endif
