@@ -49,6 +49,8 @@ void Liquid::ForTag::parse(Tokenizer& tokenizer)
 QString Liquid::ForTag::render(Context& context)
 {
     Data& data = context.data();
+    QString output;
+    const QString varName = varName_.toString();
 
     if (range_) {
         const int start = rangeStart_.evaluate(data).toInt();
@@ -57,8 +59,6 @@ QString Liquid::ForTag::render(Context& context)
         if (empty) {
             return elseBlock_.render(context);
         }
-        QString output;
-        const QString varName = varName_.toString();
         if (reversed_) {
             for (int i = end; i >= start; --i) {
                 data.insert(varName, i);
@@ -70,27 +70,24 @@ QString Liquid::ForTag::render(Context& context)
                 output += body_.render(context);
             }
         }
-        return output;
-    }
-    
-    const Data& collection = collection_.evaluate(data);
-    const bool empty = (!collection.isArray() && collection.isHash()) || collection.size() == 0;
-    if (empty) {
-        return elseBlock_.render(context);
-    }
-    const int start = 0;
-    const int end = static_cast<int>(collection.size()) - 1;
-    QString output;
-    const QString varName = varName_.toString();
-    if (reversed_) {
-        for (int i = end; i >= start; --i) {
-            data.insert(varName, collection.at(static_cast<size_t>(i)));
-            output += body_.render(context);
-        }
     } else {
-        for (int i = start; i <= end; ++i) {
-            data.insert(varName, collection.at(static_cast<size_t>(i)));
-            output += body_.render(context);
+        const Data& collection = collection_.evaluate(data);
+        const int start = 0;
+        const int end = static_cast<int>(collection.size()) - 1;
+        const bool empty = (!collection.isArray() && collection.isHash()) || collection.size() == 0;
+        if (empty) {
+            return elseBlock_.render(context);
+        }
+        if (reversed_) {
+            for (int i = end; i >= start; --i) {
+                data.insert(varName, collection.at(static_cast<size_t>(i)));
+                output += body_.render(context);
+            }
+        } else {
+            for (int i = start; i <= end; ++i) {
+                data.insert(varName, collection.at(static_cast<size_t>(i)));
+                output += body_.render(context);
+            }
         }
     }
     return output;
