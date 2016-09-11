@@ -45,7 +45,7 @@ QString Liquid::BlockBody::render(Context& context) {
     QString str;
     for (const auto& node : nodes_) {
         str += node->render(context);
-        if (context.haveInterrupts()) {
+        if (context.haveInterrupt()) {
             break;
         }
     }

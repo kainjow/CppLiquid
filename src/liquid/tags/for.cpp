@@ -114,7 +114,7 @@ QString Liquid::ForTag::render(Context& context)
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
                 output += body_.render(context);
                 
-                if (context.haveInterrupts()) {
+                if (context.haveInterrupt()) {
                     const Context::Interrupt interrupt = context.pop_interrupt();
                     if (interrupt == Context::Interrupt::Break) {
                         break;

@@ -44,7 +44,7 @@ namespace Liquid {
             Continue,
         };
         
-        bool haveInterrupts() const {
+        bool haveInterrupt() const {
             return !interrupts_.empty();
         }
         
