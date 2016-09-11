@@ -72,8 +72,12 @@ QString Liquid::ForTag::render(Context& context)
         }
     } else {
         const Data& collection = collection_.evaluate(data);
-        const int start = 0;
-        const int end = static_cast<int>(collection.size()) - 1;
+        const Data limitDat = limit_.evaluate(data);
+        const Data offsetDat = offset_.evaluate(data);
+        const int initialStart = 0;
+        const int initialEnd = static_cast<int>(collection.size()) - 1;
+        const int start = offsetDat.isNumber() ? offsetDat.toInt() : initialStart;
+        const int end = limitDat.isNumber() ? start + (limitDat.toInt() - 1) : initialEnd;
         const bool empty = (!collection.isArray() && collection.isHash()) || collection.size() == 0;
         const int len = (end - start) + 1;
         if (empty) {
@@ -266,6 +270,31 @@ TEST_CASE("Liquid::For") {
             "{%for item in array%}+{%else%}-{%endfor%}",
             "-",
             (Liquid::Data::Hash{{"array", nullptr}})
+        );
+    }
+    
+    SECTION("ForLimiting") {
+        Liquid::Data::Hash hash;
+        hash["array"] = Liquid::Data::Array{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array limit:2 %}{{ i }}{%endfor%}",
+            "12",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array limit:4 %}{{ i }}{%endfor%}",
+            "1234",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array limit:4 offset:2 %}{{ i }}{%endfor%}",
+            "3456",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for i in array limit: 4 offset: 2 %}{{ i }}{%endfor%}",
+            "3456",
+            hash
         );
     }
 }
