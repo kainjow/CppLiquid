@@ -48,8 +48,8 @@ void Liquid::ForTag::parse(Tokenizer& tokenizer)
 
 QString Liquid::ForTag::render(Context& context)
 {
-    Data& data = context.data();
     QString output;
+    Data& data = context.data();
     const QString varName = varName_.toString();
 
     if (range_) {
@@ -139,6 +139,16 @@ TEST_CASE("Liquid::For") {
             "{%for item in (1..3) %} {{item}} {%endfor%}",
             " 1  2  3 "
         );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in (1..foobar) %} {{item}} {%endfor%}",
+            " 1  2  3 ",
+            (Liquid::Data::Hash{{"foobar", 3}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in (1..foobar.value) %} {{item}} {%endfor%}",
+            " 1  2  3 ",
+            (Liquid::Data::Hash{{"foobar", Liquid::Data::Hash{{"value", 3}}}})
+        );
     }
     
     SECTION("ForReversed") {
@@ -152,6 +162,40 @@ TEST_CASE("Liquid::For") {
             (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
         );
     }
+    
+    SECTION("ForVariable") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%} {{item}} {%endfor%}",
+            " 1  2  3 ",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{{item}}{%endfor%}",
+            "123",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for item in array %}{{item}}{% endfor %}",
+            "123",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{{item}}{%endfor%}",
+            "abcd",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{"a", "b", "c", "d"}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{{item}}{%endfor%}",
+            "a b c",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{"a", " ", "b", " ", "c"}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{{item}}{%endfor%}",
+            "abc",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{"a", "", "b", "", "c"}}})
+        );
+    }
+
 }
 
 #endif
