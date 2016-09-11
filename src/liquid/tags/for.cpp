@@ -53,7 +53,7 @@ QString Liquid::ForTag::render(Context& context)
     const QString varName = varName_.toString();
     int index0 = 0;
     
-    const auto insertForloop = [] (int i, int start, int end, int len, int index0, Data& data) {
+    const auto insertForloop = [](int i, int start, int end, int len, int index0, Data& data) {
         Data::Hash forloop;
         forloop["first"] = i == start;
         forloop["last"] = i == end;
@@ -76,16 +76,7 @@ QString Liquid::ForTag::render(Context& context)
         }
         if (reversed_) {
             for (int i = end; i >= start; --i, ++index0) {
-                Data::Hash forloop;
-                forloop["first"] = i == end;
-                forloop["last"] = i == start;
-                forloop["length"] = len;
-                const int rindex0 = len - index0 - 1;
-                forloop["index0"] = index0;
-                forloop["index"] = index0 + 1;
-                forloop["rindex0"] = rindex0;
-                forloop["rindex"] = rindex0 + 1;
-                data.insert("forloop", forloop);
+                insertForloop(i, end, start, len, index0, data);
 
                 data.insert(varName, i);
                 
@@ -115,16 +106,7 @@ QString Liquid::ForTag::render(Context& context)
         }
         if (reversed_) {
             for (int i = end; i >= start; --i, ++index0) {
-                Data::Hash forloop;
-                forloop["first"] = i == end;
-                forloop["last"] = i == start;
-                forloop["length"] = len;
-                const int rindex0 = len - index0 - 1;
-                forloop["index0"] = index0;
-                forloop["index"] = index0 + 1;
-                forloop["rindex0"] = rindex0;
-                forloop["rindex"] = rindex0 + 1;
-                data.insert("forloop", forloop);
+                insertForloop(i, end, start, len, index0, data);
 
                 data.insert(varName, collection.at(static_cast<size_t>(i)));
                 
