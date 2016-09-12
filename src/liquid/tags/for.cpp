@@ -140,9 +140,6 @@ private:
 QString Liquid::ForTag::render(Context& context)
 {
     Data& data = context.data();
-    const QString varName = varName_.toString();
-    const Data limitDat = limit_.evaluate(data);
-    const Data offsetDat = offset_.evaluate(data);
     int start;
     int end;
     ForLoop::Item item;
@@ -160,7 +157,7 @@ QString Liquid::ForTag::render(Context& context)
             return collection.at(static_cast<size_t>(i));
         };
     }
-    ForLoop loop(item, body_, varName, start, end, limitDat, offsetDat, reversed_);
+    ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_);
     if (loop.empty()) {
         return elseBlock_.render(context);
     }
