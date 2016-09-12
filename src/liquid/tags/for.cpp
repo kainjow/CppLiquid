@@ -46,6 +46,83 @@ void Liquid::ForTag::parse(const Context& context, Tokenizer& tokenizer)
     (void)parseBody(context, &elseBlock_, tokenizer);
 }
 
+namespace Liquid {
+
+class ForLoop {
+public:
+    using Item = std::function<Data(int i)>;
+    
+    ForLoop(const Item& item, BlockBody& body, const QString& varName, int start, int end, const Data& limit, const Data& offset, bool reversed)
+        : item_(item)
+        , body_(body)
+        , varName_(varName)
+        , start_(offset.isNumber() ? offset.toInt() : start)
+        , end_(limit.isNumber() ? start_ + (limit.toInt() - 1) : end)
+        , len_((end_ - start_) + 1)
+        , empty_(end_ < start_)
+        , reversed_(reversed)
+    {
+    }
+    
+    bool empty() const {
+        return empty_;
+    }
+    
+    void insertLoopVars(int i, int start, int end, int len, int index0, Data& data) {
+        forloop_["first"] = i == start;
+        forloop_["last"] = i == end;
+        forloop_["length"] = len;
+        const int rindex0 = len - index0 - 1;
+        forloop_["index0"] = index0;
+        forloop_["index"] = index0 + 1;
+        forloop_["rindex0"] = rindex0;
+        forloop_["rindex"] = rindex0 + 1;
+        data.insert("forloop", forloop_);
+    };
+    
+    QString render(Context& context) {
+        QString output;
+        int index0 = 0;
+        Data& data = context.data();
+        if (reversed_) {
+            for (int i = end_; i >= start_; --i, ++index0) {
+                insertLoopVars(i, end_, start_, len_, index0, data);
+                data.insert(varName_, item_(i));
+                output += body_.render(context);
+            }
+        } else {
+            for (int i = start_; i <= end_; ++i, ++index0) {
+                insertLoopVars(i, start_, end_, len_, index0, data);
+                data.insert(varName_, item_(i));
+                output += body_.render(context);
+                
+                if (context.haveInterrupt()) {
+                    const Context::Interrupt interrupt = context.pop_interrupt();
+                    if (interrupt == Context::Interrupt::Break) {
+                        break;
+                    } else if (interrupt == Context::Interrupt::Continue) {
+                        continue;
+                    }
+                }
+            }
+        }
+        return output;
+    }
+    
+private:
+    const Item& item_;
+    BlockBody& body_;
+    const QString varName_;
+    const int start_;
+    const int end_;
+    const int len_;
+    const bool empty_;
+    const bool reversed_;
+    Data::Hash forloop_;
+};
+
+}
+
 QString Liquid::ForTag::render(Context& context)
 {
     QString output;
@@ -93,37 +170,15 @@ QString Liquid::ForTag::render(Context& context)
         }
     } else {
         const Data& collection = collection_.evaluate(data);
-        const int initialStart = 0;
-        const int initialEnd = static_cast<int>(collection.size()) - 1;
-        const int start = offsetDat.isNumber() ? offsetDat.toInt() : initialStart;
-        const int end = limitDat.isNumber() ? start + (limitDat.toInt() - 1) : initialEnd;
-        const bool empty = (!collection.isArray() && collection.isHash()) || collection.size() == 0;
-        const int len = (end - start) + 1;
+        const auto item = [&collection](int i) {
+            return collection.at(static_cast<size_t>(i));
+        };
+        ForLoop loop(item, body_, varName, 0, static_cast<int>(collection.size()) - 1, limitDat, offsetDat, reversed_);
+        const bool empty = (!collection.isArray() && !collection.isHash()) || loop.empty();
         if (empty) {
             return elseBlock_.render(context);
         }
-        if (reversed_) {
-            for (int i = end; i >= start; --i, ++index0) {
-                insertLoopVars(i, end, start, len, index0, data);
-                data.insert(varName, collection.at(static_cast<size_t>(i)));
-                output += body_.render(context);
-            }
-        } else {
-            for (int i = start; i <= end; ++i, ++index0) {
-                insertLoopVars(i, start, end, len, index0, data);
-                data.insert(varName, collection.at(static_cast<size_t>(i)));
-                output += body_.render(context);
-                
-                if (context.haveInterrupt()) {
-                    const Context::Interrupt interrupt = context.pop_interrupt();
-                    if (interrupt == Context::Interrupt::Break) {
-                        break;
-                    } else if (interrupt == Context::Interrupt::Continue) {
-                        continue;
-                    }
-                }
-            }
-        }
+        output = loop.render(context);
     }
     return output;
 }
