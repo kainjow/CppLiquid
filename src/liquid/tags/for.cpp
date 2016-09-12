@@ -61,6 +61,7 @@ public:
         , len_((end_ - start_) + 1)
         , empty_(end_ < start_)
         , reversed_(reversed)
+        , index0_(0)
     {
     }
     
@@ -68,36 +69,33 @@ public:
         return empty_;
     }
     
-    void insertLoopVars(int i, int start, int end, int len, int index0, Data& data) {
+    void insertLoopVars(int i, int start, int end, Data& data) {
         forloop_["first"] = i == start;
         forloop_["last"] = i == end;
-        forloop_["length"] = len;
-        const int rindex0 = len - index0 - 1;
-        forloop_["index0"] = index0;
-        forloop_["index"] = index0 + 1;
+        forloop_["length"] = len_;
+        const int rindex0 = len_ - index0_ - 1;
+        forloop_["index0"] = index0_;
+        forloop_["index"] = index0_ + 1;
         forloop_["rindex0"] = rindex0;
         forloop_["rindex"] = rindex0 + 1;
         data.insert("forloop", forloop_);
     };
     
     QString render(Context& context) {
-        QString output;
-        int index0 = 0;
-        Data& data = context.data();
+        Context::Interrupt interrupt;
         if (reversed_) {
-            for (int i = end_; i >= start_; --i, ++index0) {
-                insertLoopVars(i, end_, start_, len_, index0, data);
-                data.insert(varName_, item_(i));
-                output += body_.render(context);
+            for (int i = end_; i >= start_; --i, ++index0_) {
+                if (body(context, i, end_, start_, interrupt)) {
+                    if (interrupt == Context::Interrupt::Break) {
+                        break;
+                    } else if (interrupt == Context::Interrupt::Continue) {
+                        continue;
+                    }
+                }
             }
         } else {
-            for (int i = start_; i <= end_; ++i, ++index0) {
-                insertLoopVars(i, start_, end_, len_, index0, data);
-                data.insert(varName_, item_(i));
-                output += body_.render(context);
-                
-                if (context.haveInterrupt()) {
-                    const Context::Interrupt interrupt = context.pop_interrupt();
+            for (int i = start_; i <= end_; ++i, ++index0_) {
+                if (body(context, i, start_, end_, interrupt)) {
                     if (interrupt == Context::Interrupt::Break) {
                         break;
                     } else if (interrupt == Context::Interrupt::Continue) {
@@ -106,7 +104,21 @@ public:
                 }
             }
         }
-        return output;
+        return output_;
+    }
+    
+    bool body(Context& context, int i, int start, int end, Context::Interrupt& interrupt) {
+        Data& data = context.data();
+        insertLoopVars(i, start, end, data);
+        data.insert(varName_, item_(i));
+        output_ += body_.render(context);
+        
+        if (context.haveInterrupt()) {
+            interrupt = context.pop_interrupt();
+            return true;
+        }
+        
+        return false;
     }
     
 private:
@@ -119,6 +131,8 @@ private:
     const bool empty_;
     const bool reversed_;
     Data::Hash forloop_;
+    int index0_;
+    QString output_;
 };
 
 }
