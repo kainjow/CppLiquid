@@ -142,46 +142,20 @@ QString Liquid::ForTag::render(Context& context)
     QString output;
     Data& data = context.data();
     const QString varName = varName_.toString();
-    int index0 = 0;
     const Data limitDat = limit_.evaluate(data);
     const Data offsetDat = offset_.evaluate(data);
     
-    const auto insertLoopVars = [](int i, int start, int end, int len, int index0, Data& data) {
-        Data::Hash forloop;
-        forloop["first"] = i == start;
-        forloop["last"] = i == end;
-        forloop["length"] = len;
-        const int rindex0 = len - index0 - 1;
-        forloop["index0"] = index0;
-        forloop["index"] = index0 + 1;
-        forloop["rindex0"] = rindex0;
-        forloop["rindex"] = rindex0 + 1;
-        data.insert("forloop", forloop);
-    };
-
     if (range_) {
-        const int initialStart = rangeStart_.evaluate(data).toInt();
-        const int initialEnd = rangeEnd_.evaluate(data).toInt();
-        const int start = offsetDat.isNumber() ? offsetDat.toInt() : initialStart;
-        const int end = limitDat.isNumber() ? start + (limitDat.toInt() - 1) : initialEnd;
-        const bool empty = end < start;
-        const int len = (end - start) + 1;
-        if (empty) {
+        const int start = rangeStart_.evaluate(data).toInt();
+        const int end = rangeEnd_.evaluate(data).toInt();
+        const auto item = [](int i) {
+            return i;
+        };
+        ForLoop loop(item, body_, varName, start, end, limitDat, offsetDat, reversed_);
+        if (loop.empty()) {
             return elseBlock_.render(context);
         }
-        if (reversed_) {
-            for (int i = end; i >= start; --i, ++index0) {
-                insertLoopVars(i, end, start, len, index0, data);
-                data.insert(varName, i);
-                output += body_.render(context);
-            }
-        } else {
-            for (int i = start; i <= end; ++i, ++index0) {
-                insertLoopVars(i, start, end, len, index0, data);
-                data.insert(varName, i);
-                output += body_.render(context);
-            }
-        }
+        output = loop.render(context);
     } else {
         const Data& collection = collection_.evaluate(data);
         const auto item = [&collection](int i) {
