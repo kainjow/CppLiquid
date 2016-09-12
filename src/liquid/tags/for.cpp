@@ -139,36 +139,32 @@ private:
 
 QString Liquid::ForTag::render(Context& context)
 {
-    QString output;
     Data& data = context.data();
     const QString varName = varName_.toString();
     const Data limitDat = limit_.evaluate(data);
     const Data offsetDat = offset_.evaluate(data);
-    
+    int start;
+    int end;
+    ForLoop::Item item;
     if (range_) {
-        const int start = rangeStart_.evaluate(data).toInt();
-        const int end = rangeEnd_.evaluate(data).toInt();
-        const auto item = [](int i) {
+        start = rangeStart_.evaluate(data).toInt();
+        end = rangeEnd_.evaluate(data).toInt();
+        item = [](int i) {
             return i;
         };
-        ForLoop loop(item, body_, varName, start, end, limitDat, offsetDat, reversed_);
-        if (loop.empty()) {
-            return elseBlock_.render(context);
-        }
-        output = loop.render(context);
     } else {
         const Data& collection = collection_.evaluate(data);
-        const auto item = [&collection](int i) {
+        start = 0;
+        end = static_cast<int>(collection.size()) - 1;
+        item = [&collection](int i) {
             return collection.at(static_cast<size_t>(i));
         };
-        ForLoop loop(item, body_, varName, 0, static_cast<int>(collection.size()) - 1, limitDat, offsetDat, reversed_);
-        const bool empty = (!collection.isArray() && !collection.isHash()) || loop.empty();
-        if (empty) {
-            return elseBlock_.render(context);
-        }
-        output = loop.render(context);
     }
-    return output;
+    ForLoop loop(item, body_, varName, start, end, limitDat, offsetDat, reversed_);
+    if (loop.empty()) {
+        return elseBlock_.render(context);
+    }
+    return loop.render(context);
 }
 
 void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
