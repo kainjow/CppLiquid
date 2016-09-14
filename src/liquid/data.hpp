@@ -2,9 +2,11 @@
 #define LIQUID_DATA_HPP
 
 #include <QDebug>
+#include <memory>
 #include <vector>
 #include "stringutils.hpp"
 #include "qstringhash.hpp"
+#include "drop.hpp"
 
 namespace Liquid {
 
@@ -23,6 +25,7 @@ namespace Liquid {
             BooleanTrue,
             BooleanFalse,
             Nil,
+            Drop,
         };
         
         using Hash = std::unordered_map<QString, Data, QStringHash>;
@@ -66,6 +69,9 @@ namespace Liquid {
                 case Type::BooleanFalse:
                 case Type::Nil:
                     break;
+                case Type::Drop:
+                    drop_ = ctx.drop_;
+                    break;
             }
         }
         
@@ -92,6 +98,8 @@ namespace Liquid {
                     case Type::BooleanFalse:
                     case Type::Nil:
                         break;
+                    case Type::Drop:
+                        drop_ = ctx.drop_;
                 }
             }
             return *this;
@@ -116,6 +124,8 @@ namespace Liquid {
                 case Type::BooleanFalse:
                 case Type::Nil:
                     return true;
+                case Type::Drop:
+                    return drop_ == other.drop_;
                 default:
                     return false;
             }
@@ -157,6 +167,12 @@ namespace Liquid {
             : type_(value ? Type::BooleanTrue : Type::BooleanFalse)
         {
         }
+        
+        Data(const std::shared_ptr<Drop>& drop)
+            : type_(Type::Drop)
+            , drop_(drop)
+        {
+        }
 
         Type type() const {
             return type_;
@@ -192,6 +208,10 @@ namespace Liquid {
         
         bool isNil() const {
             return type_ == Type::Nil;
+        }
+        
+        bool isDrop() const {
+            return type_ == Type::Drop;
         }
         
         QString toString() const {
@@ -246,6 +266,9 @@ namespace Liquid {
         }
         
         void push_back(const Data& ctx) {
+            if (!isArray()) {
+                throw std::string("push_back() requires an array");
+            }
             if (isArray()) {
                 array_.push_back(ctx);
             }
@@ -265,6 +288,9 @@ namespace Liquid {
         }
         
         const Data& at(size_t index) const {
+            if (!isArray()) {
+                throw std::string("at() requires an array");
+            }
             if (index >= array_.size()) {
                 return kNilData;
             }
@@ -272,22 +298,37 @@ namespace Liquid {
         }
         
         const Array& array() const {
+            if (!isArray()) {
+                throw std::string("array() requires an array");
+            }
             return array_;
         }
         
         void insert(const QString& key, const Data& value) {
+            if (!isHash()) {
+                throw std::string("insert() requires a hash");
+            }
             hash_[key] = value;
         }
         
         const Data& operator[](const QString& key) const {
-            const auto it = hash_.find(key);
-            if (it == hash_.end()) {
-                return kNilData;
+            if (isHash()) {
+                const auto it = hash_.find(key);
+                if (it == hash_.end()) {
+                    return kNilData;
+                }
+                return it->second;
+            } else if (isDrop()) {
+                return (*drop_)[key];
+            } else {
+                throw std::string("[] requires a hash or drop");
             }
-            return it->second;
         }
         
         bool containsKey(const QString& key) const {
+            if (!isHash()) {
+                throw std::string("containsKey requires a hash");
+            }
             return hash_.find(key) != hash_.end();
         }
         
@@ -296,6 +337,7 @@ namespace Liquid {
         Hash hash_;
         Array array_;
         QString string_;
+        std::shared_ptr<Drop> drop_;
         union {
             int i;
             double f;

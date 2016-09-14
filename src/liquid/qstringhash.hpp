@@ -2,6 +2,7 @@
 #define LIQUID_QSTRINGHASH_HPP
 
 #include <unordered_map>
+#include <QHashFunctions>
 #include <QString>
 
 namespace Liquid {

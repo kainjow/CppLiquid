@@ -94,7 +94,19 @@ void Liquid::Template::registerFilter(const std::string& name, const FilterHandl
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
+
+namespace Liquid {
+    class MyDrop : public Drop {
+    protected:
+        virtual Data load(const QString& key) const override {
+            if (key == "value") {
+                return 42;
+            }
+            return Drop::load(key);
+        }
+    };
+}
 
 TEST_CASE("Liquid::Template") {
     
@@ -267,6 +279,27 @@ TEST_CASE("Liquid::Template") {
         CHECK(t.parse("{% raw %} Foobar {% {% {% {% endraw %}").render().toStdString() == " Foobar {% {% {% ");
         CHECK(t.parse("{% raw %} test {% raw %} {% {% endraw %}endraw %}").render().toStdString() == " test {% raw %} {% endraw %}");
         CHECK(t.parse("{% raw %} Foobar {{ invalid {% endraw %}{{ 1 }}").render().toStdString() == " Foobar {{ invalid 1");
+    }
+    
+    SECTION("Drop") {
+        Liquid::Data drop{std::make_shared<Liquid::MyDrop>()};
+        Liquid::Data data{Liquid::Data::Type::Hash};
+        data.insert("mydrop", drop);
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{{ mydrop }}",
+            "",
+            data
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{{ mydrop.whatever }}",
+            "",
+            data
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{{ mydrop.value }}",
+            "42",
+            data
+        );
     }
 }
 

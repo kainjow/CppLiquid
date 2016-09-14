@@ -62,7 +62,7 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
 const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
 {
     if (isLookupKey()) {
-        if (data.isHash()) {
+        if (data.isHash() || data.isDrop()) {
             const Data& result = data[key()];
             if (!result.isNil()) {
                 return result;

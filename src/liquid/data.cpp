@@ -115,6 +115,12 @@ TEST_CASE("Liquid::Data") {
         CHECK(c["lname"] == "Jobs");
         CHECK(c["test"] == nullptr);
     }
+    
+    SECTION("Drop") {
+        Liquid::Data c = Liquid::Data::Type::Hash;
+        c.insert("drop", std::make_shared<Liquid::Drop>());
+        CHECK(c["drop"].isDrop());
+    }
 
 }
 
