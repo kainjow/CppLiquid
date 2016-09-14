@@ -131,6 +131,10 @@ namespace Liquid {
             }
         }
         
+        bool operator!=(const Data& other) {
+            return !(*this == other);
+        }
+        
         Data(const Hash& hash)
             : type_(Type::Hash)
             , hash_(hash)

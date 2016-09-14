@@ -3,18 +3,17 @@
 
 const Liquid::Data& Liquid::Drop::operator[](const QString& key) const
 {
-    const auto it = cache_.find(key);
-    if (it == cache_.end()) {
-        const Data val = load(key);
-        const auto inserted = cache_.insert(std::make_pair(key, val));
-        return inserted.first->second;
+    const Data val = load(key);
+    const auto it = storage_.find(key);
+    if (it == storage_.end() || it->second != val) {
+        return storage_.insert(std::make_pair(key, val)).first->second;
     }
     return it->second;
 }
 
 bool Liquid::Drop::operator==(const Drop& other) const
 {
-    return cache_ == other.cache_;
+    return storage_ == other.storage_;
 }
 
 Liquid::Data Liquid::Drop::load(const QString&) const

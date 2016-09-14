@@ -18,7 +18,7 @@ namespace Liquid {
         virtual Data load(const QString& key) const;
 
     private:
-        mutable std::unordered_map<QString, Data, QStringHash> cache_;
+        mutable std::unordered_map<QString, Data, QStringHash> storage_;
     };
     
     class DropHandler : public Drop {
