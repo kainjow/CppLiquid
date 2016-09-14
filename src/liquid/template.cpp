@@ -301,6 +301,69 @@ TEST_CASE("Liquid::Template") {
             data
         );
     }
+
+    SECTION("DropLoader") {
+        {
+            bool loaded = false;
+            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+                if (key == "value") {
+                    loaded = true;
+                    return "42";
+                }
+                return Liquid::kNilData;
+            };
+            Liquid::Data drop{std::make_shared<Liquid::DropHandler>(handler)};
+            Liquid::Data data{Liquid::Data::Type::Hash};
+            data.insert("mydrop", drop);
+            CHECK_FALSE(loaded);
+            CHECK_TEMPLATE_DATA_RESULT(
+                "{{ mydrop }}",
+                "",
+                data
+            );
+            CHECK_FALSE(loaded);
+        }
+        {
+            bool loaded = false;
+            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+                if (key == "value") {
+                    loaded = true;
+                    return "42";
+                }
+                return Liquid::kNilData;
+            };
+            Liquid::Data drop{std::make_shared<Liquid::DropHandler>(handler)};
+            Liquid::Data data{Liquid::Data::Type::Hash};
+            data.insert("mydrop", drop);
+            CHECK_FALSE(loaded);
+            CHECK_TEMPLATE_DATA_RESULT(
+                "{{ mydrop.whatever }}",
+                "",
+                data
+            );
+            CHECK_FALSE(loaded);
+        }
+        {
+            bool loaded = false;
+            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+                if (key == "value") {
+                    loaded = true;
+                    return "42";
+                }
+                return Liquid::kNilData;
+            };
+            Liquid::Data drop{std::make_shared<Liquid::DropHandler>(handler)};
+            Liquid::Data data{Liquid::Data::Type::Hash};
+            data.insert("mydrop", drop);
+            CHECK_FALSE(loaded);
+            CHECK_TEMPLATE_DATA_RESULT(
+                "{{ mydrop.value }}",
+                "42",
+                data
+            );
+            CHECK(loaded);
+        }
+    }
 }
 
 #endif

@@ -2,6 +2,7 @@
 #define LIQUID_DROP_HPP
 
 #include "qstringhash.hpp"
+#include <functional>
 
 namespace Liquid {
     
@@ -18,6 +19,18 @@ namespace Liquid {
 
     private:
         mutable std::unordered_map<QString, Data, QStringHash> cache_;
+    };
+    
+    class DropHandler : public Drop {
+    public:
+        using Loader = std::function<Data(const QString& key)>;
+        DropHandler(const Loader& loader);
+
+    protected:
+        virtual Data load(const QString& key) const;
+        
+    private:
+        Loader loader_;
     };
     
 }

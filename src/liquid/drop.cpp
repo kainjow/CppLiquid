@@ -21,3 +21,13 @@ Liquid::Data Liquid::Drop::load(const QString&) const
 {
     return kNilData;
 }
+
+Liquid::DropHandler::DropHandler(const Loader& loader)
+    : loader_(loader)
+{
+}
+
+Liquid::Data Liquid::DropHandler::load(const QString& key) const
+{
+    return loader_(key);
+}
