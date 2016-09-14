@@ -11,6 +11,7 @@
 #include "cycle.hpp"
 #include "decrement.hpp"
 #include "for.hpp"
+#include "ifchanged.hpp"
 #include "increment.hpp"
 #include <QDebug>
 
@@ -35,6 +36,11 @@ Liquid::Template::Template()
     };
     tags_["for"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<ForTag>(context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["ifchanged"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<IfchangedTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };

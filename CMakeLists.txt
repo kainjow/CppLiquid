@@ -62,6 +62,8 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/decrement.hpp
   src/liquid/tags/for.cpp
   src/liquid/tags/for.hpp
+  src/liquid/tags/ifchanged.cpp
+  src/liquid/tags/ifchanged.hpp
   src/liquid/tags/increment.cpp
   src/liquid/tags/increment.hpp
 )
