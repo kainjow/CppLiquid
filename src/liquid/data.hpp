@@ -278,6 +278,16 @@ namespace Liquid {
             }
         }
         
+        void pop_back() {
+            if (!isArray()) {
+                throw std::string("pop_back() requires an array");
+            }
+            if (array_.empty()) {
+                throw std::string("pop_back() cannot be used on an empty array");
+            }
+            array_.pop_back();
+        }
+        
         size_t size() const {
             switch (type_) {
                 case Type::Hash:
@@ -334,6 +344,13 @@ namespace Liquid {
                 throw std::string("containsKey requires a hash");
             }
             return hash_.find(key) != hash_.end();
+        }
+        
+        std::shared_ptr<Drop> drop() const {
+            if (!isDrop()) {
+                throw std::string("drop() requires a drop");
+            }
+            return drop_;
         }
         
     private:

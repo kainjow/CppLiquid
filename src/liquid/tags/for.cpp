@@ -8,9 +8,10 @@ namespace Liquid {
     
     class ForloopDrop : public Drop {
     public:
-        ForloopDrop(int length)
+        ForloopDrop(int length, const std::shared_ptr<ForloopDrop> parent)
             : length_(length)
             , index_(0)
+            , parent_(parent)
         {
         }
         
@@ -62,14 +63,17 @@ namespace Liquid {
                 return last();
             } else if (key == "length") {
                 return length();
+            } else if (key == "parentloop") {
+                return parent_ ? Data{parent_} : nullptr;
             } else {
                 return Drop::load(key);
             }
         }
         
     private:
-        int length_;
+        const int length_;
         int index_;
+        const std::shared_ptr<ForloopDrop> parent_;
     };
     
 }
@@ -158,7 +162,7 @@ class ForLoop {
 public:
     using Item = std::function<Data(int i)>;
     
-    ForLoop(const Item& item, BlockBody& body, const QString& varName, int start, int end, const Data& limit, const Data& offset, bool reversed)
+    ForLoop(const Item& item, BlockBody& body, const QString& varName, int start, int end, const Data& limit, const Data& offset, bool reversed, const std::shared_ptr<ForloopDrop> parent)
         : item_(item)
         , body_(body)
         , varName_(varName)
@@ -167,7 +171,7 @@ public:
         , len_((end_ - start_) + 1)
         , empty_(end_ < start_)
         , reversed_(reversed)
-        , forloop_(std::make_shared<ForloopDrop>(len_))
+        , drop_(std::make_shared<ForloopDrop>(len_, parent))
     {
     }
     
@@ -177,9 +181,9 @@ public:
     
     QString render(Context& context) {
         Data& data = context.data();
-        data.insert("forloop", Liquid::Data{forloop_});
+        data.insert("forloop", Liquid::Data{drop_});
         ForHelper loop(start_, end_, reversed_);
-        for (; loop.condition(); loop.next(), forloop_->increment()) {
+        for (; loop.condition(); loop.next(), drop_->increment()) {
             data.insert(varName_, item_(loop.i));
             output_ += body_.render(context);
             
@@ -195,6 +199,10 @@ public:
         return output_;
     }
     
+    std::shared_ptr<ForloopDrop> drop() const {
+        return drop_;
+    }
+    
 private:
     const Item& item_;
     BlockBody& body_;
@@ -204,7 +212,7 @@ private:
     const int len_;
     const bool empty_;
     const bool reversed_;
-    std::shared_ptr<ForloopDrop> forloop_;
+    std::shared_ptr<ForloopDrop> drop_;
     QString output_;
 };
 
@@ -230,11 +238,28 @@ QString Liquid::ForTag::render(Context& context)
             return collection.at(static_cast<size_t>(i));
         };
     }
-    ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_);
+    Data::Hash& registers = context.registers();
+    const QString name = tagName().toString();
+    if (registers.find(name) == registers.end()) {
+        registers[name] = Data::Array();
+    }
+    Data& forStack = registers[name];
+    const size_t forStackSize = forStack.size();
+    std::shared_ptr<ForloopDrop> parent;
+    if (forStackSize > 0) {
+        parent = std::dynamic_pointer_cast<ForloopDrop>(forStack.at(forStackSize - 1).drop());
+        if (!parent) {
+            throw std::string("Null drop");
+        }
+    }
+    ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_, parent);
     if (loop.empty()) {
         return elseBlock_.render(context);
     }
-    return loop.render(context);
+    forStack.push_back(Data{loop.drop()});
+    const QString result = loop.render(context);
+    forStack.pop_back();
+    return result;
 }
 
 void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
@@ -623,7 +648,26 @@ TEST_CASE("Liquid::For") {
         
         // TODO for/if
     }
-    
+
+    SECTION("ForParentLoop") {
+        Liquid::Data::Hash hash;
+        hash["outer"] = Liquid::Data::Array{Liquid::Data::Array{1, 1, 1}, Liquid::Data::Array{1, 1, 1}};
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for inner in outer %}{% for k in inner %}" \
+            "{{ forloop.parentloop.index }}.{{ forloop.index }} " \
+            "{% endfor %}{% endfor %}",
+            "1.1 1.2 1.3 2.1 2.2 2.3 ",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for inner in outer %}" \
+            "{{ forloop.parentloop.index }}.{{ forloop.index }} " \
+            "{% endfor %}",
+            ".1 .2 ",
+            hash
+        );
+    }
+
 }
 
 #endif
