@@ -176,11 +176,15 @@ public:
     }
     
     QString render(Context& context) {
-        Context::Interrupt interrupt;
-        context.data().insert("forloop", Liquid::Data{forloop_});
+        Data& data = context.data();
+        data.insert("forloop", Liquid::Data{forloop_});
         ForHelper loop(start_, end_, reversed_);
-        for (; loop.condition(); loop.next()) {
-            if (body(context, loop.i, interrupt)) {
+        for (; loop.condition(); loop.next(), forloop_->increment()) {
+            data.insert(varName_, item_(loop.i));
+            output_ += body_.render(context);
+            
+            if (context.haveInterrupt()) {
+                const Context::Interrupt interrupt = context.pop_interrupt();
                 if (interrupt == Context::Interrupt::Break) {
                     break;
                 } else if (interrupt == Context::Interrupt::Continue) {
@@ -189,19 +193,6 @@ public:
             }
         }
         return output_;
-    }
-    
-    bool body(Context& context, int i, Context::Interrupt& interrupt) {
-        context.data().insert(varName_, item_(i));
-        output_ += body_.render(context);
-        forloop_->increment();
-        
-        if (context.haveInterrupt()) {
-            interrupt = context.pop_interrupt();
-            return true;
-        }
-        
-        return false;
     }
     
 private:
