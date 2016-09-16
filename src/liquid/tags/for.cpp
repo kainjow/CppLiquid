@@ -179,14 +179,14 @@ public:
         return empty_;
     }
     
-    QString render(Context& context) {
+    QString render(Context& context) const {
+        QString output;
         Data& data = context.data();
         data.insert("forloop", Liquid::Data{drop_});
         ForHelper loop(start_, end_, reversed_);
         for (; loop.condition(); loop.next(), drop_->increment()) {
             data.insert(varName_, item_(loop.i));
-            output_ += body_.render(context);
-            
+            output += body_.render(context);
             if (context.haveInterrupt()) {
                 const Context::Interrupt interrupt = context.pop_interrupt();
                 if (interrupt == Context::Interrupt::Break) {
@@ -196,7 +196,7 @@ public:
                 }
             }
         }
-        return output_;
+        return output;
     }
     
     std::shared_ptr<ForloopDrop> drop() const {
@@ -213,7 +213,6 @@ private:
     const bool empty_;
     const bool reversed_;
     std::shared_ptr<ForloopDrop> drop_;
-    QString output_;
 };
 
 class ArrayPusher {
@@ -267,7 +266,7 @@ QString Liquid::ForTag::render(Context& context)
             throw std::string("Null drop");
         }
     }
-    ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_, parent);
+    const ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_, parent);
     if (loop.empty()) {
         return elseBlock_.render(context);
     }
