@@ -216,6 +216,21 @@ private:
     QString output_;
 };
 
+class ArrayPusher {
+public:
+    ArrayPusher(Data& array, const Data& obj)
+        : array_(array)
+    {
+        array.push_back(obj);
+    }
+    ~ArrayPusher()
+    {
+        array_.pop_back();
+    }
+private:
+    Data& array_;
+};
+
 }
 
 QString Liquid::ForTag::render(Context& context)
@@ -256,10 +271,8 @@ QString Liquid::ForTag::render(Context& context)
     if (loop.empty()) {
         return elseBlock_.render(context);
     }
-    forStack.push_back(Data{loop.drop()});
-    const QString result = loop.render(context);
-    forStack.pop_back();
-    return result;
+    const ArrayPusher pusher(forStack, Data{loop.drop()});
+    return loop.render(context);
 }
 
 void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)

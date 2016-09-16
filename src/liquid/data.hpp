@@ -269,12 +269,12 @@ namespace Liquid {
             }
         }
         
-        void push_back(const Data& ctx) {
+        void push_back(const Data& obj) {
             if (!isArray()) {
                 throw std::string("push_back() requires an array");
             }
             if (isArray()) {
-                array_.push_back(ctx);
+                array_.push_back(obj);
             }
         }
         
