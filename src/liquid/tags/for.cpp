@@ -119,6 +119,41 @@ void Liquid::ForTag::parse(const Context& context, Tokenizer& tokenizer)
 
 namespace Liquid {
 
+class ForHelper {
+public:
+    ForHelper(int start, int end, bool reversed)
+        : start_(start)
+        , end_(end)
+        , reversed_(reversed)
+        , i(reversed ? end_ : start_)
+    {
+    }
+    
+    bool condition() {
+        if (reversed_) {
+            return i >= start_;
+        } else {
+            return i <= end_;
+        }
+    }
+    
+    void next() {
+        if (reversed_) {
+            --i;
+        } else {
+            ++i;
+        }
+    }
+    
+private:
+    int start_;
+    int end_;
+    bool reversed_;
+    
+public:
+    int i;
+};
+
 class ForLoop {
 public:
     using Item = std::function<Data(int i)>;
@@ -133,7 +168,6 @@ public:
         , empty_(end_ < start_)
         , reversed_(reversed)
         , forloop_(std::make_shared<ForloopDrop>(len_))
-        , index0_(0)
     {
     }
     
@@ -144,24 +178,13 @@ public:
     QString render(Context& context) {
         Context::Interrupt interrupt;
         context.data().insert("forloop", Liquid::Data{forloop_});
-        if (reversed_) {
-            for (int i = end_; i >= start_; --i, ++index0_) {
-                if (body(context, i, interrupt)) {
-                    if (interrupt == Context::Interrupt::Break) {
-                        break;
-                    } else if (interrupt == Context::Interrupt::Continue) {
-                        continue;
-                    }
-                }
-            }
-        } else {
-            for (int i = start_; i <= end_; ++i, ++index0_) {
-                if (body(context, i, interrupt)) {
-                    if (interrupt == Context::Interrupt::Break) {
-                        break;
-                    } else if (interrupt == Context::Interrupt::Continue) {
-                        continue;
-                    }
+        ForHelper loop(start_, end_, reversed_);
+        for (; loop.condition(); loop.next()) {
+            if (body(context, loop.i, interrupt)) {
+                if (interrupt == Context::Interrupt::Break) {
+                    break;
+                } else if (interrupt == Context::Interrupt::Continue) {
+                    continue;
                 }
             }
         }
@@ -191,7 +214,6 @@ private:
     const bool empty_;
     const bool reversed_;
     std::shared_ptr<ForloopDrop> forloop_;
-    int index0_;
     QString output_;
 };
 
