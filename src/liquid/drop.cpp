@@ -6,6 +6,9 @@ const Liquid::Data& Liquid::Drop::operator[](const QString& key) const
     const Data val = load(key);
     const auto it = storage_.find(key);
     if (it == storage_.end() || it->second != val) {
+        if (it != storage_.end()) {
+            storage_.erase(it);
+        }
         return storage_.insert(std::make_pair(key, val)).first->second;
     }
     return it->second;

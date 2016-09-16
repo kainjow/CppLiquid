@@ -2,6 +2,77 @@
 #include "parser.hpp"
 #include "context.hpp"
 #include "template.hpp"
+#include "drop.hpp"
+
+namespace Liquid {
+    
+    class ForloopDrop : public Drop {
+    public:
+        ForloopDrop(int length)
+            : length_(length)
+            , index_(0)
+        {
+        }
+        
+        int index() const {
+            return index_ + 1;
+        }
+        
+        int index0() const {
+            return index_;
+        }
+        
+        int rindex() const {
+            return length_ - index_;
+        }
+        
+        int rindex0() const {
+            return length_ - index_ - 1;
+        }
+        
+        bool first() const {
+            return index_ == 0;
+        }
+        
+        bool last() const {
+            return index_ == length_ - 1;
+        }
+        
+        int length() const {
+            return length_;
+        }
+        
+        void increment() {
+            ++index_;
+        }
+        
+    protected:
+        virtual Data load(const QString& key) const override {
+            if (key == "index") {
+                return index();
+            } else if (key == "index0") {
+                return index0();
+            } else if (key == "rindex") {
+                return rindex();
+            } else if (key == "rindex0") {
+                return rindex0();
+            } else if (key == "first") {
+                return first();
+            } else if (key == "last") {
+                return last();
+            } else if (key == "length") {
+                return length();
+            } else {
+                return Drop::load(key);
+            }
+        }
+        
+    private:
+        int length_;
+        int index_;
+    };
+    
+}
 
 Liquid::ForTag::ForTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
     : BlockTag(context, tagName, markup)
@@ -61,6 +132,7 @@ public:
         , len_((end_ - start_) + 1)
         , empty_(end_ < start_)
         , reversed_(reversed)
+        , forloop_(std::make_shared<ForloopDrop>(len_))
         , index0_(0)
     {
     }
@@ -69,23 +141,12 @@ public:
         return empty_;
     }
     
-    void insertLoopVars(int i, int start, int end, Data& data) {
-        forloop_["first"] = i == start;
-        forloop_["last"] = i == end;
-        forloop_["length"] = len_;
-        const int rindex0 = len_ - index0_ - 1;
-        forloop_["index0"] = index0_;
-        forloop_["index"] = index0_ + 1;
-        forloop_["rindex0"] = rindex0;
-        forloop_["rindex"] = rindex0 + 1;
-        data.insert("forloop", forloop_);
-    };
-    
     QString render(Context& context) {
         Context::Interrupt interrupt;
+        context.data().insert("forloop", Liquid::Data{forloop_});
         if (reversed_) {
             for (int i = end_; i >= start_; --i, ++index0_) {
-                if (body(context, i, end_, start_, interrupt)) {
+                if (body(context, i, interrupt)) {
                     if (interrupt == Context::Interrupt::Break) {
                         break;
                     } else if (interrupt == Context::Interrupt::Continue) {
@@ -95,7 +156,7 @@ public:
             }
         } else {
             for (int i = start_; i <= end_; ++i, ++index0_) {
-                if (body(context, i, start_, end_, interrupt)) {
+                if (body(context, i, interrupt)) {
                     if (interrupt == Context::Interrupt::Break) {
                         break;
                     } else if (interrupt == Context::Interrupt::Continue) {
@@ -107,11 +168,10 @@ public:
         return output_;
     }
     
-    bool body(Context& context, int i, int start, int end, Context::Interrupt& interrupt) {
-        Data& data = context.data();
-        insertLoopVars(i, start, end, data);
-        data.insert(varName_, item_(i));
+    bool body(Context& context, int i, Context::Interrupt& interrupt) {
+        context.data().insert(varName_, item_(i));
         output_ += body_.render(context);
+        forloop_->increment();
         
         if (context.haveInterrupt()) {
             interrupt = context.pop_interrupt();
@@ -130,7 +190,7 @@ private:
     const int len_;
     const bool empty_;
     const bool reversed_;
-    Data::Hash forloop_;
+    std::shared_ptr<ForloopDrop> forloop_;
     int index0_;
     QString output_;
 };
