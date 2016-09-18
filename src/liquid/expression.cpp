@@ -116,6 +116,8 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
         return *currentCtx;
     } else if (isString() || isNumber() || isNil()) {
         return var_;
+    } else if (isBoolean()) {
+        return toBool() ? kTrueData : kFalseData;
     } else {
         throw QString("Can't evaluate expression %1").arg(typeString()).toStdString();
     }

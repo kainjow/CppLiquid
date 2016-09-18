@@ -1,7 +1,9 @@
 #include "data.hpp"
 #include <QDebug>
 
-const Liquid::Data Liquid::kNilData = nullptr;
+const Liquid::Data Liquid::kNilData{Data::Type::Nil};
+const Liquid::Data Liquid::kTrueData{Data::Type::BooleanTrue};
+const Liquid::Data Liquid::kFalseData{Data::Type::BooleanFalse};
 
 
 

@@ -13,6 +13,8 @@ namespace Liquid {
     class Data;
     
     const extern Data kNilData;
+    const extern Data kTrueData;
+    const extern Data kFalseData;
 
     class Data {
     public:
