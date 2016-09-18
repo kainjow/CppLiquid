@@ -19,6 +19,7 @@ namespace {
         {'=', Liquid::Token::Type::Equal},
     };
     const QString kDotDot = "..";
+    const std::vector<QString> comparisonOperators = {"==", "!=", "<>", "<=", ">=", "<", ">", "contains"};
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
@@ -26,11 +27,22 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const QStringRef& input)
     std::vector<Liquid::Token> tokens;
     StringScanner ss(rtrim(input));
     QStringRef tok;
-    
+    bool scannedComparisonOperator;
+
     while (!ss.eof()) {
         (void)ss.skipWhitespace();
         
-        // TODO: Token::Type::Comparison
+        scannedComparisonOperator = false;
+        for (const auto& op : comparisonOperators) {
+            if (ss.scanString(op, &tok)) {
+                tokens.emplace_back(Token::Type::Comparison, tok);
+                scannedComparisonOperator = true;
+                break;
+            }
+        }
+        if (scannedComparisonOperator) {
+            continue;
+        }
 
         tok = ss.scanStringLiteral();
         if (!tok.isNull()) {

@@ -49,6 +49,7 @@ namespace Liquid {
     public:
         BlockBody body;
         Condition cond;
+        bool isElse;
     };
     
     class IfTag : public BlockTag {
@@ -63,6 +64,7 @@ namespace Liquid {
         virtual void handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) override;
 
     private:
+        void parseTag(const QStringRef& markup);
         Condition parseCondition(Parser& parser);
         
         std::vector<IfBlock> blocks_;
