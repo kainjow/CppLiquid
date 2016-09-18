@@ -123,6 +123,30 @@ TEST_CASE("Liquid::If") {
             " YES "
         );
     }
+
+    SECTION("IfElse") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if false %} NO {% else %} YES {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true %} YES {% else %} NO {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 'foo' %} YES {% else %} NO {% endif %}",
+            " YES "
+        );
+    }
+
+    SECTION("IfBoolean") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", true}})
+        );
+    }
+
 }
 
 #endif
