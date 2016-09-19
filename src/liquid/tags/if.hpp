@@ -19,14 +19,22 @@ namespace Liquid {
             Contains,
         };
         
+        enum class LogicalOperator {
+            None,
+            And,
+            Or,
+        };
+        
         Condition()
             : op_(Operator::None)
+            , logicalOp_(LogicalOperator::None)
         {
         }
         
         Condition(const Expression& a)
             : a_(a)
             , op_(Operator::None)
+            , logicalOp_(LogicalOperator::None)
         {
         }
         
@@ -34,8 +42,14 @@ namespace Liquid {
             : a_(a)
             , op_(op)
             , b_(b)
+            , logicalOp_(LogicalOperator::None)
         {
             (void)op_;
+        }
+        
+        void setLogicalCondition(LogicalOperator op, const std::shared_ptr<Condition>& cond) {
+            logicalOp_ = op;
+            child_ = cond;
         }
         
         bool evaluate(Context& context);
@@ -43,6 +57,8 @@ namespace Liquid {
         Expression a_;
         Operator op_;
         Expression b_;
+        LogicalOperator logicalOp_;
+        std::shared_ptr<Condition> child_;
     };
     
     class IfBlock {
@@ -65,6 +81,7 @@ namespace Liquid {
 
     private:
         void parseTag(const QStringRef& markup);
+        Condition parseLogicalCondition(Parser& parser);
         Condition parseCondition(Parser& parser);
         
         std::vector<IfBlock> blocks_;

@@ -14,7 +14,7 @@ Liquid::IfTag::IfTag(const Context& context, const QStringRef& tagName, const QS
 void Liquid::IfTag::parseTag(const QStringRef& markup)
 {
     Parser parser(markup);
-    blocks_.back().cond = parseCondition(parser);
+    blocks_.back().cond = parseLogicalCondition(parser);
     (void)parser.consume(Token::Type::EndOfString);
 }
 
@@ -22,6 +22,21 @@ void Liquid::IfTag::parse(const Context& context, Tokenizer& tokenizer)
 {
     while (parseBody(context, &blocks_.back().body, tokenizer)) {
     }
+}
+
+Liquid::Condition Liquid::IfTag::parseLogicalCondition(Parser& parser)
+{
+    Condition cond = parseCondition(parser);
+    Condition::LogicalOperator logicalOp = Condition::LogicalOperator::None;
+    if (parser.consumeId("and")) {
+        logicalOp = Condition::LogicalOperator::And;
+    } else if (parser.consumeId("or")) {
+        logicalOp = Condition::LogicalOperator::Or;
+    }
+    if (logicalOp != Condition::LogicalOperator::None) {
+        cond.setLogicalCondition(logicalOp, std::make_shared<Condition>(parseLogicalCondition(parser)));
+    }
+    return cond;
 }
 
 Liquid::Condition Liquid::IfTag::parseCondition(Parser& parser)
@@ -78,17 +93,29 @@ void Liquid::IfTag::handleUnknownTag(const QStringRef& tagName, const QStringRef
 
 bool Liquid::Condition::evaluate(Context& context)
 {
+    bool result;
     Data& data = context.data();
     const Data& v1 = a_.evaluate(data);
     const Data& v2 = b_.evaluate(data);
     switch (op_) {
         case Operator::None:
-            return v1.isTruthy();
+            result = v1.isTruthy();
+            break;
         case Operator::Equal:
-            return v1 == v2;
+            result = v1 == v2;
+            break;
         default:
             throw std::string("Operator not implemented");
     }
+    switch (logicalOp_) {
+        case LogicalOperator::And:
+            return result && child_->evaluate(context);
+        case LogicalOperator::Or:
+            return result || child_->evaluate(context);
+        default:
+            break;
+    }
+    return result;
 }
 
 
@@ -147,6 +174,38 @@ TEST_CASE("Liquid::If") {
         );
     }
 
+    SECTION("IfOr") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", true}, {"b", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", true}, {"b", false}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", false}, {"b", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b %} YES {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"a", false}, {"b", false}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b or c %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", false}, {"b", false}, {"c", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a or b or c %} YES {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"a", false}, {"b", false}, {"c", false}})
+        );
+    }
 }
 
 #endif
