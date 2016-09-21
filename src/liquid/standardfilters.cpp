@@ -896,7 +896,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "hello world");
     }
 
-    SECTION("Truncate") {
+    SECTION("TruncateWords") {
         Liquid::Template t;
         t.parse("{{ 'Ground control to Major Tom.' | truncatewords: 3 }}");
         CHECK(t.render().toStdString() == "Ground control to...");
@@ -907,7 +907,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK_TEMPLATE_RESULT("{{ 'one two three' | truncatewords: 2, 1 }}", "one two1");
     }
 
-    SECTION("TruncateWords") {
+    SECTION("Truncate") {
         Liquid::Template t;
         t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20 }}");
         CHECK(t.render().toStdString() == "Ground control to...");
