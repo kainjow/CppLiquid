@@ -104,6 +104,9 @@ bool Liquid::Condition::evaluate(Context& context)
         case Operator::Equal:
             result = v1 == v2;
             break;
+        case Operator::NotEqual:
+            result = v1 != v2;
+            break;
         case Operator::LessThan:
             result = v1 < v2;
             break;
@@ -485,6 +488,25 @@ TEST_CASE("Liquid::If") {
         CHECK_TEMPLATE_RESULT(
             "{% if 10 > null %} NO {% endif %}",
             ""
+        );
+    }
+
+    SECTION("IfElseIf") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if 0 == 0 %}0{% elsif 1 == 1%}1{% else %}2{% endif %}",
+            "0"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 0 != 0 %}0{% elsif 1 == 1%}1{% else %}2{% endif %}",
+            "1"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 0 != 0 %}0{% elsif 1 != 1%}1{% else %}2{% endif %}",
+            "2"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if false %}if{% elsif true %}elsif{% endif %}",
+            "elsif"
         );
     }
 }
