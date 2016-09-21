@@ -119,6 +119,17 @@ bool Liquid::Condition::evaluate(Context& context)
         case Operator::GreaterOrEqualThan:
             result = v1 >= v2;
             break;
+        case Operator::Contains:
+            if (v1.isArray()) {
+                result = std::find(v1.array().cbegin(), v1.array().cend(), v2) != v1.array().cend();
+            } else if (v1.isHash()) {
+                result = v1.hash().find(v2.toString()) != v1.hash().end();
+            } else if (v1.isString()) {
+                result = v1.toString().indexOf(v2.toString()) != -1;
+            } else {
+                result = false;
+            }
+            break;
         default:
             throw std::string("Operator not implemented");
     }
@@ -507,6 +518,21 @@ TEST_CASE("Liquid::If") {
         CHECK_TEMPLATE_RESULT(
             "{% if false %}if{% elsif true %}elsif{% endif %}",
             "elsif"
+        );
+    }
+    
+    SECTION("IfContains") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if 'bob' contains 'o' %}yes{% endif %}",
+            "yes"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 'bob' contains 'f' %}yes{% else %}no{% endif %}",
+            "no"
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 'gnomeslab-and-or-liquid' contains 'gnomeslab-and-or-liquid' %}yes{% endif %}",
+            "yes"
         );
     }
 }

@@ -345,7 +345,14 @@ namespace Liquid {
             }
             return array_;
         }
-        
+
+        const Hash& hash() const {
+            if (!isHash()) {
+                throw std::string("hash() requires an array");
+            }
+            return hash_;
+        }
+
         void insert(const QString& key, const Data& value) {
             if (!isHash()) {
                 throw std::string("insert() requires a hash");
