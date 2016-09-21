@@ -535,6 +535,26 @@ TEST_CASE("Liquid::If") {
             "yes"
         );
     }
+    
+    SECTION("IfMultipleConditions") {
+        const std::vector<std::tuple<bool, bool, bool, std::string>> tests{
+            {true, true, true, "true"},
+            {true, true, false, "true"},
+            {true, false, true, "true"},
+            {true, false, false, "true"},
+            {false, true, true, "true"},
+            {false, true, false, "false"},
+            {false, false, true, "false"},
+            {false, false, false, "false"},
+        };
+        for (const auto& test : tests) {
+            CHECK_TEMPLATE_DATA_RESULT(
+                "{% if a or b and c %}true{% else %}false{% endif %}",
+                std::get<3>(test),
+                (Liquid::Data::Hash{{"a", std::get<0>(test)}, {"b", std::get<1>(test)}, {"c", std::get<2>(test)}})
+            );
+        }
+    }
 }
 
 #endif
