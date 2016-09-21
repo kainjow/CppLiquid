@@ -206,6 +206,72 @@ TEST_CASE("Liquid::If") {
             (Liquid::Data::Hash{{"a", false}, {"b", false}, {"c", false}})
         );
     }
+
+    SECTION("IfOrOperators") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a == true or b == true %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", true}, {"b", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a == true or b == false %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", true}, {"b", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a == false or b == false %} YES {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"a", true}, {"b", true}})
+        );
+    }
+
+    SECTION("IfComparisonOfStringsContainingAndOrOr") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if a == 'and' and b == 'or' and c == 'foo and bar' and d == 'bar or baz' and e == 'foo' and foo and bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"a", "and"}, {"b", "or"}, {"c", "foo and bar"}, {"d", "bar or baz"}, {"e", "foo"}, {"foo", true}, {"bar", true}})
+        );
+    }
+
+    SECTION("IfComparisonOfExpressionsStartingWithAndOrOr") {
+        const Liquid::Data::Hash data = Liquid::Data::Hash{
+            {"order", Liquid::Data::Hash{{"items_count", 0}}},
+            {"android", Liquid::Data::Hash{{"name", "Roy"}}}
+        };
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if android.name == 'Roy' %}YES{% endif %}",
+            "YES",
+            data
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if order.items_count == 0 %}YES{% endif %}",
+            "YES",
+            data
+        );
+    }
+
+    SECTION("IfAnd") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if true and true %} YES {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if false and true %} YES {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if false and true %} YES {% endif %}",
+            ""
+        );
+    }
+
+    SECTION("IfHashMissGeneratesFalse") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{}}})
+        );
+    }
 }
 
 #endif
