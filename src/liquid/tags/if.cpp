@@ -3,8 +3,9 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::IfTag::IfTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::IfTag::IfTag(bool unless, const Context& context, const QStringRef& tagName, const QStringRef& markup)
     : BlockTag(context, tagName, markup)
+    , if_(!unless)
 {
     IfBlock block;
     blocks_.push_back(block);
@@ -69,7 +70,8 @@ Liquid::Condition Liquid::IfTag::parseCondition(Parser& parser)
 QString Liquid::IfTag::render(Context& context)
 {
     for (auto& block : blocks_) {
-        if (block.isElse || block.cond.evaluate(context)) {
+        const bool result = block.cond.evaluate(context);
+        if (block.isElse || (if_ && result) || (!if_ && !result)) {
             return block.body.render(context);
         }
     }
@@ -572,6 +574,56 @@ TEST_CASE("Liquid::If") {
         CHECK_TEMPLATE_RESULT(
             "{% if null == true %}?{% endif %}",
             ""
+        );
+    }
+    
+    SECTION("Unless") {
+        CHECK_TEMPLATE_RESULT(
+            " {% unless true %} this text should not go into the output {% endunless %} ",
+            "  "
+        );
+        CHECK_TEMPLATE_RESULT(
+            " {% unless false %} this text should go into the output {% endunless %} ",
+            "  this text should go into the output  "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% unless true %} you suck {% endunless %} {% unless false %} you rock {% endunless %}?",
+            "  you rock ?"
+        );        CHECK_TEMPLATE_RESULT(
+            "{% unless true %} NO {% else %} YES {% endunless %}",
+            " YES "
+        );
+
+    }
+
+    SECTION("UnlessElse") {
+        CHECK_TEMPLATE_RESULT(
+            "{% unless true %} NO {% else %} YES {% endunless %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% unless false %} YES {% else %} NO {% endunless %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% unless 'foo' %} NO {% else %} YES {% endunless %}",
+            " YES "
+        );
+    }
+
+    SECTION("UnlessInLoop") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in choices %}{% unless i %}{{ forloop.index }}{% endunless %}{% endfor %}",
+            "23",
+            (Liquid::Data::Hash{{"choices", Liquid::Data::Array{1, nullptr, false}}})
+        );
+    }
+
+    SECTION("UnlessElseInLoop") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in choices %}{% unless i %} {{ forloop.index }} {% else %} TRUE {% endunless %}{% endfor %}",
+            " TRUE  2  3 ",
+            (Liquid::Data::Hash{{"choices", Liquid::Data::Array{1, nullptr, false}}})
         );
     }
 }

@@ -41,7 +41,12 @@ Liquid::Template::Template()
         return tag;
     };
     tags_["if"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
-        auto tag = std::make_shared<IfTag>(context, tagName, markup);
+        auto tag = std::make_shared<IfTag>(false, context, tagName, markup);
+        tag->parse(context, tokenizer);
+        return tag;
+    };
+    tags_["unless"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+        auto tag = std::make_shared<IfTag>(true, context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };

@@ -70,7 +70,7 @@ namespace Liquid {
     
     class IfTag : public BlockTag {
     public:
-        IfTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
+        IfTag(bool unless, const Context& context, const QStringRef& tagName, const QStringRef& markup);
         
         virtual void parse(const Context& context, Tokenizer& tokenizer) override;
         
@@ -84,6 +84,7 @@ namespace Liquid {
         Condition parseLogicalCondition(Parser& parser);
         Condition parseCondition(Parser& parser);
         
+        bool if_;
         std::vector<IfBlock> blocks_;
     };
 }
