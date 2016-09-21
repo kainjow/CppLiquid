@@ -779,7 +779,7 @@ void registerFilters(Template& tmpl)
 
 #ifdef TESTS
 
-#include "catch.hpp"
+#include "tests.hpp"
 
 TEST_CASE("Liquid::StandardFilters") {
     
@@ -904,6 +904,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "Ground control to--");
         t.parse("{{ 'Ground control to Major Tom.' | truncatewords: 3, '' }}");
         CHECK(t.render().toStdString() == "Ground control to");
+        CHECK_TEMPLATE_RESULT("{{ 'one two three' | truncatewords: 2, 1 }}", "one two1");
     }
 
     SECTION("TruncateWords") {
@@ -914,6 +915,7 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(t.render().toStdString() == "Ground control, and so on");
         t.parse("{{ \"Ground control to Major Tom.\" | truncate: 20, \"\" }}");
         CHECK(t.render().toStdString() == "Ground control to Ma");
+        CHECK_TEMPLATE_RESULT("{{ '1234567890' | truncate: 5, 1 }}", "12341");
     }
 
     SECTION("Plus") {
