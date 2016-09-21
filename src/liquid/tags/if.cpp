@@ -272,6 +272,143 @@ TEST_CASE("Liquid::If") {
             (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{}}})
         );
     }
+
+    SECTION("IfFromVariable") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"var", false}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"var", nullptr}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", false}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"foo", {}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"foo", nullptr}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% endif %}",
+            "",
+            (Liquid::Data::Hash{{"foo", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", "text"}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", 1}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", Liquid::Data::Hash{}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", Liquid::Data::Array{}}})
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 'foo' %} YES {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", true}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", "text"}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", 1}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", Liquid::Data::Hash{}}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", Liquid::Data::Array{}}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", false}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", nullptr}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if var %} YES {% else %} NO {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", true}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if 'foo' %} YES {% else %} NO {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"var", "text"}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", false}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% else %} NO {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", true}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} YES {% else %} NO {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"bar", "text"}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{{"notbar", true}}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"foo", Liquid::Data::Hash{}}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if foo.bar %} NO {% else %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"notfoo", Liquid::Data::Hash{{"bar", true}}}})
+        );
+    }
 }
 
 #endif
