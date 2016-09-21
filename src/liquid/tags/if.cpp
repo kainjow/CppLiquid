@@ -104,6 +104,18 @@ bool Liquid::Condition::evaluate(Context& context)
         case Operator::Equal:
             result = v1 == v2;
             break;
+        case Operator::LessThan:
+            result = v1 < v2;
+            break;
+        case Operator::LessOrEqualThan:
+            result = v1 <= v2;
+            break;
+        case Operator::GreaterThan:
+            result = v1 > v2;
+            break;
+        case Operator::GreaterOrEqualThan:
+            result = v1 >= v2;
+            break;
         default:
             throw std::string("Operator not implemented");
     }
@@ -407,6 +419,72 @@ TEST_CASE("Liquid::If") {
             "{% if foo.bar %} NO {% else %} YES {% endif %}",
             " YES ",
             (Liquid::Data::Hash{{"notfoo", Liquid::Data::Hash{{"bar", true}}}})
+        );
+    }
+
+    SECTION("IfNested") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if false %}{% if false %} NO {% endif %}{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if false %}{% if true %} NO {% endif %}{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true %}{% if false %} NO {% endif %}{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true %}{% if true %} YES {% endif %}{% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true %}{% if true %} YES {% else %} NO {% endif %}{% else %} NO {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true %}{% if false %} NO {% else %} YES {% endif %}{% else %} NO {% endif %}",
+            " YES "
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if false %}{% if true %} NO {% else %} NONO {% endif %}{% else %} YES {% endif %}",
+            " YES "
+        );
+    }
+
+    SECTION("IfComparisonsOnNull") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if null < 10 %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if null <= 10 %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if null >= 10 %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if null > 10 %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 10 < null %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 10 <= null %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 10 >= null %} NO {% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if 10 > null %} NO {% endif %}",
+            ""
         );
     }
 }

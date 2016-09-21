@@ -133,10 +133,36 @@ namespace Liquid {
             }
         }
         
-        bool operator!=(const Data& other) {
+        bool operator!=(const Data& other) const {
             return !(*this == other);
         }
         
+        bool operator<(const Data& other) const {
+            if (isNumberInt() && other.isNumberInt()) {
+                return toInt() < other.toInt();
+            } else if (isNumber() && other.isNumber()) {
+                return toFloat() < other.toFloat();
+            }
+            return false;
+        }
+
+        bool operator>(const Data& other) const {
+            if (isNumberInt() && other.isNumberInt()) {
+                return toInt() > other.toInt();
+            } else if (isNumber() && other.isNumber()) {
+                return toFloat() > other.toFloat();
+            }
+            return false;
+        }
+
+        bool operator<=(const Data& other) const {
+            return *this < other || *this == other;
+        }
+
+        bool operator>=(const Data& other) const {
+            return *this > other || *this == other;
+        }
+
         Data(const Hash& hash)
             : type_(Type::Hash)
             , hash_(hash)
