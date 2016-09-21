@@ -519,8 +519,14 @@ TEST_CASE("Liquid::For") {
         );
     }
 
-    // TODO: test_for_and_if
-
+    SECTION("ForAndIf") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{%for item in array%}{% if forloop.first %}+{% else %}-{% endif %}{%endfor%}",
+            "+--",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{1, 2, 3}}})
+        );
+    }
+    
     SECTION("ForElse") {
         CHECK_TEMPLATE_DATA_RESULT(
             "{%for item in array%}+{%else%}-{%endfor%}",
@@ -635,8 +641,32 @@ TEST_CASE("Liquid::For") {
             "",
             hash
         );
-        
-        // TODO for/if
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{{ i }}{% if i > 3 %}{% break %}{% endif %}{% endfor %}",
+            "1234",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for item in array %}" \
+                "{% for i in item %}" \
+                    "{% if i == 1 %}" \
+                        "{% break %}" \
+                    "{% endif %}" \
+                    "{{ i }}" \
+                "{% endfor %}" \
+            "{% endfor %}",
+            "3456",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{
+                Liquid::Data::Array{1, 2},
+                Liquid::Data::Array{3, 4},
+                Liquid::Data::Array{5, 6},
+            }}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% if i == 9999 %}{% break %}{% endif %}{{ i }}{% endfor %}",
+            "12345",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Hash{{"items", Liquid::Data::Array{1, 2, 3, 4, 5}}}}})
+        );
     }
 
     SECTION("ForContinue") {
@@ -657,8 +687,33 @@ TEST_CASE("Liquid::For") {
             "",
             hash
         );
-        
-        // TODO for/if
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% if i == 3 %}{% continue %}{% else %}{{ i }}{% endif %}{% endfor %}",
+            "1245",
+            hash
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for item in array %}" \
+                "{% for i in item %}" \
+                    "{% if i == 1 %}" \
+                        "{% continue %}" \
+                    "{% endif %}" \
+                    "{{ i }}" \
+                "{% endfor %}" \
+            "{% endfor %}",
+            "23456",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Array{
+                Liquid::Data::Array{1, 2},
+                Liquid::Data::Array{3, 4},
+                Liquid::Data::Array{5, 6},
+            }}})
+        );
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% for i in array.items %}{% if i == 9999 %}{% continue %}{% endif %}{{ i }}{% endfor %}",
+            "12345",
+            (Liquid::Data::Hash{{"array", Liquid::Data::Hash{{"items", Liquid::Data::Array{1, 2, 3, 4, 5}}}}})
+        );
+
     }
 
     SECTION("ForParentLoop") {

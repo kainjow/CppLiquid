@@ -555,6 +555,25 @@ TEST_CASE("Liquid::If") {
             );
         }
     }
+
+    SECTION("IfIllegalSymbols") {
+        CHECK_TEMPLATE_RESULT(
+            "{% if true == empty %}?{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if true == null %}?{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if empty == true %}?{% endif %}",
+            ""
+        );
+        CHECK_TEMPLATE_RESULT(
+            "{% if null == true %}?{% endif %}",
+            ""
+        );
+    }
 }
 
 #endif
