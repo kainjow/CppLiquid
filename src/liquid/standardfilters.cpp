@@ -647,9 +647,17 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const QString& f
     } else {
         const QString property = args[0].toString();
         std::sort(objs.begin(), objs.end(), [&property, cs](const Data& a, const Data& b) -> bool {
-            const QString s1 = a[property].toString();
-            const QString s2 = b[property].toString();
-            return s1.compare(s2, cs) < 0;
+            const Data& obj1{a[property]};
+            const Data& obj2{b[property]};
+            if (!obj1.isNil() && !obj2.isNil()) {
+                const QString s1 = obj1.toString();
+                const QString s2 = obj2.toString();
+                return s1.compare(s2, cs) < 0;
+            } else if (obj1.isNil() && obj2.isNil()) {
+                return true;
+            } else {
+                return !obj1.isNil();
+            }
         });
     }
     return objs;
@@ -1197,6 +1205,30 @@ TEST_CASE("Liquid::StandardFilters") {
         hash["names"] = names;
         data = Liquid::Data(hash);
         CHECK(t.parse("{{ names | sort_natural: 'name' | map: 'name' | join: ', ' }}").render(data).toStdString() == "bob, george, Jane, Sally");
+    }
+    
+    // https://github.com/Shopify/liquid/pull/805
+    SECTION("SortMissingProperty") {
+        const Liquid::Data::Array input{
+            Liquid::Data::Hash{{"price", 4}, {"handle", "alpha"}},
+            Liquid::Data::Hash{{"handle", "beta"}},
+            Liquid::Data::Hash{{"price", 1}, {"handle", "gamma"}},
+            Liquid::Data::Hash{{"handle", "delta"}},
+            Liquid::Data::Hash{{"price", 2}, {"handle", "epsilon"}},
+        };
+        Liquid::Data inputData{input};
+        const std::vector<Liquid::Data> args{
+            "price",
+        };
+        const auto result = Liquid::StandardFilters::sort(inputData, args);
+        const Liquid::Data::Array expectation{
+            Liquid::Data::Hash{{"price", 1}, {"handle", "gamma"}},
+            Liquid::Data::Hash{{"price", 2}, {"handle", "epsilon"}},
+            Liquid::Data::Hash{{"price", 4}, {"handle", "alpha"}},
+            Liquid::Data::Hash{{"handle", "delta"}},
+            Liquid::Data::Hash{{"handle", "beta"}},
+        };
+        CHECK(result == Liquid::Data{expectation});
     }
     
     SECTION("Date") {
