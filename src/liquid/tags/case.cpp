@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CaseTag::CaseTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::CaseTag::CaseTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
 {
     Parser parser(markup);
@@ -20,9 +20,9 @@ void Liquid::CaseTag::parse(const Context& context, Tokenizer& tokenizer)
     }
 }
 
-QString Liquid::CaseTag::render(Context& context)
+Liquid::String Liquid::CaseTag::render(Context& context)
 {
-    QString output;
+    String output;
     bool executeElseBlock = true;
     const Data leftValue = left_.evaluate(context.data());
     for (auto& cond : conditions_) {
@@ -42,7 +42,7 @@ QString Liquid::CaseTag::render(Context& context)
     return output;
 }
 
-void Liquid::CaseTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
+void Liquid::CaseTag::handleUnknownTag(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)
 {
     if (tagName == "when") {
         BlockBody body;
@@ -51,9 +51,9 @@ void Liquid::CaseTag::handleUnknownTag(const QStringRef& tagName, const QStringR
         expressions.push_back(Expression::parse(parser));
         if (parser.look(Token::Type::Id)) {
             while (parser.look(Token::Type::Id)) {
-                const QStringRef orId = parser.consume();
+                const StringRef orId = parser.consume();
                 if (orId != "or") {
-                    throw QString("Expected \"or\" but found %1").arg(orId.toString()).toStdString();
+                    throw String("Expected \"or\" but found %1").arg(orId.toString()).toStdString();
                 }
                 expressions.push_back(Expression::parse(parser));
             }

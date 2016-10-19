@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::DecrementTag::DecrementTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::DecrementTag::DecrementTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
@@ -11,13 +11,13 @@ Liquid::DecrementTag::DecrementTag(const Context& context, const QStringRef& tag
     (void)parser.consume(Token::Type::EndOfString);
 }
 
-QString Liquid::DecrementTag::render(Context& context)
+Liquid::String Liquid::DecrementTag::render(Context& context)
 {
     Data::Hash& env = context.environments();
-    const QString name = to_.toString();
+    const String name = to_.toString();
     const int value = env[name].toInt() - 1;
     env[name] = value;
-    return QString::number(value);
+    return String(std::to_string(value));
 }
 
 

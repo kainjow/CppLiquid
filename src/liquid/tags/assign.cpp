@@ -1,9 +1,8 @@
 #include "assign.hpp"
 #include "context.hpp"
 #include "template.hpp"
-#include <QDebug>
 
-Liquid::AssignTag::AssignTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::AssignTag::AssignTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
@@ -12,7 +11,7 @@ Liquid::AssignTag::AssignTag(const Context& context, const QStringRef& tagName, 
     from_ = Variable(parser);
 }
     
-QString Liquid::AssignTag::render(Context& ctx)
+Liquid::String Liquid::AssignTag::render(Context& ctx)
 {
     Data& data = ctx.data();
     data.insert(to_.toString(), from_.evaluate(ctx));

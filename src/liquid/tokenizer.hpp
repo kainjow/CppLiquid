@@ -1,7 +1,7 @@
 #ifndef LIQUID_TOKENIZER_HPP
 #define LIQUID_TOKENIZER_HPP
 
-#include <QStringRef>
+#include "string.hpp"
 #include <vector>
 
 namespace Liquid {
@@ -14,7 +14,7 @@ namespace Liquid {
             Tag,
         };
 
-        Component(Type theType, const QStringRef& theText, const QStringRef& theInnerText)
+        Component(Type theType, const StringRef& theText, const StringRef& theInnerText)
             : type(theType)
             , text(theText)
             , innerText(theInnerText)
@@ -22,13 +22,13 @@ namespace Liquid {
         }
         
         Type type;
-        QStringRef text;
-        QStringRef innerText;
+        StringRef text;
+        StringRef innerText;
     };
     
     class Tokenizer {
     public:
-        Tokenizer(const QString& source)
+        Tokenizer(const String& source)
             : tokens_(tokenize(source))
             , pos_(0)
         {
@@ -47,7 +47,7 @@ namespace Liquid {
         const std::vector<Component> tokens_;
         size_t pos_;
 
-        std::vector<Component> tokenize(const QString& source) const;
+        std::vector<Component> tokenize(const String& source) const;
     };
 
 }

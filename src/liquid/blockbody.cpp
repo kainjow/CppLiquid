@@ -2,12 +2,11 @@
 #include "tokenizer.hpp"
 #include "stringscanner.hpp"
 #include "context.hpp"
-#include <QDebug>
 
-void Liquid::BlockBody::defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef&, Tokenizer&)
+void Liquid::BlockBody::defaultUnknownTagHandler(const StringRef& tagName, const StringRef&, Tokenizer&)
 {
-    if (!tagName.isNull()) {
-        throw QString("Unknown tag '%1'").arg(tagName.toString()).toStdString();
+    if (!tagName.isEmpty()) {
+        throw String("Unknown tag '%1'").arg(tagName.toString()).toStdString();
     }
 }
 
@@ -25,8 +24,8 @@ void Liquid::BlockBody::parse(const Context& context, Tokenizer& tokenizer, cons
                 break;
             case Component::Type::Tag: {
                 StringScanner ss(comp->innerText);
-                const QStringRef tagName = ss.scanIdentifier();
-                const QStringRef markup = comp->innerText.mid(ss.position());
+                const StringRef tagName = ss.scanIdentifier();
+                const StringRef markup = comp->innerText.mid(ss.position());
                 const auto tag = tags.find(tagName.toString());
                 if (tag != tags.end()) {
                     nodes_.push_back(tag->second(context, tagName, markup, tokenizer));
@@ -38,11 +37,11 @@ void Liquid::BlockBody::parse(const Context& context, Tokenizer& tokenizer, cons
             }
         }
     }
-    unknownTagHandler(QStringRef(), QStringRef(), tokenizer);
+    unknownTagHandler(StringRef(), StringRef(), tokenizer);
 }
 
-QString Liquid::BlockBody::render(Context& context) {
-    QString str;
+Liquid::String Liquid::BlockBody::render(Context& context) {
+    String str;
     for (const auto& node : nodes_) {
         str += node->render(context);
         if (context.haveInterrupt()) {

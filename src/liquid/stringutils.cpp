@@ -1,29 +1,32 @@
 #include "stringutils.hpp"
-#include <QDebug>
+#include <sstream>
+#include <iomanip>
 
-QStringRef Liquid::rtrim(const QStringRef& input)
+Liquid::StringRef Liquid::rtrim(const StringRef& input)
 {
     int len = input.size();
-    while (len > 0 && input.at(len - 1).isSpace()) {
+    while (len > 0 && isSpace(input.at(len - 1))) {
         --len;
     }
     return input.left(len);
 }
 
-QStringRef Liquid::ltrim(const QStringRef& input)
+Liquid::StringRef Liquid::ltrim(const StringRef& input)
 {
     int i;
     const int size = input.size();
-    for (i = 0; i < size && input.at(i).isSpace(); ++i) {
+    for (i = 0; i < size && isSpace(input.at(i)); ++i) {
     }
     return input.mid(i);
 }
 
-QString Liquid::doubleToString(double value, int precision)
+Liquid::String Liquid::doubleToString(double value, int precision)
 {
-    const QString str = QString::number(value, 'f', precision);
-    const QChar separator = '.';
-    if (str.indexOf(separator) != -1) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(precision) << value;
+    const String str = stream.str();
+    const String::value_type separator = '.';
+    if (str.indexOf(separator) != String::npos) {
         int offset = str.size() - 1;
         while (!str.isEmpty() && str.at(offset) == '0') {
             --offset;
@@ -42,7 +45,7 @@ QString Liquid::doubleToString(double value, int precision)
 #include "catch.hpp"
 
 namespace {
-    inline std::string tostd(const QStringRef& ref) {
+    inline std::string tostd(const Liquid::StringRef& ref) {
         return ref.toString().toStdString();
     }
 }
@@ -50,7 +53,7 @@ namespace {
 TEST_CASE("Liquid::StringUtils") {
     
     SECTION("rtrim") {
-        QString input;
+        Liquid::String input;
         input = "";
         CHECK(tostd(Liquid::rtrim(&input)) == "");
         input = "hello   ";
@@ -64,7 +67,7 @@ TEST_CASE("Liquid::StringUtils") {
     }
 
     SECTION("ltrim") {
-        QString input;
+        Liquid::String input;
         input = "";
         CHECK(tostd(Liquid::ltrim(&input)) == "");
         input = "hello   ";

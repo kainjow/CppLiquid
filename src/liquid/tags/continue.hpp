@@ -7,11 +7,11 @@ namespace Liquid {
     
     class ContinueTag : public TagNode {
     public:
-        ContinueTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+        ContinueTag(const Context& context, const StringRef& tagName, const StringRef& markup)
             : TagNode(context, tagName, markup)
         {}
         
-        virtual QString render(Context& ctx) override;
+        virtual String render(Context& ctx) override;
     };
 }
 

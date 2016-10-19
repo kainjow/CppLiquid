@@ -48,7 +48,7 @@ namespace Liquid {
         }
         
     protected:
-        virtual Data load(const QString& key) const override {
+        virtual Data load(const String& key) const override {
             if (key == "index") {
                 return index();
             } else if (key == "index0") {
@@ -78,7 +78,7 @@ namespace Liquid {
     
 }
 
-Liquid::ForTag::ForTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::ForTag::ForTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
     , range_(false)
 {
@@ -99,7 +99,7 @@ Liquid::ForTag::ForTag(const Context& context, const QStringRef& tagName, const 
     }
     reversed_ = parser.consumeId("reversed");
     while (parser.look(Token::Type::Id)) {
-        const QStringRef attr = parser.consume();
+        const StringRef attr = parser.consume();
         (void)parser.consume(Token::Type::Colon);
         const Expression value = Expression::parse(parser);
         if (attr == "offset") {
@@ -162,7 +162,7 @@ class ForLoop {
 public:
     using Item = std::function<Data(int i)>;
     
-    ForLoop(const Item& item, BlockBody& body, const QString& varName, int start, int end, const Data& limit, const Data& offset, bool reversed, const std::shared_ptr<ForloopDrop> parent)
+    ForLoop(const Item& item, BlockBody& body, const String& varName, int start, int end, const Data& limit, const Data& offset, bool reversed, const std::shared_ptr<ForloopDrop> parent)
         : item_(item)
         , body_(body)
         , varName_(varName)
@@ -179,8 +179,8 @@ public:
         return empty_;
     }
     
-    QString render(Context& context) const {
-        QString output;
+    String render(Context& context) const {
+        String output;
         Data& data = context.data();
         data.insert("forloop", Liquid::Data{drop_});
         ForHelper loop(start_, end_, reversed_);
@@ -206,7 +206,7 @@ public:
 private:
     const Item& item_;
     BlockBody& body_;
-    const QString varName_;
+    const String varName_;
     const int start_;
     const int end_;
     const int len_;
@@ -232,7 +232,7 @@ private:
 
 }
 
-QString Liquid::ForTag::render(Context& context)
+Liquid::String Liquid::ForTag::render(Context& context)
 {
     Data& data = context.data();
     int start;
@@ -253,7 +253,7 @@ QString Liquid::ForTag::render(Context& context)
         };
     }
     Data::Hash& registers = context.registers();
-    const QString name = tagName().toString();
+    const String name = tagName().toString();
     if (registers.find(name) == registers.end()) {
         registers[name] = Data::Array();
     }
@@ -274,7 +274,7 @@ QString Liquid::ForTag::render(Context& context)
     return loop.render(context);
 }
 
-void Liquid::ForTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
+void Liquid::ForTag::handleUnknownTag(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)
 {
     if (tagName != "else") {
         BlockTag::handleUnknownTag(tagName, markup, tokenizer);

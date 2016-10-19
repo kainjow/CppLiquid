@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <functional>
-#include <QString>
+#include "string.hpp"
 #include "node.hpp"
 
 namespace Liquid {
@@ -13,12 +13,12 @@ namespace Liquid {
 
     class BlockBody {
     public:
-        using UnknownTagHandler = std::function<void(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)>;
-        static void defaultUnknownTagHandler(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer);
+        using UnknownTagHandler = std::function<void(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)>;
+        static void defaultUnknownTagHandler(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer);
         
         void parse(const Context& context, Tokenizer& tokenizer, const UnknownTagHandler unknownTagHandler = defaultUnknownTagHandler);
         
-        QString render(Context& context);
+        String render(Context& context);
         
     private:
         std::vector<NodePtr> nodes_;

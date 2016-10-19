@@ -30,7 +30,6 @@ add_executable(${PROJECT_NAME}
   src/liquid/node.hpp
   src/liquid/parser.cpp
   src/liquid/parser.hpp
-  src/liquid/qstringhash.hpp
   src/liquid/standardfilters.cpp
   src/liquid/standardfilters.hpp
   src/liquid/stringscanner.cpp
@@ -70,10 +69,15 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/ifchanged.hpp
   src/liquid/tags/increment.cpp
   src/liquid/tags/increment.hpp
+  src/liquid/string.hpp
+  src/liquid/string_std.hpp
+  src/liquid/string_std.cpp
+  src/liquid/string_qt.hpp
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   TESTS
+  LIQUID_STRING_USE_STD
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

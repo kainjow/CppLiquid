@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::IfTag::IfTag(bool unless, const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::IfTag::IfTag(bool unless, const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
     , if_(!unless)
 {
@@ -12,7 +12,7 @@ Liquid::IfTag::IfTag(bool unless, const Context& context, const QStringRef& tagN
     parseTag(markup);
 }
 
-void Liquid::IfTag::parseTag(const QStringRef& markup)
+void Liquid::IfTag::parseTag(const StringRef& markup)
 {
     Parser parser(markup);
     blocks_.back().cond = parseLogicalCondition(parser);
@@ -44,7 +44,7 @@ Liquid::Condition Liquid::IfTag::parseCondition(Parser& parser)
 {
     const Expression a = Expression::parse(parser);
     if (parser.look(Token::Type::Comparison)) {
-        const QStringRef opStr = parser.consume();
+        const StringRef opStr = parser.consume();
         const Expression b = Expression::parse(parser);
         Condition::Operator op = Condition::Operator::None;
         if (opStr == "==") {
@@ -67,7 +67,7 @@ Liquid::Condition Liquid::IfTag::parseCondition(Parser& parser)
     return Condition(a);
 }
 
-QString Liquid::IfTag::render(Context& context)
+Liquid::String Liquid::IfTag::render(Context& context)
 {
     for (auto& block : blocks_) {
         const bool result = block.cond.evaluate(context);
@@ -78,7 +78,7 @@ QString Liquid::IfTag::render(Context& context)
     return "";
 }
 
-void Liquid::IfTag::handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)
+void Liquid::IfTag::handleUnknownTag(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)
 {
     if (tagName == "elsif") {
         IfBlock block;
@@ -127,7 +127,7 @@ bool Liquid::Condition::evaluate(Context& context)
             } else if (v1.isHash()) {
                 result = v1.hash().find(v2.toString()) != v1.hash().end();
             } else if (v1.isString()) {
-                result = v1.toString().indexOf(v2.toString()) != -1;
+                result = v1.toString().indexOf(v2.toString()) != String::npos;
             } else {
                 result = false;
             }

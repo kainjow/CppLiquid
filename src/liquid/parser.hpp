@@ -2,29 +2,28 @@
 #define LIQUID_PARSER_HPP
 
 #include "lexer.hpp"
-#include <QDebug>
 
 namespace Liquid {
 
     class Parser {
     public:
-        Parser(const QStringRef& input);
+        Parser(const StringRef& input);
         
         void jump(size_t position) {
             pos_ = position;
         }
         
-        QStringRef consume() {
+        StringRef consume() {
             return consume(nullptr);
         }
         
-        QStringRef consume(Token::Type type) {
+        StringRef consume(Token::Type type) {
             return consume(&type);
         }
         
-        bool consume(Token::Type type, QStringRef& value);
+        bool consume(Token::Type type, StringRef& value);
         
-        bool consumeId(const QString& name);
+        bool consumeId(const String& name);
         
         bool look(Token::Type type, size_t ahead = 0);
 
@@ -33,7 +32,7 @@ namespace Liquid {
         size_t pos_;
 
         const Token& tokenAt(size_t position) const;
-        QStringRef consume(const Token::Type* type);
+        StringRef consume(const Token::Type* type);
     };
 
 }

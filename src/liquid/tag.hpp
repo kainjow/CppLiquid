@@ -2,7 +2,6 @@
 #define LIQUID_TAG_HPP
 
 #include <functional>
-#include "qstringhash.hpp"
 #include "node.hpp"
 
 namespace Liquid {
@@ -10,8 +9,8 @@ namespace Liquid {
     class Context;
     class Tokenizer;
     
-    using TagHandler = std::function<NodePtr(const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer)>;
-    using TagHash = std::unordered_map<QString, TagHandler, QStringHash>;
+    using TagHandler = std::function<NodePtr(const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)>;
+    using TagHash = StringKeyUnorderedMap<TagHandler>;
     
 }
 

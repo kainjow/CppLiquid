@@ -1,13 +1,18 @@
 #ifndef LIQUID_STRINGUTILS_HPP
 #define LIQUID_STRINGUTILS_HPP
 
-#include <QStringRef>
+#include "string.hpp"
 
 namespace Liquid {
 
-    QStringRef rtrim(const QStringRef& input);
-    QStringRef ltrim(const QStringRef& input);
-    QString doubleToString(double value, int precision = 6);
+    StringRef rtrim(const StringRef& input);
+    StringRef ltrim(const StringRef& input);
+    String doubleToString(double value, int precision = 6);
+    
+    template <typename T>
+    bool isSpace(const T ch) {
+        return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+    }
 
 }
 

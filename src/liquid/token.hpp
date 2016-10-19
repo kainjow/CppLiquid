@@ -1,8 +1,7 @@
 #ifndef LIQUID_TOKEN_HPP
 #define LIQUID_TOKEN_HPP
 
-#include <QDebug>
-#include <QStringRef>
+#include "string.hpp"
 
 namespace Liquid {
 
@@ -31,7 +30,7 @@ namespace Liquid {
             EndOfString,
         };
         
-        static QString typeToString(Type type) {
+        static String typeToString(Type type) {
             switch (type) {
                 case Type::Invalid: return "Invalid";
                 case Type::Pipe: return "Pipe";
@@ -61,7 +60,7 @@ namespace Liquid {
         {
         }
         
-        Token(Type type, const QStringRef& value)
+        Token(Type type, const StringRef& value)
             : type_(type)
             , value_(value)
         {
@@ -71,7 +70,7 @@ namespace Liquid {
             return type_;
         }
         
-        const QStringRef& value() const {
+        const StringRef& value() const {
             return value_;
         }
         
@@ -81,7 +80,7 @@ namespace Liquid {
         
     private:
         Type type_;
-        QStringRef value_;
+        StringRef value_;
     };
     
     const extern Token kTokenInvalid;

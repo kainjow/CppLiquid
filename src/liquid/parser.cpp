@@ -1,7 +1,6 @@
 #include "parser.hpp"
-#include <QDebug>
 
-Liquid::Parser::Parser(const QStringRef& input)
+Liquid::Parser::Parser(const StringRef& input)
     : tokens_(Lexer::tokenize(input))
     , pos_(0)
 {
@@ -16,17 +15,17 @@ const Liquid::Token& Liquid::Parser::tokenAt(size_t position) const
 }
 
 
-QStringRef Liquid::Parser::consume(const Token::Type* type)
+Liquid::StringRef Liquid::Parser::consume(const Token::Type* type)
 {
     const Token& token = tokenAt(pos_);
     if (type && token.type() != *type) {
-        throw QString("Expected %1 but found %2").arg(Token::typeToString(*type)).arg(Token::typeToString(token.type())).toStdString();
+        throw String("Expected %1 but found %2").arg(Token::typeToString(*type)).arg(Token::typeToString(token.type())).toStdString();
     }
     ++pos_;
     return token.value();
 }
 
-bool Liquid::Parser::consume(Token::Type type, QStringRef& value)
+bool Liquid::Parser::consume(Token::Type type, StringRef& value)
 {
     const Token& token = tokenAt(pos_);
     if (!token.isValid() || token.type() != type) {
@@ -37,7 +36,7 @@ bool Liquid::Parser::consume(Token::Type type, QStringRef& value)
     return true;
 }
 
-bool Liquid::Parser::consumeId(const QString& name)
+bool Liquid::Parser::consumeId(const String& name)
 {
     const Token& token = tokenAt(pos_);
     if (!token.isValid() || token.type() != Token::Type::Id || token.value() != name) {
@@ -65,33 +64,33 @@ bool Liquid::Parser::look(Token::Type type, size_t ahead)
 TEST_CASE("Liquid::Parser") {
 
     SECTION("Consume1") {
-        QString input = "Hello World";
+        Liquid::String input = "Hello World";
         Liquid::Parser p(&input);
         CHECK(p.consume() == "Hello");
         CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), std::string);
         CHECK(p.consume(Liquid::Token::Type::Id) == "World");
-        CHECK(p.consume(Liquid::Token::Type::EndOfString).isNull());
+        CHECK(p.consume(Liquid::Token::Type::EndOfString).isEmpty());
     }
 
     SECTION("Consume2") {
-        QString input = "Hello World";
+        Liquid::String input = "Hello World";
         Liquid::Parser p(&input);
-        QString errmsg;
-        QStringRef value;
+        Liquid::String errmsg;
+        Liquid::StringRef value;
         CHECK(p.consume(Liquid::Token::Type::Id, value));
-        REQUIRE_FALSE(value.isNull());
+        REQUIRE_FALSE(value.isEmpty());
         CHECK(value.toString() == "Hello");
         CHECK(p.consume(Liquid::Token::Type::Id, value));
-        REQUIRE_FALSE(value.isNull());
+        REQUIRE_FALSE(value.isEmpty());
         CHECK(value.toString() == "World");
         CHECK(p.consume(Liquid::Token::Type::EndOfString, value));
     }
 
     SECTION("Look") {
-        QString input = "Hello World";
+        Liquid::String input = "Hello World";
         Liquid::Parser p(&input);
-        QString errmsg;
-        QStringRef value;
+        Liquid::String errmsg;
+        Liquid::StringRef value;
         CHECK(p.look(Liquid::Token::Type::Id));
         CHECK(p.look(Liquid::Token::Type::Id, 1));
         CHECK(p.look(Liquid::Token::Type::EndOfString, 2));
@@ -101,15 +100,15 @@ TEST_CASE("Liquid::Parser") {
     }
 
     SECTION("ConsumeEmptyString") {
-        QString input = "\"Hello\"";
+        Liquid::String input = "\"Hello\"";
         Liquid::Parser p1(&input);
         CHECK(p1.consume(Liquid::Token::Type::String) == "Hello");
-        CHECK(p1.consume(Liquid::Token::Type::EndOfString).isNull());
+        CHECK(p1.consume(Liquid::Token::Type::EndOfString).isEmpty());
 
         input = "'Hello'";
         Liquid::Parser p2(&input);
         CHECK(p2.consume(Liquid::Token::Type::String) == "Hello");
-        CHECK(p2.consume(Liquid::Token::Type::EndOfString).isNull());
+        CHECK(p2.consume(Liquid::Token::Type::EndOfString).isEmpty());
 }
 }
 

@@ -3,14 +3,14 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::IfchangedTag::IfchangedTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::IfchangedTag::IfchangedTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
 {
 }
 
-QString Liquid::IfchangedTag::render(Context& context)
+Liquid::String Liquid::IfchangedTag::render(Context& context)
 {
-    const QString output = BlockTag::render(context);
+    const String output = BlockTag::render(context);
     Data::Hash& registers = context.registers();
     const Data& current = registers["ifchanged"];
     if (current.toString() != output) {

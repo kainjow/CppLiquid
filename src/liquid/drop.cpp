@@ -1,7 +1,7 @@
 #include "drop.hpp"
 #include "data.hpp"
 
-const Liquid::Data& Liquid::Drop::operator[](const QString& key) const
+const Liquid::Data& Liquid::Drop::operator[](const String& key) const
 {
     const Data val = load(key);
     const auto it = storage_.find(key);
@@ -19,7 +19,7 @@ bool Liquid::Drop::operator==(const Drop& other) const
     return storage_ == other.storage_;
 }
 
-Liquid::Data Liquid::Drop::load(const QString&) const
+Liquid::Data Liquid::Drop::load(const String&) const
 {
     return kNilData;
 }
@@ -29,7 +29,7 @@ Liquid::DropHandler::DropHandler(const Loader& loader)
 {
 }
 
-Liquid::Data Liquid::DropHandler::load(const QString& key) const
+Liquid::Data Liquid::DropHandler::load(const String& key) const
 {
     return loader_(key);
 }

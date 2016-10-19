@@ -8,13 +8,13 @@ namespace Liquid {
     
     class CycleTag : public TagNode {
     public:
-        CycleTag(const Context& context, const QStringRef& tagName, const QStringRef& markup);
+        CycleTag(const Context& context, const StringRef& tagName, const StringRef& markup);
         
-        virtual QString render(Context& context) override;
+        virtual String render(Context& context) override;
         
     private:
         Expression nameExpression_;
-        QString nameString_;
+        String nameString_;
         std::vector<Expression> expressions_;
         bool nameIsExpression_;
     };

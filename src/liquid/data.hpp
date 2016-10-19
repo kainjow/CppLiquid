@@ -1,11 +1,9 @@
 #ifndef LIQUID_DATA_HPP
 #define LIQUID_DATA_HPP
 
-#include <QDebug>
 #include <memory>
 #include <vector>
 #include "stringutils.hpp"
-#include "qstringhash.hpp"
 #include "drop.hpp"
 
 namespace Liquid {
@@ -30,7 +28,7 @@ namespace Liquid {
             Drop,
         };
         
-        using Hash = std::unordered_map<QString, Data, QStringHash>;
+        using Hash = StringKeyUnorderedMap<Data>;
         using Array = std::vector<Data>;
         
         Data()
@@ -175,13 +173,13 @@ namespace Liquid {
         {
         }
 
-        Data(const QString& string)
+        Data(const String& string)
             : type_(Type::String)
             , string_(string)
         {
         }
         
-        Data(const char *string) : Data(QString(string)) {}
+        Data(const char *string) : Data(String(string)) {}
 
         Data(int value)
             : type_(Type::NumberInt)
@@ -246,14 +244,14 @@ namespace Liquid {
             return type_ == Type::Drop;
         }
         
-        QString toString() const {
+        String toString() const {
             switch (type_) {
                 case Type::BooleanTrue:
                     return "true";
                 case Type::BooleanFalse:
                     return "false";
                 case Type::NumberInt:
-                    return QString::number(number_.i);
+                    return String(std::to_string(number_.i));
                 case Type::NumberFloat:
                     return doubleToString(number_.f);
                 default:
@@ -353,14 +351,14 @@ namespace Liquid {
             return hash_;
         }
 
-        void insert(const QString& key, const Data& value) {
+        void insert(const String& key, const Data& value) {
             if (!isHash()) {
                 throw std::string("insert() requires a hash");
             }
             hash_[key] = value;
         }
         
-        const Data& operator[](const QString& key) const {
+        const Data& operator[](const String& key) const {
             if (isHash()) {
                 const auto it = hash_.find(key);
                 if (it == hash_.end()) {
@@ -374,7 +372,7 @@ namespace Liquid {
             }
         }
         
-        bool containsKey(const QString& key) const {
+        bool containsKey(const String& key) const {
             if (!isHash()) {
                 throw std::string("containsKey requires a hash");
             }
@@ -392,7 +390,7 @@ namespace Liquid {
         Type type_;
         Hash hash_;
         Array array_;
-        QString string_;
+        String string_;
         std::shared_ptr<Drop> drop_;
         union {
             int i;

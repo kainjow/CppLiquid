@@ -1,6 +1,5 @@
 #include "expression.hpp"
 #include "standardfilters.hpp"
-#include <QDebug>
 
 Liquid::Expression Liquid::Expression::parse(Parser& parser)
 {
@@ -16,7 +15,7 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
     
     Expression exp(Type::Lookup);
     for (;;) {
-        const QStringRef key = parser.consume(Token::Type::Id);
+        const StringRef key = parser.consume(Token::Type::Id);
         Expression sub(Type::LookupKey);
         sub.setKey(key.toString());
         if (key == "size") {
@@ -46,7 +45,7 @@ Liquid::Expression Liquid::Expression::parse(Parser& parser)
     
     // Literals
     if (exp.lookups().size() == 1 && exp.lookups()[0].isLookupKey()) {
-        const QString& key = exp.lookups()[0].key();
+        const String& key = exp.lookups()[0].key();
         if (key == "nil" || key == "null") {
             return Type::Nil;
         } else if (key == "true") {
@@ -119,12 +118,12 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
     } else if (isBoolean()) {
         return toBool() ? kTrueData : kFalseData;
     } else {
-        throw QString("Can't evaluate expression %1").arg(typeString()).toStdString();
+        throw String("Can't evaluate expression %1").arg(typeString()).toStdString();
     }
     return kNilData;
 }
 
-QString Liquid::Expression::stringDescription() const
+Liquid::String Liquid::Expression::stringDescription() const
 {
     switch (type_) {
         case Type::Nil:
@@ -136,7 +135,7 @@ QString Liquid::Expression::stringDescription() const
         case Type::BooleanFalse:
             return toString();
         case Type::Lookup: {
-            QString ret;
+            String ret;
             for (const auto &lookup : lookups_) {
                 ret += lookup.stringDescription();
             }
@@ -145,9 +144,9 @@ QString Liquid::Expression::stringDescription() const
         case Type::LookupKey:
             return key();
         case Type::LookupBracketKey:
-            return "[" + (lookups_.empty() ? "" : lookups_[0].stringDescription()) + "]";
+            return String("[") + (lookups_.empty() ? "" : lookups_[0].stringDescription()) + String("]");
         default:
-            throw QString("Unimplemented stringDescription for type %1").arg(typeString()).toStdString();
+            throw String("Unimplemented stringDescription for type %1").arg(typeString()).toStdString();
             return "";
     };
 }
@@ -211,7 +210,7 @@ TEST_CASE("Liquid::Expression") {
     }
     
     SECTION("Parse") {
-        QString input = "true";
+        Liquid::String input = "true";
         Liquid::Expression exp = Liquid::Expression::parse(&input);
         CHECK(exp.toBool());
         input = "false";
@@ -266,7 +265,7 @@ TEST_CASE("Liquid::Expression") {
     }
     
     SECTION("LookupKey") {
-        QString input = "name";
+        Liquid::String input = "name";
         Liquid::Expression exp = Liquid::Expression::parse(&input);
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 1);
@@ -275,7 +274,7 @@ TEST_CASE("Liquid::Expression") {
     }
 
     SECTION("MultipleLookupKey") {
-        QString input = "first.second.third.fourth.fifth";
+        Liquid::String input = "first.second.third.fourth.fifth";
         Liquid::Expression exp = Liquid::Expression::parse(&input);
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 5);

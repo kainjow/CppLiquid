@@ -11,16 +11,16 @@ namespace Liquid {
     public:
         Template();
         
-        Template& parse(const QString& source);
+        Template& parse(const String& source);
         
-        QString render();
-        QString render(Data& data);
+        String render();
+        String render(Data& data);
         
         void registerFilter(const std::string& name, const FilterHandler& filter);
         
     private:
         BlockBody root_;
-        QString source_;
+        String source_;
         FilterList filters_;
         TagHash tags_;
     };

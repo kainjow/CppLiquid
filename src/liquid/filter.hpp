@@ -12,13 +12,13 @@ namespace Liquid {
 
     class Filter {
     public:
-        Filter(const QStringRef& name, const std::vector<Expression>& args)
+        Filter(const StringRef& name, const std::vector<Expression>& args)
             : name_(name)
             , args_(args)
         {
         }
         
-        const QStringRef& name() const {
+        const StringRef& name() const {
             return name_;
         }
         
@@ -27,7 +27,7 @@ namespace Liquid {
         }
         
     private:
-        const QStringRef name_;
+        const StringRef name_;
         std::vector<Expression> args_;
     };
     

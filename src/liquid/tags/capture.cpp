@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CaptureTag::CaptureTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::CaptureTag::CaptureTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
 {
     Parser parser(markup);
@@ -11,9 +11,9 @@ Liquid::CaptureTag::CaptureTag(const Context& context, const QStringRef& tagName
     (void)parser.consume(Token::Type::EndOfString);
 }
 
-QString Liquid::CaptureTag::render(Context& context)
+Liquid::String Liquid::CaptureTag::render(Context& context)
 {
-    const QString output = BlockTag::render(context);
+    const String output = BlockTag::render(context);
     context.data().insert(to_.toString(), output);
     return "";
 }

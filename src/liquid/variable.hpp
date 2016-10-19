@@ -1,7 +1,7 @@
 #ifndef LIQUID_VARIABLE_HPP
 #define LIQUID_VARIABLE_HPP
 
-#include <QStringRef>
+#include "string.hpp"
 #include "expression.hpp"
 #include "filter.hpp"
 #include "data.hpp"
@@ -14,7 +14,7 @@ namespace Liquid {
     class Variable {
     public:
         Variable() {}
-        Variable(const QStringRef& input);
+        Variable(const StringRef& input);
         Variable(Parser& parser);
         
         const Data& evaluate(const Context& context) const;

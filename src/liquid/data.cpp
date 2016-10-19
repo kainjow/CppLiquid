@@ -1,5 +1,4 @@
 #include "data.hpp"
-#include <QDebug>
 
 const Liquid::Data Liquid::kNilData{Data::Type::Nil};
 const Liquid::Data Liquid::kTrueData{Data::Type::BooleanTrue};

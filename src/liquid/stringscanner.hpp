@@ -1,81 +1,78 @@
 #ifndef LIQUID_STRINGSCANNER_HPP
 #define LIQUID_STRINGSCANNER_HPP
 
-#include <QDebug>
-#include <QStringRef>
+#include "string.hpp"
+#include "stringutils.hpp"
 
 namespace Liquid {
 
     class StringScanner {
     public:
-        StringScanner(const QStringRef& input, int pos = 0)
+        StringScanner(const StringRef& input, int pos = 0)
             : input_(input)
             , pos_(pos)
         {
         }
         
         bool skipWhitespace() {
-            const int size = input_.size();
+            const auto size = input_.size();
             bool skipped = false;
-            while (pos_ < size && input_.at(pos_).isSpace()) {
+            while (pos_ < size && isSpace(input_.at(pos_))) {
                 ++pos_;
                 skipped = true;
             }
             return skipped;
         }
         
-        QStringRef scanStringLiteral() {
-            const int size = input_.size();
+        StringRef scanStringLiteral() {
+            const auto size = input_.size();
             if (pos_ >= size) {
-                return QStringRef();
+                return StringRef();
             }
-            const QChar first = input_.at(pos_);
+            const auto first = input_.at(pos_);
             if (first != '\"' && first != '\'') {
-                return QStringRef();
+                return StringRef();
             }
             const int startPos = pos_ + 1;
-            int pos = startPos;
+            StringRef::size_type pos = startPos;
             int count = 0;
             for (; pos < size; ++pos) {
                 if (input_.at(pos) == first) {
-                    const QStringRef str = input_.mid(startPos, count);
+                    const StringRef str = input_.mid(startPos, count);
                     pos_ += count + 2;
                     return str;
                 }
                 ++count;
             }
-            return QStringRef();
+            return StringRef();
         }
         
-        QStringRef scanIdentifier() {
+        StringRef scanIdentifier() {
             int count = 0;
             const int size = input_.size();
-            const auto isLetter = [](const ushort ch) {
-                return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
-            };
             for (int i = pos_; i < size; ++i, ++count) {
-                const ushort ch = input_.at(i).unicode();
+                const auto ch = input_.at(i);
                 if (count == 0) {
                     if (!(isLetter(ch) || ch == '_')) {
-                        return QStringRef();
+                        return StringRef();
                     }
                 } else if (!(isLetter(ch) || isDigit(ch) || ch == '_' || ch == '-')) {
                     break;
                 }
             }
-            const QStringRef result = input_.mid(pos_, count);
+            const StringRef result = input_.mid(pos_, count);
             pos_ += count;
             return result;
         }
         
-        QStringRef peekInt() {
+        StringRef peekInt() {
             int count = 0;
             const int size = input_.size();
             for (int i = pos_ ; i < size; ++i, ++count) {
-                const ushort ch = input_.at(i).unicode();
+                const auto ch = input_.at(i);
                 if (count == 0) {
-                    if (!(isDigit(ch) || (ch == '-' && i < (size - 1) && isDigit(input_.at(i + 1).unicode())))) {
-                        return QStringRef();
+                    if (!(isDigit(ch) || (ch == '-' && i < (size - 1) && isDigit(input_.at(i + 1))))) {
+                        return StringRef();
                     }
                 } else if (!isDigit(ch)) {
                     break;
@@ -84,39 +81,39 @@ namespace Liquid {
             return input_.mid(pos_, count);
         }
 
-        QStringRef scanInt() {
-            const QStringRef intStr = peekInt();
-            if (!intStr.isNull()) {
+        StringRef scanInt() {
+            const StringRef intStr = peekInt();
+            if (!intStr.isEmpty()) {
                 pos_ += intStr.size();
             }
             return intStr;
         }
 
-        QStringRef scanFloat() {
-            const QStringRef intStr = peekInt();
-            if (intStr.isNull()) {
+        StringRef scanFloat() {
+            const StringRef intStr = peekInt();
+            if (intStr.isEmpty()) {
                 return intStr;
             }
             const int size = input_.size();
             int count = intStr.size();
             int pos = pos_ + count;
-            if (pos > (size - 1) || input_.at(pos).unicode() != '.') {
-                return QStringRef();
+            if (pos > (size - 1) || input_.at(pos) != '.') {
+                return StringRef();
             }
             ++pos;
             ++count;
             for (int i = pos ; i < size; ++i, ++count) {
-                const ushort ch = input_.at(i).unicode();
+                const auto ch = input_.at(i);
                 if (!isDigit(ch)) {
                     break;
                 }
             }
-            const QStringRef result = input_.mid(pos_, count);
+            const StringRef result = input_.mid(pos_, count);
             pos_ += count;
             return result;
         }
         
-        bool scanUpTo(const QString& string) {
+        bool scanUpTo(const String& string) {
             const int index = input_.indexOf(string, pos_);
             if (index == -1) {
                 return false;
@@ -125,8 +122,8 @@ namespace Liquid {
             return true;
         }
         
-        bool scanString(const QString& string, QStringRef* result = nullptr) {
-            const QStringRef mid = input_.mid(pos_, string.size());
+        bool scanString(const String& string, StringRef* result = nullptr) {
+            const StringRef mid = input_.mid(pos_, string.size());
             if (mid == string) {
                 pos_ += string.size();
                 if (result) {
@@ -141,16 +138,16 @@ namespace Liquid {
             return pos_ >= input_.size();
         }
         
-        QStringRef getch() {
-            const QStringRef str = input_.mid(pos_, 1);
+        StringRef getch() {
+            const StringRef str = input_.mid(pos_, 1);
             ++pos_;
             return str;
         }
         
-        QStringRef peekch(int distance = 0) {
-            const int pos = pos_ + distance;
+        StringRef peekch(int distance = 0) {
+            const auto pos = pos_ + distance;
             if (pos >= input_.size()) {
-                return QStringRef();
+                return StringRef();
             }
             return input_.mid(pos, 1);
         }
@@ -168,12 +165,19 @@ namespace Liquid {
         }
         
     private:
-        const QStringRef& input_;
-        int pos_;
+        const StringRef& input_;
+        StringRef::size_type pos_;
         
-        bool isDigit(const ushort ch) const {
+        template <typename T>
+        bool isDigit(const T ch) const {
             return ch >= '0' && ch <= '9';
         };
+        
+        template <typename T>
+        bool isLetter(const T ch) const {
+            return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+        };
+
     };
 
 }

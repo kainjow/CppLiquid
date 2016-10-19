@@ -66,13 +66,13 @@ namespace Liquid {
         {
         }
         
-        Expression(const QString& string)
+        Expression(const String& string)
             : type_(Type::String)
             , var_(string)
         {
         }
         
-        Expression(const char *string) : Expression(QString(string)) {}
+        Expression(const char *string) : Expression(String(string)) {}
 
         Expression(int value)
             : type_(Type::NumberInt)
@@ -95,7 +95,7 @@ namespace Liquid {
             return type_;
         }
         
-        QString typeString() const {
+        String typeString() const {
             switch (type_) {
                 case Type::Nil: return "Nil";
                 case Type::String: return "String";
@@ -107,7 +107,7 @@ namespace Liquid {
                 case Type::LookupKey: return "LookupKey";
                 case Type::LookupBracketKey: return "LookupBracketKey";
                 default:
-                    throw QString("Unimplemented typeString for type %1").arg(static_cast<int>(type_)).toStdString();
+                    throw String("Unimplemented typeString for type %1").arg(static_cast<int>(type_)).toStdString();
                     return "";
             }
         }
@@ -148,7 +148,7 @@ namespace Liquid {
             return type_ == Type::LookupBracketKey;
         }
         
-        QString toString() const {
+        String toString() const {
             return var_.toString();
         }
         
@@ -164,11 +164,11 @@ namespace Liquid {
             return var_.toFloat();
         }
         
-        void setKey(const QString& key) {
+        void setKey(const String& key) {
             var_ = key;
         }
         
-        QString key() const {
+        String key() const {
             return var_.toString();
         }
         
@@ -188,7 +188,7 @@ namespace Liquid {
             return filter_;
         }
         
-        static Expression parse(const QStringRef& input) {
+        static Expression parse(const StringRef& input) {
             Parser parser(input);
             return parse(parser);
         }
@@ -197,7 +197,7 @@ namespace Liquid {
         
         const Data& evaluate(const Data& data) const;
         
-        QString stringDescription() const;
+        String stringDescription() const;
         
     private:
         Type type_;

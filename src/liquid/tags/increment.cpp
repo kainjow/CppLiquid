@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::IncrementTag::IncrementTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::IncrementTag::IncrementTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
@@ -11,13 +11,13 @@ Liquid::IncrementTag::IncrementTag(const Context& context, const QStringRef& tag
     (void)parser.consume(Token::Type::EndOfString);
 }
 
-QString Liquid::IncrementTag::render(Context& context)
+Liquid::String Liquid::IncrementTag::render(Context& context)
 {
     Data::Hash& env = context.environments();
-    const QString name = to_.toString();
+    const String name = to_.toString();
     const int value = env[name].toInt();
     env[name] = value + 1;
-    return QString::number(value);
+    return String(std::to_string(value));
 }
 
 

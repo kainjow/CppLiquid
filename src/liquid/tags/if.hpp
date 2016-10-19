@@ -70,17 +70,17 @@ namespace Liquid {
     
     class IfTag : public BlockTag {
     public:
-        IfTag(bool unless, const Context& context, const QStringRef& tagName, const QStringRef& markup);
+        IfTag(bool unless, const Context& context, const StringRef& tagName, const StringRef& markup);
         
         virtual void parse(const Context& context, Tokenizer& tokenizer) override;
         
-        virtual QString render(Context& context) override;
+        virtual String render(Context& context) override;
         
     protected:
-        virtual void handleUnknownTag(const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) override;
+        virtual void handleUnknownTag(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) override;
 
     private:
-        void parseTag(const QStringRef& markup);
+        void parseTag(const StringRef& markup);
         Condition parseLogicalCondition(Parser& parser);
         Condition parseCondition(Parser& parser);
         

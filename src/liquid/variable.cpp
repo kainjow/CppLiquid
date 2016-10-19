@@ -1,8 +1,7 @@
 #include "variable.hpp"
 #include "context.hpp"
-#include <QDebug>
 
-Liquid::Variable::Variable(const QStringRef& input)
+Liquid::Variable::Variable(const StringRef& input)
 {
     Parser parser(input);
     parse(parser);
@@ -19,7 +18,7 @@ void Liquid::Variable::parse(Parser& parser)
     
     while (parser.look(Token::Type::Pipe)) {
         (void)parser.consume();
-        const QStringRef name = parser.consume(Token::Type::Id);
+        const StringRef name = parser.consume(Token::Type::Id);
         std::vector<Expression> args;
         if (parser.look(Token::Type::Colon)) {
             (void)parser.consume();
@@ -50,7 +49,7 @@ const Liquid::Data& Liquid::Variable::evaluate(const Context& context) const
         }
         const auto filterIter = context.filters().find(filter.name().toString().toStdString());
         if (filterIter == context.filters().end()) {
-            throw QString("Unknown filter %1").arg(filter.name().toString()).toStdString();
+            throw String("Unknown filter %1").arg(filter.name().toString()).toStdString();
         }
         value = filterIter->second(value, evaluatedArgs);
     }

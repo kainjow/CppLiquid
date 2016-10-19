@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 
-Liquid::CycleTag::CycleTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+Liquid::CycleTag::CycleTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : TagNode(context, tagName, markup)
 {
     Parser parser(markup);
@@ -29,20 +29,20 @@ Liquid::CycleTag::CycleTag(const Context& context, const QStringRef& tagName, co
     }
 }
 
-QString Liquid::CycleTag::render(Context& context)
+Liquid::String Liquid::CycleTag::render(Context& context)
 {
     Data::Hash& registers = context.registers();
-    const QString name = tagName().toString();
+    const String name = tagName().toString();
     if (registers.find(name) == registers.end()) {
         registers[name] = Data::Hash();
     }
     int iteration = 0;
     Data& reg = registers[name];
-    const QString lookupKey = nameIsExpression_ ? nameExpression_.evaluate(context.data()).toString() : nameString_;
+    const String lookupKey = nameIsExpression_ ? nameExpression_.evaluate(context.data()).toString() : nameString_;
     if (reg.containsKey(lookupKey)) {
         iteration = reg[lookupKey].toInt();
     }
-    const QString result = expressions_[iteration].evaluate(context.data()).toString();
+    const String result = expressions_[iteration].evaluate(context.data()).toString();
     ++iteration;
     if (iteration >= static_cast<int>(expressions_.size())) {
         iteration = 0;

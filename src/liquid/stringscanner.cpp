@@ -1,5 +1,4 @@
 #include "stringscanner.hpp"
-#include <QDebug>
 
 
 
@@ -9,7 +8,7 @@
 
 TEST_CASE("Liquid::StringScanner") {
 
-    QString input = "Hello World";
+    Liquid::String input = "Hello World";
     Liquid::StringScanner ss(&input);
     CHECK_FALSE(ss.eof());
     CHECK(ss.scanIdentifier() == "Hello");

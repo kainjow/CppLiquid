@@ -1,14 +1,13 @@
 #include "node.hpp"
 #include "context.hpp"
-#include <QDebug>
 
-Liquid::TextNode::TextNode(const Context& context, const QStringRef& text)
+Liquid::TextNode::TextNode(const Context& context, const StringRef& text)
     : Node(context)
     , text_(text)
 {
 }
     
-QString Liquid::TextNode::render(Context&)
+Liquid::String Liquid::TextNode::render(Context&)
 {
     return text_.toString();
 }
@@ -19,12 +18,12 @@ Liquid::ObjectNode::ObjectNode(const Context& context, const Variable& var)
 {
 }
     
-QString Liquid::ObjectNode::render(Context& context)
+Liquid::String Liquid::ObjectNode::render(Context& context)
 {
     return var_.evaluate(context).toString();
 }
 
-QString Liquid::TagNode::render(Context&)
+Liquid::String Liquid::TagNode::render(Context&)
 {
     return "";
 }

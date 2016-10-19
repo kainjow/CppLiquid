@@ -2,8 +2,9 @@
 #include "stringscanner.hpp"
 #include "stringutils.hpp"
 #include "template.hpp"
-#include <QDebug>
 #include <ctime>
+#include <sstream>
+#include <iomanip>
 
 namespace Liquid { namespace StandardFilters {
 
@@ -19,7 +20,7 @@ Data append(const Data& input, const std::vector<Data>& args)
 Data prepend(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("prepend only takes one argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("prepend only takes one argument, but was passed %1.").arg(args.size()).toStdString();
     }
     return args[0].toString() + input.toString();
 }
@@ -27,7 +28,7 @@ Data prepend(const Data& input, const std::vector<Data>& args)
 Data downcase(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("downcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("downcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().toLower();
 }
@@ -35,7 +36,7 @@ Data downcase(const Data& input, const std::vector<Data>& args)
 Data upcase(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("upcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("upcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().toUpper();
 }
@@ -43,16 +44,16 @@ Data upcase(const Data& input, const std::vector<Data>& args)
 Data capitalize(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("capitalize doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("capitalize doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    const QString str = input.toString();
+    const String str = input.toString();
     return str.left(1).toUpper() + str.mid(1);
 }
 
 Data strip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("strip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("strip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().trimmed();
 }
@@ -60,25 +61,25 @@ Data strip(const Data& input, const std::vector<Data>& args)
 Data rstrip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    const QString str = input.toString();
+    const String str = input.toString();
     return rtrim(&str).toString();
 }
 
 Data lstrip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    const QString str = input.toString();
+    const String str = input.toString();
     return ltrim(&str).toString();
 }
 
 Data strip_newlines(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().replace("\n", "").replace("\r", "");
 }
@@ -86,7 +87,7 @@ Data strip_newlines(const Data& input, const std::vector<Data>& args)
 Data newline_to_br(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("newline_to_br doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("newline_to_br doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().replace("\n", "<br />\n");
 }
@@ -94,7 +95,7 @@ Data newline_to_br(const Data& input, const std::vector<Data>& args)
 Data escape(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().toHtmlEscaped().replace("'", "&#39;");
 }
@@ -102,33 +103,33 @@ Data escape(const Data& input, const std::vector<Data>& args)
 int scanEntity(StringScanner& ss)
 {
     const int startPos = ss.position();
-    const auto isNameChar = [](const ushort ch) {
+    const auto isNameChar = [](const String::value_type ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };
-    const auto isDecimalChar = [](const ushort ch) {
+    const auto isDecimalChar = [](const String::value_type ch) {
         return (ch >= '0' && ch <= '9');
     };
-    const auto isHexChar = [](const ushort ch) {
+    const auto isHexChar = [](const String::value_type ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F');
     };
-    std::function<bool(const ushort)> func;
+    std::function<bool(const String::value_type)> func;
     bool firstch = true;
     while (!ss.eof()) {
-        const ushort ch = ss.getch().at(0).unicode();
+        const String::value_type ch = ss.getch().at(0);
         if (firstch) {
             firstch = false;
             if (isNameChar(ch)) {
                 func = isNameChar;
             } else if (ch == '#') {
                 // Decimal or Hexadecimal
-                const QStringRef peek = ss.peekch();
-                if (peek.isNull()) {
+                const StringRef peek = ss.peekch();
+                if (peek.isEmpty()) {
                     return 0;
                 }
-                const ushort nextch = peek.at(0).unicode();
+                const auto nextch = peek.at(0);
                 if (nextch == 'x' || nextch == 'X') {
-                    const QStringRef firsthexch = ss.peekch(1);
-                    if (firsthexch.isNull() || !isHexChar(firsthexch.at(0).unicode())) {
+                    const StringRef firsthexch = ss.peekch(1);
+                    if (firsthexch.isEmpty() || !isHexChar(firsthexch.at(0))) {
                         return 0;
                     }
                     func = isHexChar;
@@ -152,14 +153,14 @@ int scanEntity(StringScanner& ss)
 Data escape_once(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    const QString str = input.toString();
+    const String str = input.toString();
     StringScanner ss(&str);
-    QString result;
+    String result;
     while (!ss.eof()) {
-        const QChar ch = ss.getch().at(0);
-        switch (ch.unicode()) {
+        const String::value_type ch = ss.getch().at(0);
+        switch (ch) {
             case '"':
                 result += "&quot;";
                 break;
@@ -179,7 +180,7 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
                     result += "&amp;";
                     ss.setPosition(currentPosition);
                 } else {
-                    QString chunk = str.mid(currentPosition - 1, numEntityChars + 1);
+                    String chunk = str.mid(currentPosition - 1, numEntityChars + 1);
                     result += chunk;
                     ss.setPosition(currentPosition + numEntityChars);
                 }
@@ -196,17 +197,20 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
 Data url_encode(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    QString result;
-    const QString inputStr = input.toString();
+    String result;
+    const String inputStr = input.toString();
     const int inputStrSize = inputStr.size();
     for (int i = 0; i < inputStrSize; ++i) {
-        const ushort ch = inputStr.at(i).unicode();
+        const String::value_type ch = inputStr.at(i);
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
-            result += QChar(ch);
+            result += ch;
         } else {
-            result += '%' + QString::number(ch, 16).toUpper();
+            std::stringstream stream;
+            stream << std::hex << ch;
+            
+            result += String('%') + String(stream.str()).toUpper();
         }
     }
     return result;
@@ -215,24 +219,25 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
 Data url_decode(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    QString result;
-    const QString inputStr = input.toString();
+    String result;
+    const String inputStr = input.toString();
     const int inputStrSize = inputStr.size();
     for (int i = 0; i < inputStrSize; ++i) {
-        const ushort ch = inputStr.at(i).unicode();
+        const String::value_type ch = inputStr.at(i);
         if (ch == '+') {
             result += ' ';
         } else if (ch == '%' && i < (inputStrSize - 2)) {
-            bool ok;
-            const ushort value = inputStr.mid(i + 1, 2).toUShort(&ok, 16);
-            if (ok) {
-                result += QChar(value);
+            try {
+                const String::value_type value = std::stoul(inputStr.mid(i + 1, 2).toStdString(), nullptr, 16);
+                result += value;
                 i += 2;
+            } catch (...) {
+                // ignore, probably invalid_argument
             }
         } else {
-            result += QChar(ch);
+            result += ch;
         }
     }
     return result;
@@ -241,14 +246,14 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
 Data strip_html(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    const QString inputStr = input.toString();
+    const String inputStr = input.toString();
     const int inputStrSize = inputStr.size();
-    QString output;
+    String output;
     bool html = false;
     for (int i = 0; i < inputStrSize; ++i) {
-        const QChar ch = inputStr[i];
+        const String::value_type ch = inputStr.at(i);
         if (ch == '<') {
             html = true;
         } else if (ch == '>') {
@@ -263,10 +268,10 @@ Data strip_html(const Data& input, const std::vector<Data>& args)
 Data truncate(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() < 1 || args.size() > 2) {
-        throw QString("truncate takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("truncate takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     const int length = args[0].toInt();
-    const QString truncateStr = args.size() == 2 ? args[1].toString() : "...";
+    const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
     int len = length - truncateStr.size();
     if (len < 0) {
         len = 0;
@@ -277,20 +282,20 @@ Data truncate(const Data& input, const std::vector<Data>& args)
 Data truncatewords(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() < 1 || args.size() > 2) {
-        throw QString("truncatewords takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("truncatewords takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     const int numWords = args[0].toInt();
-    const QString truncateStr = args.size() == 2 ? args[1].toString() : "...";
-    const QChar delimiter = ' ';
-    const QStringList wordlist = input.toString().split(delimiter);
+    const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
+    const String::value_type delimiter = ' ';
+    const auto wordlist = input.toString().split(delimiter);
     int len = numWords - 1;
     if (len < 0) {
         len = 0;
     }
-    if (wordlist.size() <= len) {
+    if (static_cast<int>(wordlist.size()) <= len) {
         return input;
     }
-    QString result;
+    String result;
     for (int i = 0; i <= len; ++i) {
         result += wordlist[i] + delimiter;
     }
@@ -300,7 +305,7 @@ Data truncatewords(const Data& input, const std::vector<Data>& args)
 Data plus(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("plus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("plus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -312,7 +317,7 @@ Data plus(const Data& input, const std::vector<Data>& args)
 Data minus(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("minus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("minus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -324,7 +329,7 @@ Data minus(const Data& input, const std::vector<Data>& args)
 Data times(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("times takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("times takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -336,7 +341,7 @@ Data times(const Data& input, const std::vector<Data>& args)
 Data divided_by(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("divided_by takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("divided_by takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -348,7 +353,7 @@ Data divided_by(const Data& input, const std::vector<Data>& args)
 Data abs(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("abs takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("abs takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isNumberInt()) {
         return ::abs(input.toInt());
@@ -359,7 +364,7 @@ Data abs(const Data& input, const std::vector<Data>& args)
 Data ceil(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -370,7 +375,7 @@ Data ceil(const Data& input, const std::vector<Data>& args)
 Data floor(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("floor takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("floor takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -381,7 +386,7 @@ Data floor(const Data& input, const std::vector<Data>& args)
 Data round(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw QString("round takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("round takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -396,7 +401,7 @@ Data round(const Data& input, const std::vector<Data>& args)
 Data modulo(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("modulo takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("modulo takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -408,10 +413,10 @@ Data modulo(const Data& input, const std::vector<Data>& args)
 Data split(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw QString("split takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("split takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     Data array(Data::Type::Array);
-    const QStringList items = input.toString().split(args[0].toString());
+    const auto items = input.toString().split(args[0].toString());
     for (const auto& item : items) {
         array.push_back(item);
     }
@@ -421,20 +426,24 @@ Data split(const Data& input, const std::vector<Data>& args)
 Data join(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw QString("join takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("join takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
-    QStringList inputList;
+    String result;
     const int inputSize = static_cast<int>(input.size());
+    const auto joiner = args[0].toString();
     for (int i = 0; i < inputSize; ++i) {
-        inputList << input.at(i).toString();
+        result += input.at(i).toString();
+        if (i < (inputSize - 1)) {
+            result += joiner;
+        }
     }
-    return inputList.join(args[0].toString());
+    return result;
 }
 
 Data uniq(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw QString("uniq takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("uniq takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
     std::vector<Data> dupes;
@@ -457,7 +466,7 @@ size_t size_imp(const Data& input)
 Data size(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return static_cast<int>(size_imp(input));
 }
@@ -473,7 +482,7 @@ const Data& first_imp(const Data& input)
 Data first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return first_imp(input);
 }
@@ -489,7 +498,7 @@ const Data& last_imp(const Data& input)
 Data last(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("last doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("last doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     return last_imp(input);
 }
@@ -497,7 +506,7 @@ Data last(const Data& input, const std::vector<Data>& args)
 Data def(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("default takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("default takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const bool useArg = input.isNil() ||
         (input.isArray() && input.size() == 0) ||
@@ -512,7 +521,7 @@ Data def(const Data& input, const std::vector<Data>& args)
 Data replace(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 2) {
-        throw QString("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().replace(args[0].toString(), args[1].toString());
 }
@@ -520,13 +529,13 @@ Data replace(const Data& input, const std::vector<Data>& args)
 Data replace_first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 2) {
-        throw QString("replace_first takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("replace_first takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
     }
-    QString inputStr = input.toString();
-    const QString search = args[0].toString();
-    const QString replace = args[1].toString();
-    const int index = inputStr.indexOf(search);
-    if (index != -1) {
+    String inputStr = input.toString();
+    const String search = args[0].toString();
+    const String replace = args[1].toString();
+    const String::size_type index = inputStr.indexOf(search);
+    if (index != String::npos) {
         inputStr.replace(index, search.size(), replace);
     }
     return inputStr;
@@ -535,7 +544,7 @@ Data replace_first(const Data& input, const std::vector<Data>& args)
 Data remove(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("remove takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("remove takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     return input.toString().replace(args[0].toString(), "");
 }
@@ -543,10 +552,10 @@ Data remove(const Data& input, const std::vector<Data>& args)
 Data remove_first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("remove_first takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("remove_first takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
-    QString inputStr = input.toString();
-    const QString search = args[0].toString();
+    String inputStr = input.toString();
+    const String search = args[0].toString();
     const int index = inputStr.indexOf(search);
     if (index != -1) {
         inputStr.replace(index, search.size(), "");
@@ -557,11 +566,11 @@ Data remove_first(const Data& input, const std::vector<Data>& args)
 Data slice(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1 && args.size() != 2) {
-        throw QString("slice takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("slice takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     const int offset = args[0].toInt();
     const int length = args.size() == 2 ? args[1].toInt() : 1;
-    const QString inputStr = input.toString();
+    const String inputStr = input.toString();
     if (offset < 0) {
         return inputStr.mid(inputStr.size() - ::abs(offset), length);
     }
@@ -571,7 +580,7 @@ Data slice(const Data& input, const std::vector<Data>& args)
 Data reverse(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("reverse takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("reverse takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
     const int size = static_cast<int>(input.size());
@@ -584,7 +593,7 @@ Data reverse(const Data& input, const std::vector<Data>& args)
 Data compact(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw QString("compact takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw String("compact takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
     }
     Data result(Data::Type::Array);
     const int size = static_cast<int>(input.size());
@@ -600,7 +609,7 @@ Data compact(const Data& input, const std::vector<Data>& args)
 Data map(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("map takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("map takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& property = args[0];
     Data result(Data::Type::Array);
@@ -614,11 +623,11 @@ Data map(const Data& input, const std::vector<Data>& args)
 Data concat(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("concat takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("concat takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args[0];
     if (!arg.isArray()) {
-        throw QString("concat requires an array argument").toStdString();
+        throw String("concat requires an array argument").toStdString();
     }
     Data result(Data::Type::Array);
     int size = static_cast<int>(input.size());
@@ -632,27 +641,27 @@ Data concat(const Data& input, const std::vector<Data>& args)
     return result;
 }
 
-Data sort_imp(const Data& input, const std::vector<Data>& args, const QString& filterName, Qt::CaseSensitivity cs)
+Data sort_imp(const Data& input, const std::vector<Data>& args, const String& filterName, bool caseSensitive)
 {
     if (args.size() > 1) {
-        throw QString("%1 takes 0 or 1 arguments, but was passed %1.").arg(filterName).arg(args.size()).toStdString();
+        throw String("%1 takes 0 or 1 arguments, but was passed %1.").arg(filterName).arg(args.size()).toStdString();
     }
     Data::Array objs = input.array();
     if (args.empty()) {
-        std::sort(objs.begin(), objs.end(), [cs](const Data& a, const Data& b) -> bool {
-            const QString s1 = a.toString();
-            const QString s2 = b.toString();
-            return s1.compare(s2, cs) < 0;
+        std::sort(objs.begin(), objs.end(), [caseSensitive](const Data& a, const Data& b) -> bool {
+            const String s1 = a.toString();
+            const String s2 = b.toString();
+            return s1.compare(s2, caseSensitive);
         });
     } else {
-        const QString property = args[0].toString();
-        std::sort(objs.begin(), objs.end(), [&property, cs](const Data& a, const Data& b) -> bool {
+        const String property = args[0].toString();
+        std::sort(objs.begin(), objs.end(), [&property, caseSensitive](const Data& a, const Data& b) -> bool {
             const Data& obj1{a[property]};
             const Data& obj2{b[property]};
             if (!obj1.isNil() && !obj2.isNil()) {
-                const QString s1 = obj1.toString();
-                const QString s2 = obj2.toString();
-                return s1.compare(s2, cs) < 0;
+                const String s1 = obj1.toString();
+                const String s2 = obj2.toString();
+                return s1.compare(s2, caseSensitive);
             } else if (obj1.isNil() && obj2.isNil()) {
                 return true;
             } else {
@@ -665,12 +674,12 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const QString& f
 
 Data sort(const Data& input, const std::vector<Data>& args)
 {
-    return sort_imp(input, args, "sort", Qt::CaseSensitive);
+    return sort_imp(input, args, "sort", true);
 }
 
 Data sort_natural(const Data& input, const std::vector<Data>& args)
 {
-    return sort_imp(input, args, "sort_natural", Qt::CaseInsensitive);
+    return sort_imp(input, args, "sort_natural", false);
 }
 
 bool string_to_date(const std::string& input, struct ::tm& tm)
@@ -708,18 +717,18 @@ bool string_to_date(const std::string& input, struct ::tm& tm)
 Data date(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw QString("date takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw String("date takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
     }
     const Data& arg = args.at(0);
     if (!arg.isString() || arg.size() == 0) {
         return input;
     }
     struct ::tm tm;
-    if (!string_to_date(input.toString().toUtf8().constData(), tm)) {
+    if (!string_to_date(input.toString().toStdString().c_str(), tm)) {
         return nullptr;
     }
-    const QByteArray formatBytes = arg.toString().toUtf8();
-    const char *formatCstr = formatBytes.constData();
+    const auto formatBytes = arg.toString().toStdString();
+    const char *formatCstr = formatBytes.c_str();
     size_t bufSize = 100;
     std::vector<char> buf(bufSize + 1, 0);
     size_t numChars;
@@ -729,7 +738,7 @@ Data date(const Data& input, const std::vector<Data>& args)
         buf.resize(bufSize + 1, 0);
         ++infiniteLoopProtector;
     }
-    return QString::fromUtf8(buf.data(), static_cast<int>(numChars));
+    return String(std::string(buf.data(), static_cast<int>(numChars)));
 }
 
 void registerFilters(Template& tmpl)

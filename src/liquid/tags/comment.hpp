@@ -7,17 +7,17 @@ namespace Liquid {
     
     class CommentTag : public BlockTag {
     public:
-        CommentTag(const Context& context, const QStringRef& tagName, const QStringRef& markup)
+        CommentTag(const Context& context, const StringRef& tagName, const StringRef& markup)
             : BlockTag(context, tagName, markup)
         {
         }
         
-        virtual QString render(Context&) override {
+        virtual String render(Context&) override {
             return "";
         }
 
     protected:
-        virtual void handleUnknownTag(const QStringRef&, const QStringRef&, Tokenizer&) override {
+        virtual void handleUnknownTag(const StringRef&, const StringRef&, Tokenizer&) override {
             // ignore
         }
     };

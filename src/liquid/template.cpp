@@ -14,68 +14,67 @@
 #include "if.hpp"
 #include "ifchanged.hpp"
 #include "increment.hpp"
-#include <QDebug>
 
 Liquid::Template::Template()
 {
     StandardFilters::registerFilters(*this);
     
-    tags_["capture"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["capture"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<CaptureTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["case"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["case"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<CaseTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["comment"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["comment"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<CommentTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["for"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["for"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<ForTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["if"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["if"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<IfTag>(false, context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["unless"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["unless"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<IfTag>(true, context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["ifchanged"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer& tokenizer) {
+    tags_["ifchanged"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer) {
         auto tag = std::make_shared<IfchangedTag>(context, tagName, markup);
         tag->parse(context, tokenizer);
         return tag;
     };
-    tags_["assign"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["assign"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<AssignTag>(context, tagName, markup);
     };
-    tags_["break"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["break"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<BreakTag>(context, tagName, markup);
     };
-    tags_["continue"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["continue"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<ContinueTag>(context, tagName, markup);
     };
-    tags_["cycle"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["cycle"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<CycleTag>(context, tagName, markup);
     };
-    tags_["decrement"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["decrement"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<DecrementTag>(context, tagName, markup);
     };
-    tags_["increment"] = [](const Context& context, const QStringRef& tagName, const QStringRef& markup, Tokenizer&) {
+    tags_["increment"] = [](const Context& context, const StringRef& tagName, const StringRef& markup, Tokenizer&) {
         return std::make_shared<IncrementTag>(context, tagName, markup);
     };
 }
 
-Liquid::Template& Liquid::Template::parse(const QString& source)
+Liquid::Template& Liquid::Template::parse(const String& source)
 {
     source_ = source;
     Tokenizer tokenizer(source_);
@@ -85,13 +84,13 @@ Liquid::Template& Liquid::Template::parse(const QString& source)
     return *this;
 }
 
-QString Liquid::Template::render()
+Liquid::String Liquid::Template::render()
 {
     Data data(Data::Type::Hash);
     return render(data);
 }
 
-QString Liquid::Template::render(Data& data)
+Liquid::String Liquid::Template::render(Data& data)
 {
     Context ctx(data, filters_, tags_);
     return root_.render(ctx);
@@ -110,7 +109,7 @@ void Liquid::Template::registerFilter(const std::string& name, const FilterHandl
 namespace Liquid {
     class MyDrop : public Drop {
     protected:
-        virtual Data load(const QString& key) const override {
+        virtual Data load(const String& key) const override {
             if (key == "value") {
                 return 42;
             }
@@ -316,7 +315,7 @@ TEST_CASE("Liquid::Template") {
     SECTION("DropLoader") {
         {
             bool loaded = false;
-            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+            const auto handler = [&loaded](const Liquid::String& key) -> Liquid::Data {
                 if (key == "value") {
                     loaded = true;
                     return "42";
@@ -336,7 +335,7 @@ TEST_CASE("Liquid::Template") {
         }
         {
             bool loaded = false;
-            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+            const auto handler = [&loaded](const Liquid::String& key) -> Liquid::Data {
                 if (key == "value") {
                     loaded = true;
                     return "42";
@@ -356,7 +355,7 @@ TEST_CASE("Liquid::Template") {
         }
         {
             bool loaded = false;
-            const auto handler = [&loaded](const QString& key) -> Liquid::Data {
+            const auto handler = [&loaded](const Liquid::String& key) -> Liquid::Data {
                 if (key == "value") {
                     loaded = true;
                     return "42";
