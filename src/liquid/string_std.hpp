@@ -74,12 +74,21 @@ namespace Liquid {
             return s_;
         }
         
-        String arg(const String& /*arg*/) const {
-            return {};
+        String arg(const String& arg) const {
+            for (int i = 0; i <= 99; ++i) {
+                const auto marker = String("%") + std::to_string(i);
+                const auto idx = indexOf(marker);
+                if (idx != npos) {
+                    String ret = *this;
+                    ret.replace(marker, arg);
+                    return ret;
+                }
+            }
+            return *this;
         }
 
-        String arg(const int /*arg*/) const {
-            return {};
+        String arg(const int arg) const {
+            return std::to_string(arg);
         }
         
         std::string toStdString() const {
