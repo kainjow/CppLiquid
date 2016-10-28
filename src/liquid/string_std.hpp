@@ -99,8 +99,8 @@ namespace Liquid {
             return {};
         }
         
-        String left(size_type /*num*/) const {
-            return {};
+        String left(size_type num) const {
+            return s_.substr(0, num);
         }
         
         String trimmed() const {

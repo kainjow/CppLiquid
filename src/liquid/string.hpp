@@ -32,6 +32,13 @@ namespace Liquid {
             , len_(str->size())
         {
         }
+        
+        StringRef(const String* str, int position, int length)
+            : s_(str)
+            , pos_(position)
+            , len_(length)
+        {
+        }
 
         size_type size() const {
             return len_;
@@ -49,8 +56,11 @@ namespace Liquid {
             return {};
         }
         
-        StringRef left(size_type /*num*/) const {
-            return {};
+        StringRef left(size_type num) const {
+            if (num >= size()) {
+                return StringRef(s_, pos_, len_);
+            }
+            return StringRef(s_, pos_, num);
         }
         
         size_type indexOf(const String& /*str*/, size_type from = String::npos) const {
