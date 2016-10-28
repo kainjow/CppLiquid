@@ -152,7 +152,7 @@ namespace Liquid {
             }
             auto substart = s_.cbegin();
             for (;;) {
-                const auto subend = search(substart, s_.cend(), delimiter.s_.cbegin(), delimiter.s_.cend());
+                const auto subend = std::search(substart, s_.cend(), delimiter.s_.cbegin(), delimiter.s_.cend());
                 result.push_back(base(substart, subend));
                 if (subend == s_.cend()) {
                     break;
