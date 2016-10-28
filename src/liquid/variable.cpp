@@ -1,5 +1,6 @@
 #include "variable.hpp"
 #include "context.hpp"
+#include "error.hpp"
 
 Liquid::Variable::Variable(const StringRef& input)
 {
@@ -49,7 +50,7 @@ const Liquid::Data& Liquid::Variable::evaluate(const Context& context) const
         }
         const auto filterIter = context.filters().find(filter.name().toString().toStdString());
         if (filterIter == context.filters().end()) {
-            throw String("Unknown filter %1").arg(filter.name().toString()).toStdString();
+            throw syntax_error(String("Unknown filter %1").arg(filter.name().toString()).toStdString());
         }
         value = filterIter->second(value, evaluatedArgs);
     }

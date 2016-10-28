@@ -107,7 +107,7 @@ namespace Liquid {
                 case Type::LookupKey: return "LookupKey";
                 case Type::LookupBracketKey: return "LookupBracketKey";
                 default:
-                    throw String("Unimplemented typeString for type %1").arg(static_cast<int>(type_)).toStdString();
+                    throw std::runtime_error(String("Unimplemented typeString for type %1").arg(static_cast<int>(type_)).toStdString());
                     return "";
             }
         }

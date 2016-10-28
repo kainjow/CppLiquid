@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include "context.hpp"
 #include "template.hpp"
+#include "error.hpp"
 
 Liquid::CaseTag::CaseTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : BlockTag(context, tagName, markup)
@@ -53,7 +54,7 @@ void Liquid::CaseTag::handleUnknownTag(const StringRef& tagName, const StringRef
             while (parser.look(Token::Type::Id)) {
                 const StringRef orId = parser.consume();
                 if (orId != "or") {
-                    throw String("Expected \"or\" but found %1").arg(orId.toString()).toStdString();
+                    throw syntax_error(String("Expected \"or\" but found %1").arg(orId.toString()));
                 }
                 expressions.push_back(Expression::parse(parser));
             }

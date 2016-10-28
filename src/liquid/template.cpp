@@ -14,6 +14,7 @@
 #include "if.hpp"
 #include "ifchanged.hpp"
 #include "increment.hpp"
+#include "error.hpp"
 
 Liquid::Template::Template()
 {
@@ -151,7 +152,7 @@ TEST_CASE("Liquid::Template") {
 
     SECTION("UnclosedObject") {
         Liquid::Template t;
-        CHECK_THROWS_AS(t.parse("{{what"), std::string);
+        CHECK_THROWS_AS(t.parse("{{what"), Liquid::syntax_error);
     }
     
     SECTION("BasicObject") {

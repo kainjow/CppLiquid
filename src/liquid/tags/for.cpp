@@ -3,6 +3,7 @@
 #include "context.hpp"
 #include "template.hpp"
 #include "drop.hpp"
+#include "error.hpp"
 
 namespace Liquid {
     
@@ -85,7 +86,7 @@ Liquid::ForTag::ForTag(const Context& context, const StringRef& tagName, const S
     Parser parser(markup);
     varName_ = parser.consume(Token::Type::Id);
     if (parser.consume(Token::Type::Id) != "in") {
-        throw std::string("Syntax Error in 'for loop' - Valid syntax: for [item] in [collection]");
+        throw syntax_error("Syntax Error in 'for loop' - Valid syntax: for [item] in [collection]");
     }
     if (parser.look(Token::Type::OpenRound)) {
         range_ = true;
@@ -107,7 +108,7 @@ Liquid::ForTag::ForTag(const Context& context, const StringRef& tagName, const S
         } else if (attr == "limit") {
             limit_ = value;
         } else {
-            throw std::string("Invalid attribute in for loop. Valid attributes are limit and offset");
+            throw syntax_error("Invalid attribute in for loop. Valid attributes are limit and offset");
         }
     }
     (void)parser.consume(Token::Type::EndOfString);
@@ -263,7 +264,7 @@ Liquid::String Liquid::ForTag::render(Context& context)
     if (forStackSize > 0) {
         parent = std::dynamic_pointer_cast<ForloopDrop>(forStack.at(forStackSize - 1).drop());
         if (!parent) {
-            throw std::string("Null drop");
+            throw std::runtime_error("Null drop");
         }
     }
     const ForLoop loop(item, body_, varName_.toString(), start, end, limit_.evaluate(data), offset_.evaluate(data), reversed_, parent);

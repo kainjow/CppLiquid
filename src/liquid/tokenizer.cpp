@@ -1,5 +1,6 @@
 #include "tokenizer.hpp"
 #include "stringscanner.hpp"
+#include "error.hpp"
 
 std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source) const
 {
@@ -23,7 +24,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
             const bool isObject = nextChar == '{';
             const String::size_type endPos = source.indexOf(endStr[isObject ? 0 : 1], startPos + 2);
             if (endPos == String::npos) {
-                throw std::string("Tag not properly terminated");
+                throw syntax_error("Tag not properly terminated");
             }
             
             // Collect any text component before the object or tag
@@ -69,7 +70,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                         ss.setPosition(savePos + 1);
                     }
                     if (!foundEnd) {
-                        throw String("%1 tag not properly terminated").arg(tagTrimmed.toString()).toStdString();
+                        throw syntax_error(String("%1 tag not properly terminated").arg(tagTrimmed.toString()).toStdString());
                     }
                     if (isRaw) {
                         const int chunkLen = rawendPos - lastStartPos;

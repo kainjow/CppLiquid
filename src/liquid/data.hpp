@@ -297,7 +297,7 @@ namespace Liquid {
         
         void push_back(const Data& obj) {
             if (!isArray()) {
-                throw std::string("push_back() requires an array");
+                throw std::runtime_error("push_back() requires an array");
             }
             if (isArray()) {
                 array_.push_back(obj);
@@ -306,10 +306,10 @@ namespace Liquid {
         
         void pop_back() {
             if (!isArray()) {
-                throw std::string("pop_back() requires an array");
+                throw std::runtime_error("pop_back() requires an array");
             }
             if (array_.empty()) {
-                throw std::string("pop_back() cannot be used on an empty array");
+                throw std::runtime_error("pop_back() cannot be used on an empty array");
             }
             array_.pop_back();
         }
@@ -329,7 +329,7 @@ namespace Liquid {
         
         const Data& at(size_t index) const {
             if (!isArray()) {
-                throw std::string("at() requires an array");
+                throw std::runtime_error("at() requires an array");
             }
             if (index >= array_.size()) {
                 return kNilData;
@@ -339,21 +339,21 @@ namespace Liquid {
         
         const Array& array() const {
             if (!isArray()) {
-                throw std::string("array() requires an array");
+                throw std::runtime_error("array() requires an array");
             }
             return array_;
         }
 
         const Hash& hash() const {
             if (!isHash()) {
-                throw std::string("hash() requires an array");
+                throw std::runtime_error("hash() requires an array");
             }
             return hash_;
         }
 
         void insert(const String& key, const Data& value) {
             if (!isHash()) {
-                throw std::string("insert() requires a hash");
+                throw std::runtime_error("insert() requires a hash");
             }
             hash_[key] = value;
         }
@@ -368,20 +368,20 @@ namespace Liquid {
             } else if (isDrop()) {
                 return (*drop_)[key];
             } else {
-                throw std::string("[] requires a hash or drop");
+                throw std::runtime_error("[] requires a hash or drop");
             }
         }
         
         bool containsKey(const String& key) const {
             if (!isHash()) {
-                throw std::string("containsKey requires a hash");
+                throw std::runtime_error("containsKey requires a hash");
             }
             return hash_.find(key) != hash_.end();
         }
         
         std::shared_ptr<Drop> drop() const {
             if (!isDrop()) {
-                throw std::string("drop() requires a drop");
+                throw std::runtime_error("drop() requires a drop");
             }
             return drop_;
         }

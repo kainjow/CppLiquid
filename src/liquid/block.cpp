@@ -1,4 +1,5 @@
 #include "block.hpp"
+#include "error.hpp"
 
 Liquid::BlockTag::BlockTag(const Context& context, const StringRef& tagName, const StringRef& markup)
     : TagNode(context, tagName, markup)
@@ -20,7 +21,7 @@ void Liquid::BlockTag::handleUnknownTag(const StringRef& tagName, const StringRe
 bool Liquid::BlockTag::parseBody(const Context& context, BlockBody* body, Tokenizer& tokenizer)
 {
     if (!body) {
-        throw std::string("body cannot be null");
+        throw syntax_error("body cannot be null");
     }
     const String endTagName = String("end") + tagName_.toString();
     bool ret = true;
@@ -30,7 +31,7 @@ bool Liquid::BlockTag::parseBody(const Context& context, BlockBody* body, Tokeni
             return;
         }
         if (tagName.isEmpty()) {
-            throw String("%1 tag was never closed").arg(tagName_.toString()).toStdString();
+            throw syntax_error(String("%1 tag was never closed").arg(tagName_.toString()));
         }
         handleUnknownTag(tagName, markup, tokenizer);
     });

@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME}
   src/liquid/data.hpp
   src/liquid/drop.cpp
   src/liquid/drop.hpp
+  src/liquid/error.hpp
   src/liquid/expression.cpp
   src/liquid/expression.hpp
   src/liquid/filter.hpp

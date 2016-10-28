@@ -118,7 +118,7 @@ const Liquid::Data& Liquid::Expression::evaluate(const Data& data) const
     } else if (isBoolean()) {
         return toBool() ? kTrueData : kFalseData;
     } else {
-        throw String("Can't evaluate expression %1").arg(typeString()).toStdString();
+        throw std::runtime_error(String("Can't evaluate expression %1").arg(typeString()).toStdString());
     }
     return kNilData;
 }
@@ -146,7 +146,7 @@ Liquid::String Liquid::Expression::stringDescription() const
         case Type::LookupBracketKey:
             return String("[") + (lookups_.empty() ? "" : lookups_[0].stringDescription()) + String("]");
         default:
-            throw String("Unimplemented stringDescription for type %1").arg(typeString()).toStdString();
+            throw std::runtime_error(String("Unimplemented stringDescription for type %1").arg(typeString()).toStdString());
             return "";
     };
 }

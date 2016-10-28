@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "error.hpp"
 
 Liquid::Parser::Parser(const StringRef& input)
     : tokens_(Lexer::tokenize(input))
@@ -19,7 +20,7 @@ Liquid::StringRef Liquid::Parser::consume(const Token::Type* type)
 {
     const Token& token = tokenAt(pos_);
     if (type && token.type() != *type) {
-        throw String("Expected %1 but found %2").arg(Token::typeToString(*type)).arg(Token::typeToString(token.type())).toStdString();
+        throw syntax_error(String("Expected %1 but found %2").arg(Token::typeToString(*type)).arg(Token::typeToString(token.type())));
     }
     ++pos_;
     return token.value();
@@ -67,7 +68,7 @@ TEST_CASE("Liquid::Parser") {
         Liquid::String input = "Hello World";
         Liquid::Parser p(&input);
         CHECK(p.consume() == "Hello");
-        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), std::string);
+        CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), Liquid::syntax_error);
         CHECK(p.consume(Liquid::Token::Type::Id) == "World");
         CHECK(p.consume(Liquid::Token::Type::EndOfString).isEmpty());
     }

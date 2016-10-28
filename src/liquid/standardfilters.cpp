@@ -2,9 +2,8 @@
 #include "stringscanner.hpp"
 #include "stringutils.hpp"
 #include "template.hpp"
+#include "error.hpp"
 #include <ctime>
-#include <sstream>
-#include <iomanip>
 
 namespace Liquid { namespace StandardFilters {
 
@@ -20,7 +19,7 @@ Data append(const Data& input, const std::vector<Data>& args)
 Data prepend(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("prepend only takes one argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("prepend only takes one argument, but was passed %1.").arg(args.size()));
     }
     return args[0].toString() + input.toString();
 }
@@ -28,7 +27,7 @@ Data prepend(const Data& input, const std::vector<Data>& args)
 Data downcase(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("downcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("downcase doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return input.toString().toLower();
 }
@@ -36,7 +35,7 @@ Data downcase(const Data& input, const std::vector<Data>& args)
 Data upcase(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("upcase doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("upcase doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return input.toString().toUpper();
 }
@@ -44,7 +43,7 @@ Data upcase(const Data& input, const std::vector<Data>& args)
 Data capitalize(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("capitalize doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("capitalize doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
     return str.left(1).toUpper() + str.mid(1);
@@ -53,7 +52,7 @@ Data capitalize(const Data& input, const std::vector<Data>& args)
 Data strip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("strip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("strip doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return trim(input.toString());
 }
@@ -61,7 +60,7 @@ Data strip(const Data& input, const std::vector<Data>& args)
 Data rstrip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
     return rtrim(&str).toString();
@@ -70,7 +69,7 @@ Data rstrip(const Data& input, const std::vector<Data>& args)
 Data lstrip(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
     return ltrim(&str).toString();
@@ -79,7 +78,7 @@ Data lstrip(const Data& input, const std::vector<Data>& args)
 Data strip_newlines(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("strip_newlines doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return input.toString().replace("\n", "").replace("\r", "");
 }
@@ -87,7 +86,7 @@ Data strip_newlines(const Data& input, const std::vector<Data>& args)
 Data newline_to_br(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("newline_to_br doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("newline_to_br doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return input.toString().replace("\n", "<br />\n");
 }
@@ -95,7 +94,7 @@ Data newline_to_br(const Data& input, const std::vector<Data>& args)
 Data escape(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("escape doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String inputStr = input.toString();
     String s;
@@ -179,7 +178,7 @@ int scanEntity(StringScanner& ss)
 Data escape_once(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
     StringScanner ss(&str);
@@ -223,7 +222,7 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
 Data url_encode(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("url_encode doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     String result;
     const String inputStr = input.toString();
@@ -247,7 +246,7 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
 Data url_decode(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("url_decode doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     String result;
     const String inputStr = input.toString();
@@ -274,7 +273,7 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
 Data strip_html(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String inputStr = input.toString();
     const int inputStrSize = inputStr.size();
@@ -296,7 +295,7 @@ Data strip_html(const Data& input, const std::vector<Data>& args)
 Data truncate(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() < 1 || args.size() > 2) {
-        throw String("truncate takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("truncate takes 1 or 2 arguments, but was passed %1.").arg(args.size()));
     }
     const int length = args[0].toInt();
     const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
@@ -310,7 +309,7 @@ Data truncate(const Data& input, const std::vector<Data>& args)
 Data truncatewords(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() < 1 || args.size() > 2) {
-        throw String("truncatewords takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("truncatewords takes 1 or 2 arguments, but was passed %1.").arg(args.size()));
     }
     const int numWords = args[0].toInt();
     const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
@@ -333,7 +332,7 @@ Data truncatewords(const Data& input, const std::vector<Data>& args)
 Data plus(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("plus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("plus takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -345,7 +344,7 @@ Data plus(const Data& input, const std::vector<Data>& args)
 Data minus(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("minus takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("minus takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -357,7 +356,7 @@ Data minus(const Data& input, const std::vector<Data>& args)
 Data times(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("times takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("times takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -369,7 +368,7 @@ Data times(const Data& input, const std::vector<Data>& args)
 Data divided_by(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("divided_by takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("divided_by takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -381,7 +380,7 @@ Data divided_by(const Data& input, const std::vector<Data>& args)
 Data abs(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("abs takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("abs takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     if (input.isNumberInt()) {
         return ::abs(input.toInt());
@@ -392,7 +391,7 @@ Data abs(const Data& input, const std::vector<Data>& args)
 Data ceil(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("ceil takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("ceil takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -403,7 +402,7 @@ Data ceil(const Data& input, const std::vector<Data>& args)
 Data floor(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("floor takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("floor takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -414,7 +413,7 @@ Data floor(const Data& input, const std::vector<Data>& args)
 Data round(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw String("round takes 0 or 1 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("round takes 0 or 1 arguments, but was passed %1.").arg(args.size()));
     }
     if (input.isNumberInt()) {
         return input.toInt();
@@ -429,7 +428,7 @@ Data round(const Data& input, const std::vector<Data>& args)
 Data modulo(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("modulo takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("modulo takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (input.isNumberInt() && arg.isNumberInt()) {
@@ -441,7 +440,7 @@ Data modulo(const Data& input, const std::vector<Data>& args)
 Data split(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw String("split takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("split takes 1 argument, but was passed %1.").arg(args.size()));
     }
     Data array(Data::Type::Array);
     const auto items = input.toString().split(args[0].toString());
@@ -454,7 +453,7 @@ Data split(const Data& input, const std::vector<Data>& args)
 Data join(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw String("join takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("join takes 1 argument, but was passed %1.").arg(args.size()));
     }
     String result;
     const int inputSize = static_cast<int>(input.size());
@@ -471,7 +470,7 @@ Data join(const Data& input, const std::vector<Data>& args)
 Data uniq(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() > 1) {
-        throw String("uniq takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("uniq takes 1 argument, but was passed %1.").arg(args.size()));
     }
     Data result(Data::Type::Array);
     std::vector<Data> dupes;
@@ -494,7 +493,7 @@ size_t size_imp(const Data& input)
 Data size(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("size doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("size doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return static_cast<int>(size_imp(input));
 }
@@ -510,7 +509,7 @@ const Data& first_imp(const Data& input)
 Data first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("first doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("first doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return first_imp(input);
 }
@@ -526,7 +525,7 @@ const Data& last_imp(const Data& input)
 Data last(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("last doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("last doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     return last_imp(input);
 }
@@ -534,7 +533,7 @@ Data last(const Data& input, const std::vector<Data>& args)
 Data def(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("default takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("default takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const bool useArg = input.isNil() ||
         (input.isArray() && input.size() == 0) ||
@@ -549,7 +548,7 @@ Data def(const Data& input, const std::vector<Data>& args)
 Data replace(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 2) {
-        throw String("replace takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("replace takes 2 argument, but was passed %1.").arg(args.size()));
     }
     return input.toString().replace(args[0].toString(), args[1].toString());
 }
@@ -557,7 +556,7 @@ Data replace(const Data& input, const std::vector<Data>& args)
 Data replace_first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 2) {
-        throw String("replace_first takes 2 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("replace_first takes 2 argument, but was passed %1.").arg(args.size()));
     }
     String inputStr = input.toString();
     const String search = args[0].toString();
@@ -572,7 +571,7 @@ Data replace_first(const Data& input, const std::vector<Data>& args)
 Data remove(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("remove takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("remove takes 1 argument, but was passed %1.").arg(args.size()));
     }
     return input.toString().replace(args[0].toString(), "");
 }
@@ -580,7 +579,7 @@ Data remove(const Data& input, const std::vector<Data>& args)
 Data remove_first(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("remove_first takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("remove_first takes 1 argument, but was passed %1.").arg(args.size()));
     }
     String inputStr = input.toString();
     const String search = args[0].toString();
@@ -594,7 +593,7 @@ Data remove_first(const Data& input, const std::vector<Data>& args)
 Data slice(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1 && args.size() != 2) {
-        throw String("slice takes 1 or 2 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("slice takes 1 or 2 arguments, but was passed %1.").arg(args.size()));
     }
     const int offset = args[0].toInt();
     const int length = args.size() == 2 ? args[1].toInt() : 1;
@@ -608,7 +607,7 @@ Data slice(const Data& input, const std::vector<Data>& args)
 Data reverse(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("reverse takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("reverse takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     Data result(Data::Type::Array);
     const int size = static_cast<int>(input.size());
@@ -621,7 +620,7 @@ Data reverse(const Data& input, const std::vector<Data>& args)
 Data compact(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 0) {
-        throw String("compact takes 0 arguments, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("compact takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     Data result(Data::Type::Array);
     const int size = static_cast<int>(input.size());
@@ -637,7 +636,7 @@ Data compact(const Data& input, const std::vector<Data>& args)
 Data map(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("map takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("map takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& property = args[0];
     Data result(Data::Type::Array);
@@ -651,11 +650,11 @@ Data map(const Data& input, const std::vector<Data>& args)
 Data concat(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("concat takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("concat takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args[0];
     if (!arg.isArray()) {
-        throw String("concat requires an array argument").toStdString();
+        throw syntax_error(String("concat requires an array argument"));
     }
     Data result(Data::Type::Array);
     int size = static_cast<int>(input.size());
@@ -672,7 +671,7 @@ Data concat(const Data& input, const std::vector<Data>& args)
 Data sort_imp(const Data& input, const std::vector<Data>& args, const String& filterName, bool caseSensitive)
 {
     if (args.size() > 1) {
-        throw String("%1 takes 0 or 1 arguments, but was passed %1.").arg(filterName).arg(args.size()).toStdString();
+        throw syntax_error(String("%1 takes 0 or 1 arguments, but was passed %1.").arg(filterName).arg(args.size()));
     }
     Data::Array objs = input.array();
     if (args.empty()) {
@@ -745,7 +744,7 @@ bool string_to_date(const std::string& input, struct ::tm& tm)
 Data date(const Data& input, const std::vector<Data>& args)
 {
     if (args.size() != 1) {
-        throw String("date takes 1 argument, but was passed %1.").arg(args.size()).toStdString();
+        throw syntax_error(String("date takes 1 argument, but was passed %1.").arg(args.size()));
     }
     const Data& arg = args.at(0);
     if (!arg.isString() || arg.size() == 0) {

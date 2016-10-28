@@ -54,7 +54,7 @@ namespace Liquid {
         
         Interrupt pop_interrupt() {
             if (interrupts_.empty()) {
-                throw std::string("Can't pop interrupts when empty");
+                throw std::runtime_error("Can't pop interrupts when empty");
             }
             const Interrupt i = interrupts_.back();
             interrupts_.pop_back();

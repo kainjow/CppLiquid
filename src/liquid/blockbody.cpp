@@ -2,11 +2,12 @@
 #include "tokenizer.hpp"
 #include "stringscanner.hpp"
 #include "context.hpp"
+#include "error.hpp"
 
 void Liquid::BlockBody::defaultUnknownTagHandler(const StringRef& tagName, const StringRef&, Tokenizer&)
 {
     if (!tagName.isEmpty()) {
-        throw String("Unknown tag '%1'").arg(tagName.toString()).toStdString();
+        throw syntax_error(String("Unknown tag '%1'").arg(tagName.toString()));
     }
 }
 

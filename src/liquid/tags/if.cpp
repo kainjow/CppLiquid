@@ -133,7 +133,7 @@ bool Liquid::Condition::evaluate(Context& context)
             }
             break;
         default:
-            throw std::string("Operator not implemented");
+            throw std::runtime_error("Operator not implemented");
     }
     switch (logicalOp_) {
         case LogicalOperator::And:
