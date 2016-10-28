@@ -8,7 +8,7 @@
 #elif defined(LIQUID_STRING_USE_STD)
 #include "string_std.hpp"
 #else
-#error "A LIQUID_STRING_USE_XXX value must be defined!"
+#error "LIQUID_STRING_USE_STD or LIQUID_STRING_USE_QT must be defined!"
 #endif
 
 namespace Liquid {
