@@ -162,11 +162,11 @@ namespace Liquid {
             return result;
         }
         
-        bool compare(const String& other, bool caseSensitive) const {
-            if (caseSensitive) {
-                return false;
+        int compare(const String& other, bool caseSensitive) const {
+            if (!caseSensitive) {
+                return -1;
             }
-            return s_ == other.s_;
+            return s_.compare(other.s_);
         }
         
         StringRef midRef(size_type pos, size_type num = -1) const;

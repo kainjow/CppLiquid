@@ -679,7 +679,7 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const String& fi
         std::sort(objs.begin(), objs.end(), [caseSensitive](const Data& a, const Data& b) -> bool {
             const String s1 = a.toString();
             const String s2 = b.toString();
-            return s1.compare(s2, caseSensitive);
+            return s1.compare(s2, caseSensitive) < 0;
         });
     } else {
         const String property = args[0].toString();
@@ -689,7 +689,7 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const String& fi
             if (!obj1.isNil() && !obj2.isNil()) {
                 const String s1 = obj1.toString();
                 const String s2 = obj2.toString();
-                return s1.compare(s2, caseSensitive);
+                return s1.compare(s2, caseSensitive) < 0;
             } else if (obj1.isNil() && obj2.isNil()) {
                 return true;
             } else {
