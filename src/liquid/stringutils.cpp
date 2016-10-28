@@ -26,6 +26,11 @@ Liquid::StringRef Liquid::trim(const StringRef& input)
     return ltrim(rtrim(input));
 }
 
+Liquid::String Liquid::trim(const String& input)
+{
+    return trim(StringRef(&input)).toString();
+}
+
 Liquid::String Liquid::doubleToString(double value, int precision)
 {
     std::stringstream stream;

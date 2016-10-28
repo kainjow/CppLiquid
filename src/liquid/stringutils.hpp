@@ -9,6 +9,7 @@ namespace Liquid {
     StringRef rtrim(const StringRef& input);
     StringRef ltrim(const StringRef& input);
     StringRef trim(const StringRef& input);
+    String trim(const String& input);
     
     String doubleToString(double value, int precision = 6);
     

@@ -55,7 +55,7 @@ Data strip(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw String("strip doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return input.toString().trimmed();
+    return trim(input.toString());
 }
 
 Data rstrip(const Data& input, const std::vector<Data>& args)
@@ -299,7 +299,7 @@ Data truncatewords(const Data& input, const std::vector<Data>& args)
     for (int i = 0; i <= len; ++i) {
         result += wordlist[i] + delimiter;
     }
-    return result.trimmed() + truncateStr;
+    return trim(result) + truncateStr;
 }
 
 Data plus(const Data& input, const std::vector<Data>& args)

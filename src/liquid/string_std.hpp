@@ -106,10 +106,6 @@ namespace Liquid {
             return s_.substr(0, num);
         }
         
-        String trimmed() const {
-            return {};
-        }
-        
         String replace(const String& /*before*/, const String& /*after*/) const {
             return {};
         }
