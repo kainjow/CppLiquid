@@ -94,9 +94,12 @@ namespace Liquid {
             return {};
         }
         
-        String mid(size_type /*pos*/, size_type num = -1) const {
-            (void)num;
-            return {};
+        String mid(size_type pos, size_type num = -1) const {
+            if (pos > size()) {
+                return {};
+            }
+            const size_type len = num == static_cast<size_type>(-1) || size() < num ? size() - pos : num;
+            return String(s_.substr(pos, len));
         }
         
         String left(size_type num) const {
