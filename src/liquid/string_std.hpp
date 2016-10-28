@@ -128,12 +128,19 @@ namespace Liquid {
             return s_.substr(0, num);
         }
         
-        String replace(const String& /*before*/, const String& /*after*/) const {
-            return {};
+        String& replace(const String& before, const String& after) {
+            size_type idx;
+            size_type pos = 0;
+            while ((idx = indexOf(before, pos)) != npos) {
+                s_.replace(idx, before.size(), after.s_);
+                pos = idx + after.size();
+            }
+            return *this;
         }
         
-        String replace(size_type /*pos*/, const String& /*before*/, const String& /*after*/) const {
-            return {};
+        String& replace(size_type pos, size_type len, const String& after) {
+            s_.replace(pos, len, after.s_);
+            return *this;
         }
         
         size_type indexOf(value_type ch, size_type from = 0) const {
