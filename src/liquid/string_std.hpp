@@ -119,14 +119,12 @@ namespace Liquid {
             return {};
         }
         
-        size_type indexOf(value_type /*ch*/, size_type from = 0) const {
-            (void)from;
-            return -1;
+        size_type indexOf(value_type ch, size_type from = 0) const {
+            return s_.find(ch, from);
         }
         
-        size_type indexOf(const String& /*str*/, size_type from = 0) const {
-            (void)from;
-            return -1;
+        size_type indexOf(const String& str, size_type from = 0) const {
+            return s_.find(str.s_, from);
         }
         
         std::vector<String> split(const String& delimiter) const {
