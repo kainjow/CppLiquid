@@ -97,7 +97,7 @@ Data escape(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw String("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return input.toString().toHtmlEscaped().replace("'", "&#39;");
+    return input.toString().toHtmlEscaped();
 }
 
 int scanEntity(StringScanner& ss)

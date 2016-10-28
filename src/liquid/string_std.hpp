@@ -137,7 +137,32 @@ namespace Liquid {
         }
         
         String toHtmlEscaped() const {
-            return {};
+            String s;
+            const auto sz = size();
+            for (size_type i = 0; i < sz; ++i) {
+                const auto ch = at(i);
+                switch (ch) {
+                    case '&':
+                        s += "&amp;";
+                        break;
+                    case '<':
+                        s += "&lt;";
+                        break;
+                    case '>':
+                        s += "&gt;";
+                        break;
+                    case '\"':
+                        s += "&quot;";
+                        break;
+                    case '\'':
+                        s += "&#39;";
+                        break;
+                    default:
+                        s += ch;
+                        break;
+                }
+            }
+            return s;
         }
         
         size_type indexOf(value_type ch, size_type from = 0) const {
