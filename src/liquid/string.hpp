@@ -52,8 +52,12 @@ namespace Liquid {
             return s_->at(pos_ + pos);
         }
         
-        StringRef mid(size_type /*pos*/, size_type /*num*/ = -1) const {
-            return {};
+        StringRef mid(size_type pos, size_type num = -1) const {
+            if (pos > size()) {
+                return {};
+            }
+            const size_type len = num == static_cast<size_type>(-1) || size() < num ? size() - pos : num;
+            return StringRef(s_, pos_ + pos, len);
         }
         
         StringRef left(size_type num) const {
