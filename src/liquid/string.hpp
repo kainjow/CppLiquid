@@ -101,11 +101,11 @@ namespace Liquid {
         }
         
         int toInt() const {
-            return 0;
+            return std::stoi(toString().toStdString());
         }
         
         double toDouble() const {
-            return 0;
+            return std::stod(toString().toStdString());
         }
         
         StringRef trimmed() const {
