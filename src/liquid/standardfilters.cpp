@@ -228,15 +228,17 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     String result;
     const String inputStr = input.toString();
     const int inputStrSize = inputStr.size();
+    static const char hexchars[] = "0123456789ABCDEF";
+    char hexbuf[4] = {0};
+    hexbuf[0] = '%';
     for (int i = 0; i < inputStrSize; ++i) {
         const String::value_type ch = inputStr.at(i);
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
             result += ch;
         } else {
-            std::stringstream stream;
-            stream << std::hex << ch;
-            
-            result += String('%') + String(stream.str()).toUpper();
+            hexbuf[1] = hexchars[(ch & 0xF0) >> 4];
+            hexbuf[2] = hexchars[ch & 0x0F];
+            result += String(hexbuf);
         }
     }
     return result;
