@@ -87,11 +87,33 @@ namespace Liquid {
         }
         
         String toLower() const {
-            return {};
+            String s;
+            const auto sz = size();
+            const auto diff = 'a' - 'A';
+            for (size_type i = 0; i < sz; ++i) {
+                const auto ch = at(i);
+                if (ch >= 'A' && ch <= 'Z') {
+                    s += (ch + diff);
+                } else {
+                    s += ch;
+                }
+            }
+            return s;
         }
         
         String toUpper() const {
-            return {};
+            String s;
+            const auto sz = size();
+            const auto diff = 'a' - 'A';
+            for (size_type i = 0; i < sz; ++i) {
+                const auto ch = at(i);
+                if (ch >= 'a' && ch <= 'z') {
+                    s += (ch - diff);
+                } else {
+                    s += ch;
+                }
+            }
+            return s;
         }
         
         String mid(size_type pos, size_type num = -1) const {
