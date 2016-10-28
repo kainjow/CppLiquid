@@ -86,6 +86,8 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
             if (addComponent) {
                 components.emplace_back(isObject ? Component::Type::Object : Component::Type::Tag, tag, tagTrimmed);
             }
+        } else {
+            ++lastStartPos;
         }
     }
     
