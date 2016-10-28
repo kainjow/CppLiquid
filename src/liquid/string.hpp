@@ -73,7 +73,10 @@ namespace Liquid {
         }
         
         String toString() const {
-            return {};
+            if (!s_) {
+                return String();
+            }
+            return s_->mid(pos_, len_);
         }
         
         StringRef& operator=(const StringRef& other) {
