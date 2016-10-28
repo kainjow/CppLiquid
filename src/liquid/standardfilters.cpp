@@ -97,7 +97,33 @@ Data escape(const Data& input, const std::vector<Data>& args)
     if (args.size() != 0) {
         throw String("escape doesn't take any arguments, but was passed %1.").arg(args.size()).toStdString();
     }
-    return input.toString().toHtmlEscaped();
+    const String inputStr = input.toString();
+    String s;
+    const auto sz = inputStr.size();
+    for (String::size_type i = 0; i < sz; ++i) {
+        const auto ch = inputStr.at(i);
+        switch (ch) {
+            case '&':
+                s += "&amp;";
+                break;
+            case '<':
+                s += "&lt;";
+                break;
+            case '>':
+                s += "&gt;";
+                break;
+            case '\"':
+                s += "&quot;";
+                break;
+            case '\'':
+                s += "&#39;";
+                break;
+            default:
+                s += ch;
+                break;
+        }
+    }
+    return s;
 }
 
 int scanEntity(StringScanner& ss)
