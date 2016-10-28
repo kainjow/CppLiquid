@@ -68,8 +68,13 @@ namespace Liquid {
             return StringRef(s_, pos_, num);
         }
         
-        size_type indexOf(const String& /*str*/, size_type from = String::npos) const {
-            (void)from;
+        size_type indexOf(const String& str, size_type from = 0) const {
+            const auto sz = size() - str.size();
+            for (size_type i = from; i < sz; ++i) {
+                if (mid(i, str.size()) == str) {
+                    return i;
+                }
+            }
             return -1;
         }
         
