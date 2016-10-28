@@ -117,10 +117,6 @@ namespace Liquid {
             return std::stod(toString().toStdString());
         }
         
-        StringRef trimmed() const {
-            return {};
-        }
-
     private:
         const String *s_;
         size_type pos_;

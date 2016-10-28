@@ -36,7 +36,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
             // Collect the complete text of the object or tag
             const int tagEndPos = endPos + 2;
             const StringRef tag = source.midRef(startPos, tagEndPos - startPos);
-            const StringRef tagTrimmed = tag.mid(2, tag.size() - 4).trimmed();
+            const StringRef tagTrimmed = trim(tag.mid(2, tag.size() - 4));
             
             lastStartPos = tagEndPos;
             

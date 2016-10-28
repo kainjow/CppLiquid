@@ -1,6 +1,7 @@
 #include "stringutils.hpp"
 #include <sstream>
 #include <iomanip>
+#include "string.hpp"
 
 Liquid::StringRef Liquid::rtrim(const StringRef& input)
 {
@@ -18,6 +19,11 @@ Liquid::StringRef Liquid::ltrim(const StringRef& input)
     for (i = 0; i < size && isSpace(input.at(i)); ++i) {
     }
     return input.mid(i);
+}
+
+Liquid::StringRef Liquid::trim(const StringRef& input)
+{
+    return ltrim(rtrim(input));
 }
 
 Liquid::String Liquid::doubleToString(double value, int precision)
