@@ -51,7 +51,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
 
         tok = ss.scanFloat();
         if (!tok.isEmpty()) {
-            if (tok.endsWith(".") && ss.peekch() == ".") {
+            if (tok.at(tok.size() - 1) == '.' && ss.peekch() == ".") {
                 // This is actually an int in a range, so continue processing.
                 ss.advance(-tok.size());
             } else {

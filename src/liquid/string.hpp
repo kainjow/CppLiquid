@@ -72,10 +72,6 @@ namespace Liquid {
             return -1;
         }
         
-        bool endsWith(const String&/* str*/) const {
-            return false;
-        }
-        
         String toString() const {
             return {};
         }
