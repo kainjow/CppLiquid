@@ -88,16 +88,25 @@ namespace Liquid {
             return *this;
         }
         
-        bool operator==(const StringRef& /*other*/) const {
-            return false;
+        bool operator==(const StringRef& other) const {
+            const auto sz = size();
+            if (sz != other.size()) {
+                return false;
+            }
+            for (size_type i = 0; i < sz; ++i) {
+                if (other.at(i) != at(i)) {
+                    return false;
+                }
+            }
+            return true;
         }
         
-        bool operator==(const String& /*other*/) const {
-            return false;
+        bool operator==(const String& other) const {
+            return operator==(&other);
         }
         
-        bool operator!=(const String& /*other*/) const {
-            return false;
+        bool operator!=(const String& other) const {
+            return !operator==(other);
         }
         
         int toInt() const {
