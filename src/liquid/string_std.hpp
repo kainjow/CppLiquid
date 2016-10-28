@@ -132,11 +132,11 @@ namespace Liquid {
                 result.push_back(*this);
                 return result;
             }
-            std::string::const_iterator substart = s_.begin();
+            auto substart = s_.cbegin();
             for (;;) {
-                const auto subend = search(substart, s_.end(), delimiter.s_.begin(), delimiter.s_.end());
+                const auto subend = search(substart, s_.cend(), delimiter.s_.cbegin(), delimiter.s_.cend());
                 result.push_back(base(substart, subend));
-                if (subend == s_.end()) {
+                if (subend == s_.cend()) {
                     break;
                 }
                 substart = subend + delimiter.size();
