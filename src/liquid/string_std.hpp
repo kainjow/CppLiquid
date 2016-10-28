@@ -27,7 +27,7 @@ namespace Liquid {
         String() {}
         String(const value_type* ptr) : s_(ptr) {}
         String(const base& str) : s_(str) {}
-        String(value_type ch) { s_.append(ch, 1); }
+        String(value_type ch) : s_(1, ch) {}
         
         size_type size() const {
             return s_.size();
