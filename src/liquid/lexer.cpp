@@ -83,7 +83,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
             if (it != kSpecials.end()) {
                 tokens.emplace_back(it->second, tok);
             } else {
-                throw syntax_error(String("Unexpected character %1").arg(tok.toString()).toStdString());
+                throw syntax_error(String("Unexpected character %1").arg(tok.toString()));
             }
         }
     }
