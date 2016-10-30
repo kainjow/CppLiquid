@@ -110,7 +110,7 @@ TEST_CASE("Liquid::Parser") {
         Liquid::Parser p2(&input);
         CHECK(p2.consume(Liquid::Token::Type::String) == "Hello");
         CHECK(p2.consume(Liquid::Token::Type::EndOfString).isEmpty());
-}
+    }
 }
 
 #endif
