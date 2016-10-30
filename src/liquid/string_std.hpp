@@ -77,7 +77,7 @@ namespace Liquid {
         
         String arg(const String& arg) const {
             for (int i = 0; i <= 99; ++i) {
-                const auto marker = String("%") + std::to_string(i);
+                const auto marker = String("%" + std::to_string(i));
                 const auto idx = indexOf(marker);
                 if (idx != npos) {
                     String ret = *this;
