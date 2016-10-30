@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QHashFunctions>
+#include <unordered_map>
 
 namespace Liquid {
 
