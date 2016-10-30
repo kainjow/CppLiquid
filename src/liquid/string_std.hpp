@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include <strings.h>
 
 namespace Liquid {
     
@@ -180,7 +181,11 @@ namespace Liquid {
         
         int compare(const String& other, bool caseSensitive) const {
             if (!caseSensitive) {
-                return -1;
+#ifdef _WIN32
+                return ::_stricmp(s_.c_str(), other.s_.c_str());
+#else
+                return ::strcasecmp(s_.c_str(), other.s_.c_str());
+#endif
             }
             return s_.compare(other.s_);
         }
