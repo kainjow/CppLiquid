@@ -71,6 +71,7 @@ add_executable(${PROJECT_NAME}
   src/liquid/tags/increment.cpp
   src/liquid/tags/increment.hpp
   src/liquid/string.hpp
+  src/liquid/stringref.hpp
   src/liquid/string_std.hpp
   src/liquid/string_std.cpp
   src/liquid/string_qt.hpp
