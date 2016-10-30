@@ -44,6 +44,10 @@ namespace Liquid {
             return len_;
         }
         
+        bool isNull() const {
+            return s_ == nullptr;
+        }
+        
         bool isEmpty() const {
             return len_ == 0;
         }

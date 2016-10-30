@@ -44,13 +44,13 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
         }
 
         tok = ss.scanStringLiteral();
-        if (!tok.isEmpty()) {
+        if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::String, tok);
             continue;
         }
 
         tok = ss.scanFloat();
-        if (!tok.isEmpty()) {
+        if (!tok.isNull()) {
             if (tok.at(tok.size() - 1) == '.' && ss.peekch() == ".") {
                 // This is actually an int in a range, so continue processing.
                 ss.advance(-tok.size());
@@ -61,13 +61,13 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
         }
 
         tok = ss.scanInt();
-        if (!tok.isEmpty()) {
+        if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::NumberInt, tok);
             continue;
         }
 
         tok = ss.scanIdentifier();
-        if (!tok.isEmpty()) {
+        if (!tok.isNull()) {
             tokens.emplace_back(Token::Type::Id, tok);
             continue;
         }
@@ -78,7 +78,7 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
         }
         
         tok = ss.getch();
-        if (!tok.isEmpty()) {
+        if (!tok.isNull()) {
             const auto it = kSpecials.find(static_cast<char>(tok.at(0)));
             if (it != kSpecials.end()) {
                 tokens.emplace_back(it->second, tok);
@@ -187,6 +187,16 @@ TEST_CASE("Liquid::Lexer") {
         CHECK(tokens[1].value().toString().toStdString() == "..");
         CHECK(tokens[2].type() == Liquid::Token::Type::NumberInt);
         CHECK(tokens[2].value().toString().toStdString() == "2");
+    }
+
+    SECTION("EmptyString") {
+        const Liquid::String input = "''";
+        const Liquid::StringRef inputRef(&input);
+        std::vector<Liquid::Token> tokens = Liquid::Lexer::tokenize(inputRef);
+        REQUIRE(tokens.size() == 2);
+        CHECK(tokens[0].type() == Liquid::Token::Type::String);
+        CHECK(tokens[0].value().toString().toStdString() == "");
+        CHECK(tokens[1].type() == Liquid::Token::Type::EndOfString);
     }
 
 }
