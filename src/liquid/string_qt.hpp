@@ -153,7 +153,6 @@ namespace Liquid {
     template <typename T>
     using StringKeyUnorderedMap = std::unordered_map<String, T, QStringHash>;
     
-    // This is mostly for Catch so it can show Strings natively
     inline std::ostream& operator << (std::ostream& os, const String& value) {
         os << value.toStdString();
         return os;
