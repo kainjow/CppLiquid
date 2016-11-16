@@ -39,9 +39,6 @@ namespace Liquid {
             const std::vector<Expression>& expressions() const {
                 return expressions_;
             }
-            const BlockBody& block() const {
-                return block_;
-            }
             BlockBody& block() {
                 return block_;
             }
