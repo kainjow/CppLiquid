@@ -119,7 +119,7 @@ TEST_CASE("Liquid::Case") {
     }
     
     SECTION("CaseAssign") {
-        const char* code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
+        const Liquid::String code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
         Liquid::Template t;
         t.parse(code);
         CHECK_DATA_RESULT(t, "menswear",
@@ -140,7 +140,7 @@ TEST_CASE("Liquid::Case") {
     }
     
     SECTION("CaseOr1") {
-        const char* code = "{% case condition %}{% when 1 or 2 or 3 %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        const Liquid::String code = "{% case condition %}{% when 1 or 2 or 3 %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
         Liquid::Template t;
         t.parse(code);
         CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
@@ -151,7 +151,7 @@ TEST_CASE("Liquid::Case") {
     }
 
     SECTION("CaseOr2") {
-        const char* code = "{% case condition %}{% when 1 or 'string' or null %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        const Liquid::String code = "{% case condition %}{% when 1 or 'string' or null %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
         Liquid::Template t;
         t.parse(code);
         CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
@@ -161,7 +161,7 @@ TEST_CASE("Liquid::Case") {
     }
     
     SECTION("CaseComma1") {
-        const char* code = "{% case condition %}{% when 1, 2, 3 %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        const Liquid::String code = "{% case condition %}{% when 1, 2, 3 %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
         Liquid::Template t;
         t.parse(code);
         CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
@@ -172,7 +172,7 @@ TEST_CASE("Liquid::Case") {
     }
     
     SECTION("CaseComma2") {
-        const char* code = "{% case condition %}{% when 1, 'string', null %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
+        const Liquid::String code = "{% case condition %}{% when 1, 'string', null %} it's 1 or 2 or 3 {% when 4 %} it's 4 {% endcase %}";
         Liquid::Template t;
         t.parse(code);
         CHECK_DATA_RESULT(t, " it's 1 or 2 or 3 ", (Liquid::Data::Hash{{"condition", 1}}));
