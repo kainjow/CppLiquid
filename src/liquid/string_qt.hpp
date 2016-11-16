@@ -14,11 +14,11 @@
 namespace Liquid {
 
     class StringRef;
-    
+
     class String {
     private:
         using base = QString;
-    
+
     public:
         using value_type = ushort; // QChar's native type
         using size_type = base::size_type;
@@ -88,7 +88,7 @@ namespace Liquid {
             }
             return *this;
         }
-        
+
         String arg(const int arg) const {
             return std::to_string(arg);
         }
@@ -145,11 +145,11 @@ namespace Liquid {
         }
         
         StringRef midRef(size_type pos, size_type num = -1) const;
-        
+
     private:
         base s_;
     };
-    
+
     struct QStringHash {
         std::size_t operator()(const String& k) const {
             return qHash(k.raw());
@@ -158,7 +158,7 @@ namespace Liquid {
     
     template <typename T>
     using StringKeyUnorderedMap = std::unordered_map<String, T, QStringHash>;
-    
+
     inline std::ostream& operator << (std::ostream& os, const String& value) {
         os << value.toStdString();
         return os;

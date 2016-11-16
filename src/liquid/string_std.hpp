@@ -12,13 +12,13 @@
 #include <strings.h>
 
 namespace Liquid {
-    
+
     class StringRef;
-    
+
     class String {
     private:
         using base = std::string;
-        
+
     public:
         using value_type = base::value_type;
         using size_type = base::size_type;
