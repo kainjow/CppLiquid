@@ -73,7 +73,7 @@ namespace Liquid {
         }
         
         String toString() const {
-            if (!s_) {
+            if (isNull()) {
                 return String();
             }
             return s_->mid(pos_, len_);
