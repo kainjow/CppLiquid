@@ -58,6 +58,10 @@ namespace Liquid {
             return s_ != other.s_;
         }
         
+        String operator+(const String& other) const {
+            return String(s_ + other.s_);
+        }
+        
         String& operator+=(const String& other) {
             s_ += other.s_;
             return *this;
