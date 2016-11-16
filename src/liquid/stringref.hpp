@@ -23,7 +23,7 @@ namespace Liquid {
         {
         }
         
-        StringRef(const String* str, int position, int length)
+        StringRef(const String* str, size_type position, size_type length)
             : s_(str)
             , pos_(position)
             , len_(length)
