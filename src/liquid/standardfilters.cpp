@@ -184,7 +184,11 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
     StringScanner ss(&str);
     String result;
     while (!ss.eof()) {
-        const String::value_type ch = ss.getch().at(0);
+        const StringRef chr = ss.getch();
+        if (chr.isNull()) {
+            break;
+        }
+        const String::value_type ch = chr.at(0);
         switch (ch) {
             case '"':
                 result += "&quot;";
