@@ -9,7 +9,7 @@ namespace Liquid {
     
     class ForloopDrop : public Drop {
     public:
-        ForloopDrop(int length, const std::shared_ptr<ForloopDrop> parent)
+        ForloopDrop(int length, const std::shared_ptr<ForloopDrop>& parent)
             : length_(length)
             , index_(0)
             , parent_(parent)
@@ -163,7 +163,7 @@ class ForLoop {
 public:
     using Item = std::function<Data(int i)>;
     
-    ForLoop(const Item& item, BlockBody& body, const String& varName, int start, int end, const Data& limit, const Data& offset, bool reversed, const std::shared_ptr<ForloopDrop> parent)
+    ForLoop(const Item& item, BlockBody& body, const String& varName, int start, int end, const Data& limit, const Data& offset, bool reversed, const std::shared_ptr<ForloopDrop>& parent)
         : item_(item)
         , body_(body)
         , varName_(varName)
