@@ -81,7 +81,9 @@ namespace Liquid {
                 const auto marker = String("%" + std::to_string(i));
                 const auto idx = indexOf(marker);
                 if (idx != npos) {
-                    return replace(marker, arg);
+                    String ret = *this;
+                    ret.replace(marker, arg);
+                    return ret;
                 }
             }
             return *this;
@@ -112,14 +114,14 @@ namespace Liquid {
             return mid(0, num);
         }
         
-        String replace(const String& before, const String& after) const {
-            QString s = s_;
-            return s.replace(before.s_, after.s_);
+        String& replace(const String& before, const String& after) {
+            s_.replace(before.s_, after.s_);
+            return *this;
         }
         
-        String replace(size_type pos, size_type len, const String& after) const {
-            QString s = s_;
-            return s.replace(pos, len, after.s_);
+        String& replace(size_type pos, size_type len, const String& after) {
+            s_.replace(pos, len, after.s_);
+            return *this;
         }
         
         size_type indexOf(value_type ch, size_type from = 0) const {
