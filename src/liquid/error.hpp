@@ -6,19 +6,11 @@
 
 namespace Liquid {
 
-    class syntax_error : public std::exception {
+    class syntax_error : public std::runtime_error {
     public:
-        syntax_error(const String& what_arg)
-            : what_(what_arg)
+        syntax_error(const String& what_arg) : std::runtime_error(what_arg.toStdString())
         {
         }
-        
-        virtual const char* what() const noexcept override {
-            return what_.toStdString().c_str();
-        }
-        
-    private:
-        String what_;
     };
 
 }
