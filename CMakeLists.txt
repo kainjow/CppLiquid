@@ -92,6 +92,7 @@ macro(add_exe STRING_TYPE)
   	/WX
   	/W4
 	/wd4714 # Ignore "xxx marked as __forceinline not inlined" for Qt's toLower() and toUpper()
+	/sdl
     )
   else()
     target_compile_options(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
