@@ -63,6 +63,7 @@ namespace Liquid {
     
     class IfBlock {
     public:
+        IfBlock(bool elseBlock) : isElse(elseBlock) {}
         BlockBody body;
         Condition cond;
         bool isElse;

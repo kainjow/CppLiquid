@@ -7,8 +7,7 @@ Liquid::IfTag::IfTag(bool unless, const Context& context, const StringRef& tagNa
     : BlockTag(context, tagName, markup)
     , if_(!unless)
 {
-    IfBlock block;
-    blocks_.push_back(block);
+    blocks_.emplace_back(false);
     parseTag(markup);
 }
 
@@ -81,13 +80,10 @@ Liquid::String Liquid::IfTag::render(Context& context)
 void Liquid::IfTag::handleUnknownTag(const StringRef& tagName, const StringRef& markup, Tokenizer& tokenizer)
 {
     if (tagName == "elsif") {
-        IfBlock block;
-        blocks_.push_back(block);
+        blocks_.emplace_back(false);
         parseTag(markup);
     } else if (tagName == "else") {
-        IfBlock block;
-        block.isElse = true;
-        blocks_.push_back(block);
+        blocks_.emplace_back(true);
     } else {
         BlockTag::handleUnknownTag(tagName, markup, tokenizer);
     }
