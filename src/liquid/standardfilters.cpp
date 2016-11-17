@@ -909,15 +909,16 @@ TEST_CASE("Liquid::StandardFilters") {
         Liquid::Data::Hash hash;
         hash["what"] = "' \" & < > ' \" & < >";
         Liquid::Data data(hash);
-        CHECK(t.parse("{{ what | escape_once }}").render(data).toStdString() == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
-        CHECK(t.parse("{{ '1 < 2 & 3' | escape_once }}").render(data).toStdString() == "1 &lt; 2 &amp; 3");
-        CHECK(t.parse("{{ '1 &lt; 2 &amp; 3' | escape_once }}").render(data).toStdString() == "1 &lt; 2 &amp; 3");
-        CHECK(t.parse("{{ '&excl; &#x00021; &#33;' | escape_once }}").render(data).toStdString() == "&excl; &#x00021; &#33;");
-        CHECK(t.parse("{{ '&frac34; &#x000BE; &#190;' | escape_once }}").render(data).toStdString() == "&frac34; &#x000BE; &#190;");
-        CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(data).toStdString() == "&ctdot; &#x022EF; &#8943;");
-        CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(data).toStdString() == "&amp;; &amp;#x; &amp;#;");
-        CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(data).toStdString() == "&#x0; &#0;");
-        CHECK(t.parse("{{ '&#x000BE;&#X000BE;' | escape_once }}").render(data).toStdString() == "&#x000BE;&#X000BE;");
+        CHECK(Liquid::StandardFilters::escape_once("' \" & < > ' \" & < >", {}) == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+        CHECK(t.parse("{{ what | escape_once }}").render(data) == "&#39; &quot; &amp; &lt; &gt; &#39; &quot; &amp; &lt; &gt;");
+        CHECK(t.parse("{{ '1 < 2 & 3' | escape_once }}").render(data) == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '1 &lt; 2 &amp; 3' | escape_once }}").render(data) == "1 &lt; 2 &amp; 3");
+        CHECK(t.parse("{{ '&excl; &#x00021; &#33;' | escape_once }}").render(data) == "&excl; &#x00021; &#33;");
+        CHECK(t.parse("{{ '&frac34; &#x000BE; &#190;' | escape_once }}").render(data) == "&frac34; &#x000BE; &#190;");
+        CHECK(t.parse("{{ '&ctdot; &#x022EF; &#8943;' | escape_once }}").render(data) == "&ctdot; &#x022EF; &#8943;");
+        CHECK(t.parse("{{ '&; &#x; &#;' | escape_once }}").render(data) == "&amp;; &amp;#x; &amp;#;");
+        CHECK(t.parse("{{ '&#x0; &#0;' | escape_once }}").render(data) == "&#x0; &#0;");
+        CHECK(t.parse("{{ '&#x000BE;&#X000BE;' | escape_once }}").render(data) == "&#x000BE;&#X000BE;");
     }
 
     SECTION("UrlEncode") {
