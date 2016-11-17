@@ -115,7 +115,7 @@ namespace Liquid {
         
         bool scanUpTo(const String& string) {
             const auto index = input_.indexOf(string, pos_);
-            if (index == -1) {
+            if (index == static_cast<String::size_type>(-1)) {
                 return false;
             }
             pos_ = index;

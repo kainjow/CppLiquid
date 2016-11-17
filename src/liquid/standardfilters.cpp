@@ -235,7 +235,7 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     static const char hexchars[] = "0123456789ABCDEF";
     char hexbuf[4] = {0};
     hexbuf[0] = '%';
-    for (int i = 0; i < inputStrSize; ++i) {
+    for (String::size_type i = 0; i < inputStrSize; ++i) {
         const String::value_type ch = inputStr.at(i);
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
             result += ch;
@@ -305,7 +305,7 @@ Data truncate(const Data& input, const std::vector<Data>& args)
     const int length = args[0].toInt();
     const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
     auto len = length - truncateStr.size();
-    if (len < 0) {
+    if (static_cast<int>(len) < 0) {
         len = 0;
     }
     return input.toString().left(len) + truncateStr;
@@ -589,7 +589,7 @@ Data remove_first(const Data& input, const std::vector<Data>& args)
     String inputStr = input.toString();
     const String search = args[0].toString();
     const auto index = inputStr.indexOf(search);
-    if (index != -1) {
+    if (index != static_cast<String::size_type>(-1)) {
         inputStr.replace(index, search.size(), "");
     }
     return inputStr;
