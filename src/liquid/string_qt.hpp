@@ -5,9 +5,15 @@
 #error "LIQUID_STRING_USE_QT must be defined to use this file!"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push,3)
+#endif
 #include <QString>
 #include <QStringList>
 #include <QHashFunctions>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #include <unordered_map>
 #include <vector>
 
@@ -68,7 +74,7 @@ namespace Liquid {
         }
         
         String& operator+=(value_type ch) {
-            s_ += ch;
+            s_ += QChar(ch);
             return *this;
         }
         
