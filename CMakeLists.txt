@@ -90,7 +90,8 @@ macro(add_exe STRING_TYPE)
   if(MSVC)
     target_compile_options(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
   	/WX
-  	/W3
+  	/W4
+	/wd4714 # Ignore "xxx marked as __forceinline not inlined" for Qt's toLower() and toUpper()
     )
   else()
     target_compile_options(${PROJECT_NAME}-${STRING_TYPE} PRIVATE

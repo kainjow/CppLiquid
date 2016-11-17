@@ -69,7 +69,7 @@ namespace Liquid {
                     return i;
                 }
             }
-            return -1;
+            return static_cast<size_type >(-1);
         }
         
         String toString() const {

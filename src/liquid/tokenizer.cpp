@@ -28,9 +28,9 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
             }
             
             // Collect any text component before the object or tag
-            const auto chunkLen = startPos - lastStartPos;
-            if (chunkLen > 0) {
-                const StringRef text = source.midRef(lastStartPos, chunkLen);
+            const auto textChunkLen = startPos - lastStartPos;
+            if (textChunkLen > 0) {
+                const StringRef text = source.midRef(lastStartPos, textChunkLen);
                 components.emplace_back(Component::Type::Text, text, text);
             }
             
@@ -50,7 +50,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                     // Scan for the complete {% endxxx %} tag
                     StringScanner ss(&source, lastStartPos);
                     bool foundEnd = false;
-                    StringRef::size_type rawendPos = -1;
+                    StringRef::size_type rawendPos = static_cast<StringRef::size_type>(-1);
                     const String tagStartStr = "{%";
                     while (!ss.eof()) {
                         const auto savePos = ss.position();
@@ -73,9 +73,9 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                         throw syntax_error(String("%1 tag not properly terminated").arg(tagTrimmed.toString()).toStdString());
                     }
                     if (isRaw) {
-                        const auto chunkLen = rawendPos - lastStartPos;
-                        if (chunkLen > 0) {
-                            const StringRef text = source.midRef(lastStartPos, chunkLen);
+                        const auto rawChunkLen = rawendPos - lastStartPos;
+                        if (rawChunkLen > 0) {
+                            const StringRef text = source.midRef(lastStartPos, rawChunkLen);
                             components.emplace_back(Component::Type::Text, text, text);
                         }
                     }

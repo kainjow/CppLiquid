@@ -147,7 +147,6 @@ Liquid::String Liquid::Expression::stringDescription() const
             return String("[") + (lookups_.empty() ? "" : lookups_[0].stringDescription()) + String("]");
         default:
             throw std::runtime_error(String("Unimplemented stringDescription for type %1").arg(typeString()).toStdString());
-            return "";
     };
 }
 

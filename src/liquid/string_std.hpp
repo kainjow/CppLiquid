@@ -23,7 +23,7 @@ namespace Liquid {
         using value_type = base::value_type;
         using size_type = base::size_type;
         
-        static const size_type npos = -1;
+        static const size_type npos = static_cast<size_type >(-1);
         
         String() {}
         String(const value_type* ptr) : s_(ptr) {}
