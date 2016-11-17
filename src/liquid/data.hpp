@@ -10,9 +10,9 @@ namespace Liquid {
 
     class Data;
     
-    const extern Data kNilData;
-    const extern Data kTrueData;
-    const extern Data kFalseData;
+    extern const Data kNilData;
+    extern const Data kTrueData;
+    extern const Data kFalseData;
 
     class Data {
     public:
@@ -268,7 +268,7 @@ namespace Liquid {
                 case Type::NumberInt:
                     return number_.i;
                 case Type::NumberFloat:
-                    return number_.f;
+                    return static_cast<int>(number_.f);
                 default:
                     return 0;
             }

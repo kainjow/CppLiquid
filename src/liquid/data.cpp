@@ -1,8 +1,8 @@
 #include "data.hpp"
 
-const Liquid::Data Liquid::kNilData{Data::Type::Nil};
-const Liquid::Data Liquid::kTrueData{Data::Type::BooleanTrue};
-const Liquid::Data Liquid::kFalseData{Data::Type::BooleanFalse};
+const Liquid::Data Liquid::kNilData{Liquid::Data::Type::Nil};
+const Liquid::Data Liquid::kTrueData{Liquid::Data::Type::BooleanTrue};
+const Liquid::Data Liquid::kFalseData{Liquid::Data::Type::BooleanFalse};
 
 
 

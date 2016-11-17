@@ -5,7 +5,7 @@
 
 Liquid::StringRef Liquid::rtrim(const StringRef& input)
 {
-    int len = input.size();
+    auto len = input.size();
     while (len > 0 && isSpace(input.at(len - 1))) {
         --len;
     }
@@ -14,8 +14,8 @@ Liquid::StringRef Liquid::rtrim(const StringRef& input)
 
 Liquid::StringRef Liquid::ltrim(const StringRef& input)
 {
-    int i;
-    const int size = input.size();
+    StringRef::size_type i;
+    const auto size = input.size();
     for (i = 0; i < size && isSpace(input.at(i)); ++i) {
     }
     return input.mid(i);
@@ -38,7 +38,7 @@ Liquid::String Liquid::doubleToString(double value, int precision)
     const String str = stream.str();
     const String::value_type separator = '.';
     if (str.indexOf(separator) != String::npos) {
-        int offset = str.size() - 1;
+        auto offset = str.size() - 1;
         while (!str.isEmpty() && str.at(offset) == '0') {
             --offset;
         }

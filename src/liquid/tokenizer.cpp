@@ -28,14 +28,14 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
             }
             
             // Collect any text component before the object or tag
-            const int chunkLen = startPos - lastStartPos;
+            const auto chunkLen = startPos - lastStartPos;
             if (chunkLen > 0) {
                 const StringRef text = source.midRef(lastStartPos, chunkLen);
                 components.emplace_back(Component::Type::Text, text, text);
             }
             
             // Collect the complete text of the object or tag
-            const int tagEndPos = endPos + 2;
+            const auto tagEndPos = endPos + 2;
             const StringRef tag = source.midRef(startPos, tagEndPos - startPos);
             const StringRef tagTrimmed = trim(tag.mid(2, tag.size() - 4));
             
@@ -50,13 +50,13 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                     // Scan for the complete {% endxxx %} tag
                     StringScanner ss(&source, lastStartPos);
                     bool foundEnd = false;
-                    int rawendPos = -1;
+                    StringRef::size_type rawendPos = -1;
                     const String tagStartStr = "{%";
                     while (!ss.eof()) {
-                        const int savePos = ss.position();
+                        const auto savePos = ss.position();
                         if (ss.scanUpTo(tagStartStr)) {
                             rawendPos = ss.position();
-                            ss.advance(tagStartStr.size());
+                            ss.advance(static_cast<int>(tagStartStr.size()));
                             (void)ss.skipWhitespace();
                             const StringRef tagIdentifier = ss.scanIdentifier();
                             if (tagIdentifier == endTag) {
@@ -73,7 +73,7 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                         throw syntax_error(String("%1 tag not properly terminated").arg(tagTrimmed.toString()).toStdString());
                     }
                     if (isRaw) {
-                        const int chunkLen = rawendPos - lastStartPos;
+                        const auto chunkLen = rawendPos - lastStartPos;
                         if (chunkLen > 0) {
                             const StringRef text = source.midRef(lastStartPos, chunkLen);
                             components.emplace_back(Component::Type::Text, text, text);

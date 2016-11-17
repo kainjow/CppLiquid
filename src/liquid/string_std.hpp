@@ -5,11 +5,11 @@
 #error "LIQUID_STRING_USE_STD must be defined to use this file!"
 #endif
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <iostream>
-#include <strings.h>
 
 namespace Liquid {
 
@@ -88,7 +88,8 @@ namespace Liquid {
             return *this;
         }
 
-        String arg(const int arg) const {
+        template <typename T>
+        String arg(const T arg) const {
             return std::to_string(arg);
         }
         

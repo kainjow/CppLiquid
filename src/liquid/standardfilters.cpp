@@ -125,9 +125,9 @@ Data escape(const Data& input, const std::vector<Data>& args)
     return s;
 }
 
-int scanEntity(StringScanner& ss)
+String::size_type scanEntity(StringScanner& ss)
 {
-    const int startPos = ss.position();
+    const auto startPos = ss.position();
     const auto isNameChar = [](const String::value_type ch) {
         return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     };
@@ -203,8 +203,8 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
                 result += "&gt;";
                 break;
             case '&': {
-                const int currentPosition = ss.position();
-                const int numEntityChars = scanEntity(ss);
+                const auto currentPosition = ss.position();
+                const auto numEntityChars = scanEntity(ss);
                 if (numEntityChars == 0) {
                     result += "&amp;";
                     ss.setPosition(currentPosition);
@@ -230,7 +230,7 @@ Data url_encode(const Data& input, const std::vector<Data>& args)
     }
     String result;
     const String inputStr = input.toString();
-    const int inputStrSize = inputStr.size();
+    const auto inputStrSize = inputStr.size();
     static const char hexchars[] = "0123456789ABCDEF";
     char hexbuf[4] = {0};
     hexbuf[0] = '%';
@@ -254,14 +254,14 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
     }
     String result;
     const String inputStr = input.toString();
-    const int inputStrSize = inputStr.size();
-    for (int i = 0; i < inputStrSize; ++i) {
+    const auto inputStrSize = inputStr.size();
+    for (String::size_type i = 0; i < inputStrSize; ++i) {
         const String::value_type ch = inputStr.at(i);
         if (ch == '+') {
             result += ' ';
         } else if (ch == '%' && i < (inputStrSize - 2)) {
             try {
-                const String::value_type value = std::stoul(inputStr.mid(i + 1, 2).toStdString(), nullptr, 16);
+                const String::value_type value = static_cast<String::value_type>(std::stoul(inputStr.mid(i + 1, 2).toStdString(), nullptr, 16));
                 result += value;
                 i += 2;
             } catch (...) {
@@ -280,10 +280,10 @@ Data strip_html(const Data& input, const std::vector<Data>& args)
         throw syntax_error(String("strip_html doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String inputStr = input.toString();
-    const int inputStrSize = inputStr.size();
+    const auto inputStrSize = inputStr.size();
     String output;
     bool html = false;
-    for (int i = 0; i < inputStrSize; ++i) {
+    for (String::size_type i = 0; i < inputStrSize; ++i) {
         const String::value_type ch = inputStr.at(i);
         if (ch == '<') {
             html = true;
@@ -303,7 +303,7 @@ Data truncate(const Data& input, const std::vector<Data>& args)
     }
     const int length = args[0].toInt();
     const String truncateStr = args.size() == 2 ? args[1].toString() : "...";
-    int len = length - truncateStr.size();
+    auto len = length - truncateStr.size();
     if (len < 0) {
         len = 0;
     }
@@ -587,7 +587,7 @@ Data remove_first(const Data& input, const std::vector<Data>& args)
     }
     String inputStr = input.toString();
     const String search = args[0].toString();
-    const int index = inputStr.indexOf(search);
+    const auto index = inputStr.indexOf(search);
     if (index != -1) {
         inputStr.replace(index, search.size(), "");
     }

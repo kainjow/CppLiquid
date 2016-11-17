@@ -89,7 +89,8 @@ namespace Liquid {
             return *this;
         }
 
-        String arg(const int arg) const {
+        template <typename T>
+        String arg(const T arg) const {
             return std::to_string(arg);
         }
         

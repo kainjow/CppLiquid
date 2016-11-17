@@ -8,7 +8,7 @@ namespace Liquid {
 
     class StringScanner {
     public:
-        StringScanner(const StringRef& input, int pos = 0)
+        StringScanner(const StringRef& input, StringRef::size_type pos = 0)
             : input_(input)
             , pos_(pos)
         {
@@ -33,9 +33,9 @@ namespace Liquid {
             if (first != '\"' && first != '\'') {
                 return StringRef();
             }
-            const int startPos = pos_ + 1;
+            const StringRef::size_type startPos = pos_ + 1;
             StringRef::size_type pos = startPos;
-            int count = 0;
+            StringRef::size_type count = 0;
             for (; pos < size; ++pos) {
                 if (input_.at(pos) == first) {
                     const StringRef str = input_.mid(startPos, count);
@@ -48,9 +48,9 @@ namespace Liquid {
         }
         
         StringRef scanIdentifier() {
-            int count = 0;
-            const int size = input_.size();
-            for (int i = pos_; i < size; ++i, ++count) {
+            StringRef::size_type count = 0;
+            const auto size = input_.size();
+            for (StringRef::size_type i = pos_; i < size; ++i, ++count) {
                 const auto ch = input_.at(i);
                 if (count == 0) {
                     if (!(isLetter(ch) || ch == '_')) {
@@ -66,9 +66,9 @@ namespace Liquid {
         }
         
         StringRef peekInt() {
-            int count = 0;
-            const int size = input_.size();
-            for (int i = pos_ ; i < size; ++i, ++count) {
+            StringRef::size_type count = 0;
+            const auto size = input_.size();
+            for (StringRef::size_type i = pos_ ; i < size; ++i, ++count) {
                 const auto ch = input_.at(i);
                 if (count == 0) {
                     if (!(isDigit(ch) || (ch == '-' && i < (size - 1) && isDigit(input_.at(i + 1))))) {
@@ -94,15 +94,15 @@ namespace Liquid {
             if (intStr.isEmpty()) {
                 return intStr;
             }
-            const int size = input_.size();
-            int count = intStr.size();
-            int pos = pos_ + count;
+            const auto size = input_.size();
+            auto count = intStr.size();
+            auto pos = pos_ + count;
             if (pos > (size - 1) || input_.at(pos) != '.') {
                 return StringRef();
             }
             ++pos;
             ++count;
-            for (int i = pos ; i < size; ++i, ++count) {
+            for (StringRef::size_type i = pos ; i < size; ++i, ++count) {
                 const auto ch = input_.at(i);
                 if (!isDigit(ch)) {
                     break;
@@ -114,7 +114,7 @@ namespace Liquid {
         }
         
         bool scanUpTo(const String& string) {
-            const int index = input_.indexOf(string, pos_);
+            const auto index = input_.indexOf(string, pos_);
             if (index == -1) {
                 return false;
             }
@@ -144,7 +144,7 @@ namespace Liquid {
             return str;
         }
         
-        StringRef peekch(int distance = 0) {
+        StringRef peekch(StringRef::size_type distance = 0) {
             const auto pos = pos_ + distance;
             if (pos >= input_.size()) {
                 return StringRef();
@@ -152,7 +152,7 @@ namespace Liquid {
             return input_.mid(pos, 1);
         }
         
-        void setPosition(int pos) {
+        void setPosition(StringRef::size_type pos) {
             pos_ = pos;
         }
         
@@ -160,7 +160,7 @@ namespace Liquid {
             pos_ += num;
         }
         
-        int position() const {
+        StringRef::size_type position() const {
             return pos_;
         }
         
