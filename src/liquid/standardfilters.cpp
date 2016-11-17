@@ -686,17 +686,17 @@ Data sort_imp(const Data& input, const std::vector<Data>& args, const String& fi
         });
     } else {
         const String property = args[0].toString();
-        std::sort(objs.begin(), objs.end(), [&property, caseSensitive](const Data& a, const Data& b) -> bool {
+        std::stable_sort(objs.begin(), objs.end(), [&objs, &property, caseSensitive](const Data& a, const Data& b) -> bool {
             const Data& obj1{a[property]};
             const Data& obj2{b[property]};
-            if (!obj1.isNil() && !obj2.isNil()) {
+            if (!obj1.isNil() && obj2.isNil()) {
+                return true;
+            } else if (obj1.isNil() && !obj2.isNil()) {
+                return false;
+            } else {
                 const String s1 = obj1.toString();
                 const String s2 = obj2.toString();
                 return s1.compare(s2, caseSensitive) < 0;
-            } else if (obj1.isNil() && obj2.isNil()) {
-                return true;
-            } else {
-                return !obj1.isNil();
             }
         });
     }
@@ -1265,12 +1265,39 @@ TEST_CASE("Liquid::StandardFilters") {
             Liquid::Data::Hash{{"price", 1}, {"handle", "gamma"}},
             Liquid::Data::Hash{{"price", 2}, {"handle", "epsilon"}},
             Liquid::Data::Hash{{"price", 4}, {"handle", "alpha"}},
-            Liquid::Data::Hash{{"handle", "delta"}},
             Liquid::Data::Hash{{"handle", "beta"}},
+            Liquid::Data::Hash{{"handle", "delta"}},
         };
         CHECK(result == Liquid::Data{expectation});
     }
     
+    SECTION("SortMissingProperty2") {
+        const Liquid::Data::Array input{
+            Liquid::Data::Hash{ { "handle", "gamma" } },
+            Liquid::Data::Hash{ { "handle", "alpha" } },
+            Liquid::Data::Hash{ { "price", 4 },{ "handle", "alpha" } },
+            Liquid::Data::Hash{ { "handle", "delta" } },
+            Liquid::Data::Hash{ { "price", 1 },{ "handle", "gamma" } },
+            Liquid::Data::Hash{ { "handle", "beta" } },
+            Liquid::Data::Hash{ { "price", 2 },{ "handle", "epsilon" } },
+        };
+        Liquid::Data inputData{ input };
+        const std::vector<Liquid::Data> args{
+            "price",
+        };
+        const auto result = Liquid::StandardFilters::sort(inputData, args);
+        const Liquid::Data::Array expectation{
+            Liquid::Data::Hash{ { "price", 1 },{ "handle", "gamma" } },
+            Liquid::Data::Hash{ { "price", 2 },{ "handle", "epsilon" } },
+            Liquid::Data::Hash{ { "price", 4 },{ "handle", "alpha" } },
+            Liquid::Data::Hash{ { "handle", "gamma" } },
+            Liquid::Data::Hash{ { "handle", "alpha" } },
+            Liquid::Data::Hash{ { "handle", "delta" } },
+            Liquid::Data::Hash{ { "handle", "beta" } },
+        };
+        CHECK(result == Liquid::Data{ expectation });
+    }
+
     SECTION("Date") {
         using namespace Liquid::StandardFilters;
         CHECK(date("2006-05-05 10:00:00", {"%B"}).toString().toStdString() == "May");
