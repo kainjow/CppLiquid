@@ -63,7 +63,7 @@ Data rstrip(const Data& input, const std::vector<Data>& args)
         throw syntax_error(String("rstrip doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
-    return rtrim(&str).toString();
+    return rtrim(StringRef{&str}).toString();
 }
 
 Data lstrip(const Data& input, const std::vector<Data>& args)
@@ -72,7 +72,7 @@ Data lstrip(const Data& input, const std::vector<Data>& args)
         throw syntax_error(String("lstrip doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
-    return ltrim(&str).toString();
+    return ltrim(StringRef{&str}).toString();
 }
 
 Data strip_newlines(const Data& input, const std::vector<Data>& args)
@@ -181,7 +181,8 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
         throw syntax_error(String("escape_once doesn't take any arguments, but was passed %1.").arg(args.size()));
     }
     const String str = input.toString();
-    StringScanner ss(&str);
+    const StringRef ref{&str};
+    StringScanner ss{ref};
     String result;
     while (!ss.eof()) {
         const StringRef chr = ss.getch();
@@ -209,7 +210,7 @@ Data escape_once(const Data& input, const std::vector<Data>& args)
                     result += "&amp;";
                     ss.setPosition(currentPosition);
                 } else {
-                    String chunk = str.mid(currentPosition - 1, numEntityChars + 1);
+                    const String chunk = str.mid(currentPosition - 1, numEntityChars + 1);
                     result += chunk;
                     ss.setPosition(currentPosition + numEntityChars);
                 }

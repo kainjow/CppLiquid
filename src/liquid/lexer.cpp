@@ -24,7 +24,8 @@ namespace {
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
 {
     std::vector<Liquid::Token> tokens;
-    StringScanner ss(rtrim(input));
+    const StringRef trimmed = rtrim(input);
+    StringScanner ss(trimmed);
     StringRef tok;
     bool scannedComparisonOperator;
 

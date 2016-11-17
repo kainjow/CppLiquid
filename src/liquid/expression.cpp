@@ -210,62 +210,62 @@ TEST_CASE("Liquid::Expression") {
     
     SECTION("Parse") {
         Liquid::String input = "true";
-        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        Liquid::Expression exp = Liquid::Expression::parse(input);
         CHECK(exp.toBool());
         input = "false";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK_FALSE(exp.toBool());
         input = "nil";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNil());
         input = "null";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNil());
         input = "";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNil());
         input = "32";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNumber());
         CHECK(exp.isInt());
         CHECK(exp.toInt() == 32);
         input = "32.49";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNumber());
         CHECK(exp.isFloat());
         CHECK(exp.toInt() == 32);
         CHECK(exp.toFloat() == 32.49);
         input = "-32";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNumber());
         CHECK(exp.isInt());
         CHECK(exp.toInt() == -32);
         CHECK(exp.toFloat() == -32);
         input = "-32.49";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNumber());
         CHECK(exp.isFloat());
         CHECK(exp.toInt() == -32);
         CHECK(exp.toFloat() == -32.49);
         input = "-32.";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isNumber());
         CHECK(exp.isFloat());
         CHECK(exp.toInt() == -32);
         CHECK(exp.toFloat() == -32);
         input = "\"hello\"";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isString());
         CHECK(exp.toString() == "hello");
         input = "'hello'";
-        exp = Liquid::Expression::parse(&input);
+        exp = Liquid::Expression::parse(input);
         CHECK(exp.isString());
         CHECK(exp.toString() == "hello");
     }
     
     SECTION("LookupKey") {
         Liquid::String input = "name";
-        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        Liquid::Expression exp = Liquid::Expression::parse(input);
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 1);
         CHECK(exp.lookups()[0].isLookupKey());
@@ -274,7 +274,7 @@ TEST_CASE("Liquid::Expression") {
 
     SECTION("MultipleLookupKey") {
         Liquid::String input = "first.second.third.fourth.fifth";
-        Liquid::Expression exp = Liquid::Expression::parse(&input);
+        Liquid::Expression exp = Liquid::Expression::parse(input);
         REQUIRE(exp.isLookup());
         REQUIRE(exp.lookups().size() == 5);
         CHECK(exp.lookups()[0].isLookupKey());

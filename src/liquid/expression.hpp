@@ -187,6 +187,11 @@ namespace Liquid {
             return filter_;
         }
         
+        static Expression parse(const String& input) {
+            const StringRef ref{&input};
+            return parse(ref);
+        }
+
         static Expression parse(const StringRef& input) {
             Parser parser(input);
             return parse(parser);

@@ -8,8 +8,9 @@
 
 TEST_CASE("Liquid::StringScanner") {
 
-    Liquid::String input = "Hello World";
-    Liquid::StringScanner ss(&input);
+    const Liquid::String input = "Hello World";
+    const Liquid::StringRef ref{&input};
+    Liquid::StringScanner ss(ref);
     CHECK_FALSE(ss.eof());
     CHECK(ss.scanIdentifier() == "Hello");
     ss.skipWhitespace();

@@ -65,8 +65,9 @@ bool Liquid::Parser::look(Token::Type type, size_t ahead)
 TEST_CASE("Liquid::Parser") {
 
     SECTION("Consume1") {
-        Liquid::String input = "Hello World";
-        Liquid::Parser p(&input);
+        const Liquid::String input = "Hello World";
+        const Liquid::StringRef ref{&input};
+        Liquid::Parser p(ref);
         CHECK(p.consume() == "Hello");
         CHECK_THROWS_AS(p.consume(Liquid::Token::Type::NumberInt), Liquid::syntax_error);
         CHECK(p.consume(Liquid::Token::Type::Id) == "World");
@@ -74,8 +75,9 @@ TEST_CASE("Liquid::Parser") {
     }
 
     SECTION("Consume2") {
-        Liquid::String input = "Hello World";
-        Liquid::Parser p(&input);
+        const Liquid::String input = "Hello World";
+        const Liquid::StringRef ref{ &input };
+        Liquid::Parser p(ref);
         Liquid::String errmsg;
         Liquid::StringRef value;
         CHECK(p.consume(Liquid::Token::Type::Id, value));
@@ -88,8 +90,9 @@ TEST_CASE("Liquid::Parser") {
     }
 
     SECTION("Look") {
-        Liquid::String input = "Hello World";
-        Liquid::Parser p(&input);
+        const Liquid::String input = "Hello World";
+        const Liquid::StringRef ref{ &input };
+        Liquid::Parser p(ref);
         Liquid::String errmsg;
         Liquid::StringRef value;
         CHECK(p.look(Liquid::Token::Type::Id));
@@ -102,12 +105,14 @@ TEST_CASE("Liquid::Parser") {
 
     SECTION("ConsumeEmptyString") {
         Liquid::String input = "\"Hello\"";
-        Liquid::Parser p1(&input);
+        Liquid::StringRef ref{ &input };
+        Liquid::Parser p1(ref);
         CHECK(p1.consume(Liquid::Token::Type::String) == "Hello");
         CHECK(p1.consume(Liquid::Token::Type::EndOfString).isEmpty());
 
         input = "'Hello'";
-        Liquid::Parser p2(&input);
+        ref = Liquid::StringRef{&input};
+        Liquid::Parser p2(ref);
         CHECK(p2.consume(Liquid::Token::Type::String) == "Hello");
         CHECK(p2.consume(Liquid::Token::Type::EndOfString).isEmpty());
     }

@@ -16,14 +16,14 @@ namespace Liquid {
         {
         }
         
-        StringRef(const String* str)
+        explicit StringRef(const String* str)
             : s_(str)
             , pos_(0)
             , len_(str->size())
         {
         }
         
-        StringRef(const String* str, size_type position, size_type length)
+        explicit StringRef(const String* str, size_type position, size_type length)
             : s_(str)
             , pos_(position)
             , len_(length)
@@ -46,12 +46,12 @@ namespace Liquid {
             return s_->at(pos_ + pos);
         }
         
-        StringRef mid(size_type pos, size_type num = -1) const {
+        StringRef mid(size_type pos, size_type num = static_cast<size_type>(-1)) const {
             const auto sz = size();
             if (pos > sz) {
                 return {};
             }
-            const size_type len = num == static_cast<size_type>(-1) || sz < num ? sz - pos : num;
+            const size_type len = ((num == static_cast<size_type>(-1)) || (sz < num)) ? (sz - pos) : num;
             return StringRef(s_, pos_ + pos, len);
         }
         
@@ -102,11 +102,11 @@ namespace Liquid {
         }
         
         bool operator==(const String& other) const {
-            return operator==(&other);
+            return operator==(StringRef{&other});
         }
         
         bool operator!=(const String& other) const {
-            return !operator==(other);
+            return !operator==(StringRef{&other});
         }
         
         int toInt() const {

@@ -23,7 +23,9 @@ Liquid::StringRef Liquid::ltrim(const StringRef& input)
 
 Liquid::StringRef Liquid::trim(const StringRef& input)
 {
-    return ltrim(rtrim(input));
+    const auto trimmed1 = rtrim(input);
+    const auto trimmed2 = ltrim(trimmed1);
+    return trimmed2;
 }
 
 Liquid::String Liquid::trim(const String& input)
@@ -66,29 +68,29 @@ TEST_CASE("Liquid::StringUtils") {
     SECTION("rtrim") {
         Liquid::String input;
         input = "";
-        CHECK(tostd(Liquid::rtrim(&input)) == "");
+        CHECK(tostd(Liquid::rtrim(Liquid::StringRef{&input})) == "");
         input = "hello   ";
-        CHECK(tostd(Liquid::rtrim(&input)) == "hello");
+        CHECK(tostd(Liquid::rtrim(Liquid::StringRef{&input})) == "hello");
         input = "   hello";
-        CHECK(tostd(Liquid::rtrim(&input)) == "   hello");
+        CHECK(tostd(Liquid::rtrim(Liquid::StringRef{&input})) == "   hello");
         input = "hello \n\r\t";
-        CHECK(tostd(Liquid::rtrim(&input)) == "hello");
+        CHECK(tostd(Liquid::rtrim(Liquid::StringRef{&input})) == "hello");
         input = " \n  \r \t\t\t   ";
-        CHECK(tostd(Liquid::rtrim(&input)) == "");
+        CHECK(tostd(Liquid::rtrim(Liquid::StringRef{&input})) == "");
     }
 
     SECTION("ltrim") {
         Liquid::String input;
         input = "";
-        CHECK(tostd(Liquid::ltrim(&input)) == "");
+        CHECK(tostd(Liquid::ltrim(Liquid::StringRef{&input})) == "");
         input = "hello   ";
-        CHECK(tostd(Liquid::ltrim(&input)) == "hello   ");
+        CHECK(tostd(Liquid::ltrim(Liquid::StringRef{&input})) == "hello   ");
         input = "   hello";
-        CHECK(tostd(Liquid::ltrim(&input)) == "hello");
+        CHECK(tostd(Liquid::ltrim(Liquid::StringRef{&input})) == "hello");
         input = " \n\r\thello";
-        CHECK(tostd(Liquid::ltrim(&input)) == "hello");
+        CHECK(tostd(Liquid::ltrim(Liquid::StringRef{&input})) == "hello");
         input = " \n  \r \t\t\t   ";
-        CHECK(tostd(Liquid::ltrim(&input)) == "");
+        CHECK(tostd(Liquid::ltrim(Liquid::StringRef{&input})) == "");
     }
 
 }

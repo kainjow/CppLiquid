@@ -8,7 +8,7 @@ namespace Liquid {
 
     class StringScanner {
     public:
-        StringScanner(const StringRef& input, StringRef::size_type pos = 0)
+        explicit StringScanner(const StringRef& input, StringRef::size_type pos = 0)
             : input_(input)
             , pos_(pos)
         {

@@ -48,7 +48,8 @@ std::vector<Liquid::Component> Liquid::Tokenizer::tokenize(const String& source)
                 if (isRaw) {
                     const String endTag = String("end") + tagTrimmed.toString();
                     // Scan for the complete {% endxxx %} tag
-                    StringScanner ss(&source, lastStartPos);
+                    const StringRef sourceRef{&source};
+                    StringScanner ss(sourceRef, lastStartPos);
                     bool foundEnd = false;
                     StringRef::size_type rawendPos = static_cast<StringRef::size_type>(-1);
                     const String tagStartStr = "{%";
