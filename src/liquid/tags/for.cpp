@@ -489,7 +489,7 @@ TEST_CASE("Liquid::For") {
         );
     }
 
-        SECTION("ForloopObjectRangeReversed") {
+    SECTION("ForloopObjectRangeReversed") {
         CHECK_TEMPLATE_RESULT(
             "{%for item in (1..3) reversed%} {{forloop.index}}/{{forloop.length}} {%endfor%}",
             " 1/3  2/3  3/3 "
