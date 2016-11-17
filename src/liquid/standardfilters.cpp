@@ -259,7 +259,7 @@ Data url_decode(const Data& input, const std::vector<Data>& args)
         const String::value_type ch = inputStr.at(i);
         if (ch == '+') {
             result += ' ';
-        } else if (ch == '%' && i < (inputStrSize - 2)) {
+        } else if (ch == '%' && inputStrSize >= 3 && i < (inputStrSize - 2)) {
             try {
                 const String::value_type value = static_cast<String::value_type>(std::stoul(inputStr.mid(i + 1, 2).toStdString(), nullptr, 16));
                 result += value;
