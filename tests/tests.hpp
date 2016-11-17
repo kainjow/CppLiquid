@@ -1,14 +1,19 @@
 #include "catch.hpp"
 
-#define CHECK_TEMPLATE_RESULT(i,o) \
-    CHECK(Liquid::Template{}.parse(i).render() == o)
+#define CHECK_TEMPLATE_RESULT(i,o) { \
+    Liquid::Template __t; \
+    __t.parse(i); \
+    CHECK(__t.render() == o); \
+}
 
 #define CHECK_TEMPLATE_DATA_RESULT(i,o,d) { \
-    Liquid::Data __liquid__tests__check_template_data__result__data__{d}; \
-    CHECK(Liquid::Template{}.parse(i).render(__liquid__tests__check_template_data__result__data__) == o); \
+    Liquid::Data __d{d}; \
+    Liquid::Template __t; \
+    __t.parse(i); \
+    CHECK(__t.render(__d) == o); \
 }
 
 #define CHECK_DATA_RESULT(t,o,d) { \
-    Liquid::Data __liquid__tests__check_data_result__data__{d}; \
-    CHECK(t.render(__liquid__tests__check_data_result__data__) == o); \
+    Liquid::Data __d{d}; \
+    CHECK(t.render(__d) == o); \
 }
