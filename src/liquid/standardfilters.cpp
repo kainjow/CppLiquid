@@ -444,7 +444,7 @@ Data modulo(const Data& input, const std::vector<Data>& args)
 
 Data split(const Data& input, const std::vector<Data>& args)
 {
-    if (args.size() > 1) {
+    if (args.size() != 1) {
         throw syntax_error(String("split takes 1 argument, but was passed %1.").arg(args.size()));
     }
     Data array(Data::Type::Array);
@@ -457,7 +457,7 @@ Data split(const Data& input, const std::vector<Data>& args)
 
 Data join(const Data& input, const std::vector<Data>& args)
 {
-    if (args.size() > 1) {
+    if (args.size() != 1) {
         throw syntax_error(String("join takes 1 argument, but was passed %1.").arg(args.size()));
     }
     String result;
@@ -474,8 +474,8 @@ Data join(const Data& input, const std::vector<Data>& args)
 
 Data uniq(const Data& input, const std::vector<Data>& args)
 {
-    if (args.size() > 1) {
-        throw syntax_error(String("uniq takes 1 argument, but was passed %1.").arg(args.size()));
+    if (args.size() != 0) {
+        throw syntax_error(String("uniq takes 0 arguments, but was passed %1.").arg(args.size()));
     }
     Data result(Data::Type::Array);
     std::vector<Data> dupes;
@@ -1049,6 +1049,8 @@ TEST_CASE("Liquid::StandardFilters") {
     SECTION("Split") {
         Liquid::Template t;
         CHECK(t.parse("{{ 'John, Paul, George, Ringo' | split: ', ' | size }}").render().toStdString() == "4");
+        CHECK(t.parse("{{ 'A1Z' | split: '1' | join: '' }}").render() == "AZ");
+        CHECK(t.parse("{{ 'A1Z' | split: 1 | join: '' }}").render() == "AZ");
     }
 
     SECTION("Join") {
