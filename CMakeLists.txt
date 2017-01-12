@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(CppLiquid)
 
+option(CPPLIQUID_TESTS "Build tests" ON)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 macro(add_exe STRING_TYPE)
-  add_executable(${PROJECT_NAME}-${STRING_TYPE}
-    tests/main.cpp
-    tests/tests.hpp
-
+  set(SRCS
     src/liquid/block.cpp
     src/liquid/block.hpp
     src/liquid/blockbody.cpp
@@ -74,25 +73,42 @@ macro(add_exe STRING_TYPE)
     src/liquid/string_std.cpp
     src/liquid/string_qt.hpp
   )
+  add_library(${PROJECT_NAME}-${STRING_TYPE} ${SRCS})
 
   target_compile_definitions(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
-    TESTS
     LIQUID_STRING_USE_${STRING_TYPE}
   )
 
   target_include_directories(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
-    src
     src/liquid
     src/liquid/tags
-    tests
   )
+
+  if(CPPLIQUID_TESTS)
+    add_executable(${PROJECT_NAME}-${STRING_TYPE}-Test
+      tests/main.cpp
+      tests/tests.hpp
+      ${SRCS}
+    )
+
+    target_compile_definitions(${PROJECT_NAME}-${STRING_TYPE}-Test PRIVATE
+      TESTS
+      LIQUID_STRING_USE_${STRING_TYPE}
+    )
+
+    target_include_directories(${PROJECT_NAME}-${STRING_TYPE}-Test PRIVATE
+      src/liquid
+      src/liquid/tags
+      tests
+    )
+  endif()
 
   if(MSVC)
     target_compile_options(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
-  	/WX
-  	/W4
-	/wd4714 # Ignore "xxx marked as __forceinline not inlined" for Qt's toLower() and toUpper()
-	/sdl
+      /WX
+      /W4
+      /wd4714 # Ignore "xxx marked as __forceinline not inlined" for Qt's toLower() and toUpper()
+      /sdl
     )
   else()
     target_compile_options(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
@@ -103,7 +119,7 @@ macro(add_exe STRING_TYPE)
   endif()
   
   enable_testing()
-  add_test(NAME ${PROJECT_NAME}-${STRING_TYPE} COMMAND ${PROJECT_NAME}-${STRING_TYPE})
+  add_test(NAME ${PROJECT_NAME}-${STRING_TYPE} COMMAND ${PROJECT_NAME}-${STRING_TYPE}-Test)
 endmacro()
 
 add_exe(STD)
@@ -112,6 +128,7 @@ find_package(Qt5 COMPONENTS Core)
 if(Qt5_FOUND)
   add_exe(QT)  
   target_link_libraries(${PROJECT_NAME}-QT Qt5::Core)
+  target_link_libraries(${PROJECT_NAME}-QT-Test Qt5::Core)
   if(MSVC)
     if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
 		get_target_property(QtCore_location Qt5::Core LOCATION_${CMAKE_BUILD_TYPE})
