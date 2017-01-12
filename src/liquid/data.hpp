@@ -344,6 +344,13 @@ namespace Liquid {
             return array_;
         }
 
+        Array& array() {
+            if (!isArray()) {
+                throw std::runtime_error("array() requires an array");
+            }
+            return array_;
+        }
+        
         const Hash& hash() const {
             if (!isHash()) {
                 throw std::runtime_error("hash() requires an array");
