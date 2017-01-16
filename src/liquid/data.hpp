@@ -179,8 +179,16 @@ namespace Liquid {
         {
         }
         
-        Data(const char *string) : Data(String(string)) {}
-
+        Data(const String::base& string)
+            : Data(String{string})
+        {
+        }
+        
+        Data(const char *string)
+            : Data(String(string))
+        {
+        }
+        
         Data(int value)
             : type_(Type::NumberInt)
         {

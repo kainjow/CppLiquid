@@ -22,10 +22,9 @@ namespace Liquid {
     class StringRef;
 
     class String {
-    private:
+    public:
         using base = QString;
 
-    public:
         using value_type = ushort; // QChar's native type
         using size_type = base::size_type;
         
