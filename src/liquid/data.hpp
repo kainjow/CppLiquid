@@ -358,6 +358,13 @@ namespace Liquid {
             return hash_;
         }
 
+        Hash& hash() {
+            if (!isHash()) {
+                throw std::runtime_error("hash() requires an array");
+            }
+            return hash_;
+        }
+
         Data& insert(const String& key, const Data& value) {
             if (!isHash()) {
                 throw std::runtime_error("insert() requires a hash");
