@@ -18,7 +18,7 @@ namespace {
         {'=', Liquid::Token::Type::Equal},
     };
     const Liquid::String kDotDot = "..";
-    const std::vector<Liquid::String> comparisonOperators = {"==", "!=", "<>", "<=", ">=", "<", ">", "contains"};
+    const std::vector<Liquid::String> comparisonOperators = {"==", "!=", "<>", "<=", ">=", "<", ">"};
 }
 
 std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
@@ -69,7 +69,11 @@ std::vector<Liquid::Token> Liquid::Lexer::tokenize(const StringRef& input)
 
         tok = ss.scanIdentifier();
         if (!tok.isNull()) {
-            tokens.emplace_back(Token::Type::Id, tok);
+            if (tok == "contains") {
+                tokens.emplace_back(Token::Type::Comparison, tok);
+            } else {
+                tokens.emplace_back(Token::Type::Id, tok);
+            }
             continue;
         }
 

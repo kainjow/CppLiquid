@@ -622,6 +622,14 @@ TEST_CASE("Liquid::If") {
             (Liquid::Data::Hash{{"choices", Liquid::Data::Array{1, nullptr, false}}})
         );
     }
+
+    SECTION("ContainsInId") {
+        CHECK_TEMPLATE_DATA_RESULT(
+            "{% if containsallshipments == true %} YES {% endif %}",
+            " YES ",
+            (Liquid::Data::Hash{{"containsallshipments", true}})
+        );
+    }
 }
 
 #endif
