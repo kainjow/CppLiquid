@@ -40,6 +40,7 @@ TEST_CASE("Liquid::Assign") {
             (Liquid::Data::Hash{{"a-b", "1"}})
         );
         CHECK_TEMPLATE_RESULT("{% assign age = 32 | plus: 4 | divided_by: 2 %}{{ age }}", "18");
+        CHECK_TEMPLATE_RESULT("{% assign x = 1 %}{% assign x = x | plus: 1 %}{{ x }}", "2");
     }
 }
 
