@@ -373,15 +373,11 @@ namespace Liquid {
             return hash_;
         }
 
-        Data& insert(const String& key, const Data& value) {
+        void insert(const String& key, const Data& value) {
             if (!isHash()) {
                 throw std::runtime_error("insert() requires a hash");
             }
-            const auto result = hash_.insert(std::make_pair(key, value));
-            if (!result.second) {
-                throw std::runtime_error("Failed to insert into hash");
-            }
-            return result.first->second;
+            hash_[key] = value;
         }
         
         const Data& operator[](const String& key) const {
