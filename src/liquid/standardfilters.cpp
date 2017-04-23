@@ -714,17 +714,26 @@ Data sort_natural(const Data& input, const std::vector<Data>& args)
     return sort_imp(input, args, "sort_natural", false);
 }
 
+void _gmtime(struct ::tm* tm, const ::time_t t)
+{
+#ifdef _MSC_VER
+    auto err = ::gmtime_s(&tm, &t);
+    if (err != 0) {
+        throw std::runtime_error("gmtime_s failed with error " + std::to_string(err));
+    }
+#else
+    auto gmtime_ptr = ::gmtime(&t);
+    if (!gmtime_ptr) {
+        throw std::runtime_error("gmtime failed");
+    }
+    *tm = *gmtime_ptr;
+#endif
+}
+
 bool string_to_date(const std::string& input, struct ::tm& tm)
 {
     if (input == "now" || input == "today") {
-        const std::time_t now = std::time(nullptr);
-#ifdef _MSC_VER
-        if (::gmtime_s(&tm, &now) != 0) {
-            return false;
-        }
-#else
-        tm = *::gmtime(&now);
-#endif
+        _gmtime(&tm, std::time(nullptr));
         return true;
     }
 
@@ -769,14 +778,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     }
     struct ::tm tm;
     if (input.isNumber()) {
-        const std::time_t t = static_cast<std::time_t>(input.toFloat());
-#ifdef _MSC_VER
-        if (::gmtime_s(&tm, &t) != 0) {
-            return nullptr;
-        }
-#else
-        tm = *::gmtime(&t);
-#endif
+        _gmtime(&tm, static_cast<std::time_t>(input.toFloat()));
     } else if (!string_to_date(input.toString().toLower().toStdString().c_str(), tm)) {
         return nullptr;
     }
