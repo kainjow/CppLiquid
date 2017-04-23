@@ -1337,13 +1337,13 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(date("2006-07-05 10:32:11", {"%m/%d/%Y %H.%M.%S"}).toString().toStdString() == "07/05/2006 10.32.11");
 
         const auto now = ::time(nullptr);
-#ifdef _MSC_VER
         struct ::tm tm;
+#ifdef _MSC_VER
         (void)localtime_s(&tm, &now);
 #else
-        const auto tm = ::localtime(&now);
+        tm = *::localtime(&now);
 #endif
-        const auto current_year = std::to_string(tm->tm_year + 1900);
+        const auto current_year = std::to_string(tm.tm_year + 1900);
         CHECK(date("now", {"%Y"}) == current_year);
         CHECK(date("today", {"%Y"}) == current_year);
         CHECK(date("Today", {"%Y"}) == current_year);
