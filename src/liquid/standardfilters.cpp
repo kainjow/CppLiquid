@@ -737,7 +737,8 @@ void string_to_date(const String& input, struct ::tm& tm)
         return;
     }
 
-    const char *cstr = input.toStdString().c_str();
+    const auto str = input.toStdString();
+    const char *cstr = str.c_str();
     int year = 0;
     int month = 0;
     int day = 0;
@@ -754,7 +755,7 @@ void string_to_date(const String& input, struct ::tm& tm)
     } else if (SSCANF(cstr, "%04d-%02d-%02d", &year, &month, &day) == 3) {
         // ok
     } else {
-        throw syntax_error(String("Invalid date \"%1\"").arg(String(cstr)));
+        throw syntax_error(String("Invalid date \"%1\"").arg(String(str)));
     }
 #undef SSCANF
     ::memset(&tm, 0, sizeof(tm));
