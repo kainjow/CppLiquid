@@ -717,7 +717,7 @@ Data sort_natural(const Data& input, const std::vector<Data>& args)
 void _gmtime(struct ::tm* tm, const ::time_t t)
 {
 #ifdef _MSC_VER
-    auto err = ::gmtime_s(&tm, &t);
+    auto err = ::gmtime_s(tm, &t);
     if (err != 0) {
         throw std::runtime_error("gmtime_s failed with error " + std::to_string(err));
     }
