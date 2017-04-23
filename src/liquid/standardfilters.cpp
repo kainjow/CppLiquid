@@ -718,7 +718,13 @@ bool string_to_date(const std::string& input, struct ::tm& tm)
 {
     if (input == "now" || input == "today") {
         const std::time_t now = std::time(nullptr);
+#ifdef _MSC_VER
+        if (::gmtime_s(&tm, &now) != 0) {
+            return false;
+        }
+#else
         tm = *::gmtime(&now);
+#endif
         return true;
     }
 
@@ -764,7 +770,13 @@ Data date(const Data& input, const std::vector<Data>& args)
     struct ::tm tm;
     if (input.isNumber()) {
         const std::time_t t = static_cast<std::time_t>(input.toFloat());
+#ifdef _MSC_VER
+        if (::gmtime_s(&tm, &t) != 0) {
+            return nullptr;
+        }
+#else
         tm = *::gmtime(&t);
+#endif
     } else if (!string_to_date(input.toString().toLower().toStdString().c_str(), tm)) {
         return nullptr;
     }
