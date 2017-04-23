@@ -10,5 +10,5 @@ CppLiquid has zero dependencies and can be optionally built to use Qt's QString 
 
 - [tablerow](https://shopify.github.io/liquid/tags/iteration/#tablerow)
 - [Whitespace Control](https://shopify.github.io/liquid/basics/whitespace/)
-- Travis and AppVeyor CI
+- Travis CI
 - Documentation
