@@ -1343,7 +1343,7 @@ TEST_CASE("Liquid::StandardFilters") {
 #else
         tm = *::localtime(&now);
 #endif
-        const auto current_year = std::to_string(tm.tm_year + 1900);
+        const auto current_year = Liquid::Data{std::to_string(tm.tm_year + 1900)};
         CHECK(date("now", {"%Y"}) == current_year);
         CHECK(date("today", {"%Y"}) == current_year);
         CHECK(date("Today", {"%Y"}) == current_year);
