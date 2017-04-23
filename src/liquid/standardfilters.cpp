@@ -730,11 +730,11 @@ void _gmtime(struct ::tm* tm, const ::time_t t)
 #endif
 }
 
-bool string_to_date(const String& input, struct ::tm& tm)
+void string_to_date(const String& input, struct ::tm& tm)
 {
     if (input == "now" || input == "today") {
         _gmtime(&tm, std::time(nullptr));
-        return true;
+        return;
     }
 
     const char *cstr = input.toStdString().c_str();
@@ -754,7 +754,7 @@ bool string_to_date(const String& input, struct ::tm& tm)
     } else if (SSCANF(cstr, "%04d-%02d-%02d", &year, &month, &day) == 3) {
         // ok
     } else {
-        return false;
+        throw syntax_error(String("Invalid date \"%1\"").arg(String(cstr)));
     }
 #undef SSCANF
     ::memset(&tm, 0, sizeof(tm));
@@ -764,7 +764,6 @@ bool string_to_date(const String& input, struct ::tm& tm)
     tm.tm_hour = hour;
     tm.tm_min = minute;
     tm.tm_sec = second;
-    return true;
 }
 
 Data date(const Data& input, const std::vector<Data>& args)
@@ -779,8 +778,8 @@ Data date(const Data& input, const std::vector<Data>& args)
     struct ::tm tm;
     if (input.isNumber()) {
         _gmtime(&tm, static_cast<std::time_t>(input.toFloat()));
-    } else if (!string_to_date(input.toString().toLower(), tm)) {
-        throw syntax_error(String("Invalid date \"%1\"").arg(input.toString()));
+    } else {
+        string_to_date(input.toString().toLower(), tm);
     }
     const auto formatBytes = arg.toString().toStdString();
     const char *formatCstr = formatBytes.c_str();
