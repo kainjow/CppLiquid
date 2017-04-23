@@ -763,7 +763,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     }
     struct ::tm tm;
     if (input.isNumber()) {
-        const std::time_t t = input.toFloat();
+        const std::time_t t = static_cast<std::time_t>(input.toFloat());
         tm = *::gmtime(&t);
     } else if (!string_to_date(input.toString().toLower().toStdString().c_str(), tm)) {
         return nullptr;
