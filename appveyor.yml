@@ -2,6 +2,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       CMAKE_GENERATOR: 14
+      CMAKE_PREFIX_PATH: C:\Qt\5.8\msvc2015_64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CMAKE_GENERATOR: 15
 platform: x64
