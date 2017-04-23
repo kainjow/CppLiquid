@@ -722,11 +722,10 @@ void _gmtime(struct ::tm* tm, const ::time_t t)
         throw std::runtime_error("gmtime_s failed with error " + std::to_string(err));
     }
 #else
-    auto gmtime_ptr = ::gmtime(&t);
+    auto gmtime_ptr = ::gmtime_r(&t, tm);
     if (!gmtime_ptr) {
-        throw std::runtime_error("gmtime failed");
+        throw std::runtime_error("gmtime failed with error " + std::to_string(errno));
     }
-    *tm = *gmtime_ptr;
 #endif
 }
 
