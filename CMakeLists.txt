@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 macro(add_exe STRING_TYPE)
-  add_library(${PROJECT_NAME}-${STRING_TYPE}
+  set(SRCS
     src/liquid/block.cpp
     src/liquid/block.hpp
     src/liquid/blockbody.cpp
@@ -72,6 +72,7 @@ macro(add_exe STRING_TYPE)
     src/liquid/string_std.cpp
     src/liquid/string_qt.hpp
   )
+  add_library(${PROJECT_NAME}-${STRING_TYPE} ${SRCS})
 
   target_compile_definitions(${PROJECT_NAME}-${STRING_TYPE} PRIVATE
     LIQUID_STRING_USE_${STRING_TYPE}
