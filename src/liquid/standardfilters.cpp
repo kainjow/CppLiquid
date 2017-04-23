@@ -773,7 +773,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     }
     const Data& arg = args.at(0);
     if (!arg.isString() || arg.size() == 0) {
-        throw syntax_error("Invalid date argument");
+        return input;
     }
     struct ::tm tm;
     if (input.isNumber()) {
