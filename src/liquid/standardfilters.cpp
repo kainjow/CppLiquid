@@ -3,6 +3,7 @@
 #include "stringutils.hpp"
 #include "template.hpp"
 #include "error.hpp"
+#include <cerrno>
 #include <ctime>
 
 namespace Liquid { namespace StandardFilters {
