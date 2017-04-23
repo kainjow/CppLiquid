@@ -12,7 +12,6 @@ macro(add_exe STRING_TYPE)
     src/liquid/block.hpp
     src/liquid/blockbody.cpp
     src/liquid/blockbody.hpp
-    src/liquid/context.cpp
     src/liquid/context.hpp
     src/liquid/data.cpp
     src/liquid/data.hpp
