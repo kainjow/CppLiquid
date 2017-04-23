@@ -16,7 +16,7 @@ namespace Liquid {
         String render();
         String render(Data& data);
         
-        void registerFilter(const std::string& name, const FilterHandler& filter);
+        void registerFilter(const String& name, const FilterHandler& filter);
         
     private:
         BlockBody root_;

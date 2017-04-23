@@ -730,14 +730,14 @@ void _gmtime(struct ::tm* tm, const ::time_t t)
 #endif
 }
 
-bool string_to_date(const std::string& input, struct ::tm& tm)
+bool string_to_date(const String& input, struct ::tm& tm)
 {
     if (input == "now" || input == "today") {
         _gmtime(&tm, std::time(nullptr));
         return true;
     }
 
-    const char *cstr = input.c_str();
+    const char *cstr = input.toStdString().c_str();
     int year = 0;
     int month = 0;
     int day = 0;
@@ -779,7 +779,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     struct ::tm tm;
     if (input.isNumber()) {
         _gmtime(&tm, static_cast<std::time_t>(input.toFloat()));
-    } else if (!string_to_date(input.toString().toLower().toStdString(), tm)) {
+    } else if (!string_to_date(input.toString().toLower(), tm)) {
         return nullptr;
     }
     const auto formatBytes = arg.toString().toStdString();

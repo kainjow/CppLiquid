@@ -97,7 +97,7 @@ Liquid::String Liquid::Template::render(Data& data)
     return root_.render(ctx);
 }
 
-void Liquid::Template::registerFilter(const std::string& name, const FilterHandler& filter)
+void Liquid::Template::registerFilter(const String& name, const FilterHandler& filter)
 {
     filters_[name] = filter;
 }
