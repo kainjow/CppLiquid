@@ -1350,7 +1350,6 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(date("Today", {"%Y"}) == current_year);
 
         CHECK(date(946702800, {"%m/%d/%Y"}).toString().toStdString() == "01/01/2000");
-        CHECK(date(-284061600, {"%m/%d/%Y"}).toString().toStdString() == "12/31/1960");
         CHECK(date(10000000000., {"%m/%d/%Y"}).toString().toStdString() == "11/20/2286"); // 64-bit time_t support
         CHECK(date(0, {"%m/%d/%Y"}).toString().toStdString() == "01/01/1970");
     }
