@@ -779,7 +779,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     struct ::tm tm;
     if (input.isNumber()) {
         _gmtime(&tm, static_cast<std::time_t>(input.toFloat()));
-    } else if (!string_to_date(input.toString().toLower().toStdString().c_str(), tm)) {
+    } else if (!string_to_date(input.toString().toLower().toStdString(), tm)) {
         return nullptr;
     }
     const auto formatBytes = arg.toString().toStdString();
