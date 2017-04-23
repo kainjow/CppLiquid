@@ -780,7 +780,7 @@ Data date(const Data& input, const std::vector<Data>& args)
     if (input.isNumber()) {
         _gmtime(&tm, static_cast<std::time_t>(input.toFloat()));
     } else if (!string_to_date(input.toString().toLower(), tm)) {
-        return nullptr;
+        throw syntax_error(String("Invalid date \"%1\"").arg(input.toString()));
     }
     const auto formatBytes = arg.toString().toStdString();
     const char *formatCstr = formatBytes.c_str();
