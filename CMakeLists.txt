@@ -3,7 +3,7 @@ project(CppLiquid)
 
 option(CPPLIQUID_TESTS "Build tests" ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 macro(add_exe STRING_TYPE)
