@@ -716,6 +716,12 @@ Data sort_natural(const Data& input, const std::vector<Data>& args)
 
 bool string_to_date(const std::string& input, struct ::tm& tm)
 {
+    if (input == "now" || input == "today") {
+        const std::time_t now = std::time(nullptr);
+        tm = *::gmtime(&now);
+        return true;
+    }
+
     const char *cstr = input.c_str();
     int year = 0;
     int month = 0;
@@ -756,7 +762,7 @@ Data date(const Data& input, const std::vector<Data>& args)
         return input;
     }
     struct ::tm tm;
-    if (!string_to_date(input.toString().toStdString().c_str(), tm)) {
+    if (!string_to_date(input.toString().toLower().toStdString().c_str(), tm)) {
         return nullptr;
     }
     const auto formatBytes = arg.toString().toStdString();
@@ -1314,6 +1320,13 @@ TEST_CASE("Liquid::StandardFilters") {
         CHECK(date("2006-07-05", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
         CHECK(date("2006-07-05 10:00:00", {"%m/%d/%Y"}).toString().toStdString() == "07/05/2006");
         CHECK(date("2006-07-05 10:32:11", {"%m/%d/%Y %H.%M.%S"}).toString().toStdString() == "07/05/2006 10.32.11");
+
+        const auto now = ::time(nullptr);
+        const auto tm = ::localtime(&now);
+        const auto current_year = std::to_string(tm->tm_year + 1900);
+        CHECK(date("now", {"%Y"}) == current_year);
+        CHECK(date("today", {"%Y"}) == current_year);
+        CHECK(date("Today", {"%Y"}) == current_year);
     }
 }
 
